@@ -29,7 +29,7 @@ s = socket( AF_INET, SOCK_STREAM )  # create a TCP socket
 try:
     s.connect((serverHost, serverPort)) # connect to server on the port
 except:
-    print "Unable to connect to server specified."
+    print "Unable to connect to server specified. %s" % serverHost
     
 while 1:
     filename = input("Please enter name of file to transfer: ")
