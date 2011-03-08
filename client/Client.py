@@ -2,7 +2,7 @@ import sys
 from socket import *
 
 serverHost = '127.0.0.1'          # servername is localhost
-serverPort = 2000                 # use arbitrary port > 1024
+serverPort = 30000                 # use arbitrary port > 1024
 fileName = "README"               # read in file
 
 #send file to server
