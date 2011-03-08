@@ -22,13 +22,14 @@ for opt, val in optlist:
             """
     elif opt == "-s" or opt == "--server":
         serverHost = val
+	print "`%s`" % serverHost
     elif opt == "-p" or opt == "--port":
-        serverPort = val
+        serverPort = int(val)
             
 s = socket( AF_INET, SOCK_STREAM )  # create a TCP socket
 
 try:
-    s.connect(('localhost', 30000)) # connect to server on the port
+    s.connect((serverHost, serverPort)) # connect to server on the port
     
     while 1:
         filename = input("Please enter name of file to transfer: ")
