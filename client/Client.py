@@ -36,5 +36,14 @@ try:
         data = s.recv(1024)                 # receive up to 1K bytes
         print data
 except:
-    print "Unable to connect to server specified."
+<<<<<<< HEAD
+    print "Unable to connect to server specified. %s" % serverHost
     
+=======
+    print "Unable to connect to server specified. %s" % serverHost
+    
+while 1:
+    filename = input("Please enter name of file to transfer: ")
+    sendFile()                          # send the data
+    data = s.recv(1024)                 # receive up to 1K bytes
+    print data
