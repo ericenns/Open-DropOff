@@ -12,6 +12,7 @@ def sendFile():
         s.send(line)
     f.close()
     print "hi"
+    
 #Parsing options specified in command line
 for opt, val in optlist:
     if opt == "-o" or opt == "--options":
@@ -27,12 +28,13 @@ for opt, val in optlist:
 s = socket( AF_INET, SOCK_STREAM )  # create a TCP socket
 
 try:
-    s.connect((serverHost, serverPort)) # connect to server on the port
+    s.connect(('localhost', '30000')) # connect to server on the port
+    
+    while 1:
+        filename = input("Please enter name of file to transfer: ")
+        sendFile()                          # send the data
+        data = s.recv(1024)                 # receive up to 1K bytes
+        print data
 except:
     print "Unable to connect to server specified."
     
-while 1:
-    filename = input("Please enter name of file to transfer: ")
-    sendFile()                          # send the data
-    data = s.recv(1024)                 # receive up to 1K bytes
-    print data
