@@ -9,10 +9,8 @@ optlist, args = getopt.getopt(sys.argv[1:], 's:p:o', ['server', 'port', 'options
 def sendFile(sock, filename):
     f = open(filename,"rb")
     sock.send("PUSH\r\n%s\r\n" % filename)
-    sock.send("SOMEDATA")
     for line in f:
         sock.send(line)
-        print "Lines weeeee %s" % line
     f.close()
     
 #Parsing options specified in command line
