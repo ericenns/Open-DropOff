@@ -6,8 +6,9 @@ from socket import *
 optlist, args = getopt.getopt(sys.argv[1:], 's:p:o', ['server', 'port', 'options'] )
 
 #send file to server
-def sendFile():
-    f = open(fileName,"rb")
+def sendFile(filename):
+    f = open(filename,"rb")
+    s.send("PUSH %s" % filename)
     for line in f:
         s.send(line)
     f.close()
@@ -33,7 +34,7 @@ try:
     
     while 1:
         filename = input("Please enter name of file to transfer: ")
-        sendFile()                          # send the data
+        sendFile(filename)                          # send the data
         data = s.recv(1024)                 # receive up to 1K bytes
         print data
 except:
