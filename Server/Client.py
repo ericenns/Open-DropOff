@@ -9,14 +9,14 @@ SENDSIZE = 100
 
 #send file to server
 def sendFile(sock,filename):
-    f = open(fileName,"rb")
+    f = open(filename,"rb")
     sock.send("PUSH\r\n%s\r\n" % filename)
     sock.send("SOMEDATA")
     line = f.read(SENDSIZE)
     while line:
-        sent = s.send(line)
+        sent = sock.send(line)
         while sent != SENDSIZE:
-            sent += s.send(line[sent:])
+            sent += sock.send(line[sent:])
         line = f.read(SENDSIZE)
     f.close()
     
