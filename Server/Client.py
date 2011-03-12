@@ -6,13 +6,15 @@ from socket import *
 optlist, args = getopt.getopt(sys.argv[1:], 's:p:o', ['server', 'port', 'options'] )
 
 #send file to server
-def sendFile(filename):
-    f = open(filename,"rb")
-    s.send("PUSH %s" % filename)
-    for line in f:
-        s.send(line)
+def sendFile():
+    f = open(fileName,"rb")
+    line = f.read(SENDSIZE)
+    while line:
+        sent = s.send(line)
+        while sent != SENDSIZE:
+            sent += s.send(line[sent:])
+        line = f.read(SENDSIZE)
     f.close()
-    print "hi"
     
 #Parsing options specified in command line
 for opt, val in optlist:
