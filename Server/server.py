@@ -35,22 +35,26 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     override the handle() method to implement communication to the
     client.
     """
-
+        
     def handle(self):
         # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(1024).strip()
-        print self.data
+        self.data = self.request.recv(1048576)
         command, arguments = self.data.split("\r\n", 1)
         if(command == "PUSH"):
-            filename, content = arguments.split("\r\n", 1)
-            print content
-            while 1:
-                content = self.request.recv(1024).strip()
+            try:
+                filename, content = arguments.split("\r\n", 1)
+                print content
+            except:
+                filename = arguments
+            #content = self.request.recv(80).strip()
+            #while 1:
+            #    content = self.request.recv(1048576)
+            #    if not content:
+            #        break
+            #    print content
+                #self.request.send("Received")
                 
-                if not content:
-                    break
-                else:
-                    print content
+                #content = self.request.recv(80).strip()
             # just send back the same data, but upper-cased
             self.request.send("Received %s" % filename)
             self.request.close()
@@ -65,5 +69,6 @@ if __name__ == "__main__":
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     print "Running..."
+    server.timeout = 60
     server.serve_forever()
     
