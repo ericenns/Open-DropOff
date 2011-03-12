@@ -39,17 +39,24 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
-        command = self.data[:4]
+        print self.data
+        command, content = self.data.split("\r\n", 1)
         if(command == "PUSH"):
-            filename = self.data[5:]
-            print "%s sending: %s" % (self.client_address[0], filename)
-        
+            filename, content = content.split("\r\n", 1)
+            print content
             while 1:
-                self.data = self.request.recv(1024).strip()
-                print self.data
+                print "WHILE TIME"
+                content = self.request.recv(1024).strip()
+                
+                if not content:
+                    break
+                else:
+                    print content
             # just send back the same data, but upper-cased
             self.request.send("Received %s" % filename)
-
+            self.request.close()
+            print "Finished!"
+            
 if __name__ == "__main__":
     HOST, PORT = "localhost", 30000
 
