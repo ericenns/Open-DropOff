@@ -30,3 +30,24 @@ class DatabaseConnection(object):
         self.conn = MySQLdb.connect("localhost", user = username, passwd = password, db = database)
         print("connected!!! Yay")
         
+    def disconnect(self):
+        '''
+        Closes the database connection. This should be called when client exits.
+        '''
+        self.conn.close();
+        
+    def execute(self, sql):
+        '''
+        Executes sql code
+        '''
+        '''
+        TODO: write code...
+        '''
+        
+    def getResults(self):
+        '''
+        Gets the results of the last executed query
+        '''
+        '''
+        TODO: write code...
+        '''
