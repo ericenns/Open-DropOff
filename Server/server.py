@@ -46,7 +46,11 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
             while 1:
                 self.data = self.request.recv(1024).strip()
-                print self.data
+                
+                if self.data:
+                    print self.data
+                else:
+                    break
             # just send back the same data, but upper-cased
             self.request.send("Received %s" % filename)
 
