@@ -5,6 +5,8 @@ from socket import *
 #Reading in options from the command line
 optlist, args = getopt.getopt(sys.argv[1:], 's:p:o', ['server', 'port', 'options'] )
 
+SENDSIZE = 100
+
 #send file to server
 def sendFile():
     f = open(fileName,"rb")
