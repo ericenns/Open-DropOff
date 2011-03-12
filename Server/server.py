@@ -40,12 +40,11 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
         print self.data
-        command, content = self.data.split("\r\n", 1)
+        command, arguments = self.data.split("\r\n", 1)
         if(command == "PUSH"):
-            filename, content = content.split("\r\n", 1)
+            filename, content = arguments.split("\r\n", 1)
             print content
             while 1:
-                print "WHILE TIME"
                 content = self.request.recv(1024).strip()
                 
                 if not content:
