@@ -16,33 +16,38 @@ class DatabaseConnection(object):
     '''
     classdocs
     '''
-
+    
+    db = ""         #db connection
+    cursor = ""     #cursor (you need this to execute sql comment
+    data = ""       #data   (this will return tupples from the database
 
     def __init__(self):
         '''
         Constructor
         '''
+        self.connect('username','password','opendropoff')
         
     def connect(self, username, password, database):
         '''
         Connects to the database using the given creditials. To disconnect call disconnect
-        '''
-        self.conn = MySQLdb.connect("localhost", user = username, passwd = password, db = database)
-        print("connected!!! Yay")
+        ''' 
+        #db = MySQLdb.connect("localhost", "username", "password", "database")         #database connection
+        #
+        self.db = MySQLdb.connect("localhost",username,password,database)
+        self.cursor = self.db.cursor()
         
     def disconnect(self):
         '''
         Closes the database connection. This should be called when client exits.
         '''
-        self.conn.close();
+        self.db.close();
         
     def execute(self, sql):
         '''
         Executes sql code
         '''
-        '''
-        TODO: write code...
-        '''
+        self.cursor.execute(sql)
+        self.db.commit()
         
     def getResults(self):
         '''
@@ -51,3 +56,38 @@ class DatabaseConnection(object):
         '''
         TODO: write code...
         '''
+    
+    def fetchOne(self):
+        data = self.cursor.fetchone()
+        return data
+    
+    def fetchAll(self):
+        data = self.cursor.fetchall()
+        return data
+    
+    def createTable(self):
+        sql = '''CREATE TABLE users (username VARCHAR(255) PRIMARY KEY, passwordHash CHAR(64)) ENGINE = INNODB;'''
+        self.execute(sql)
+        sql = '''CREATE TABLE files (fileID BIGINT AUTO_INCREMENT PRIMARY KEY, filename VARCHAR(255) NOT NULL, path VARCHAR(4096) NOT NULL, last_modified TIMESTAMP, last_author VARCHAR(255), version TINYINT, parent BIGINT,
+        FOREIGN KEY (parent) REFERENCES files(fileID)) ENGINE = INNODB;'''
+        self.execute(sql)
+        sql = '''CREATE TABLE users_files(
+                    username VARCHAR(255) NOT NULL, 
+                    fileID BIGINT NOT NULL,
+                    FOREIGN KEY (username) REFERENCES users(username),
+                    FOREIGN KEY (fileID) REFERENCES files(fileID),
+                    PRIMARY KEY (username, fileID)) ENGINE = INNODB;
+                    '''
+        self.execute(sql)
+        print 'tables created'
+        
+    def deleteTable(self):
+        sql = '''DROP TABLE users_files'''
+        self.execute(sql)
+        sql = '''DROP TABLE users'''
+        self.execute(sql)
+        sql = '''DROP TABLE files'''
+        self.execute(sql)
+
+        print 'table deleted'
+        

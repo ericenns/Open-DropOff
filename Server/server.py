@@ -27,6 +27,8 @@
 import SocketServer
 import re
 
+RECEIVESIZE = 100
+
 class ODOTCPHandler(SocketServer.BaseRequestHandler):
     """
     The RequestHandler class for our server.
@@ -35,27 +37,45 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     override the handle() method to implement communication to the
     client.
     """
-
+        
     def handle(self):
         # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(1024).strip()
-        print self.data
-        command, content = self.data.split("\r\n", 1)
+        # get the protocol option
+        self.data = self.request.recv(80)
+        command, arguments = self.data.split("\r\n", 1)
         if(command == "PUSH"):
-            filename, content = content.split("\r\n", 1)
-            print content
-            while 1:
-                print "WHILE TIME"
-                content = self.request.recv(1024).strip()
+            # get the filename and filesize then tell the client to continue
+            filename, filesize = arguments.split("\r\n", 1)
+            filesize = int(filesize)
+            print "filesize: ", filesize
+            # I am not sure what we send back
+            self.request.send("Onward")
+            
+            #write the files to a test sub-directory prevents 
+            #clogging up the server folder with random test files
+            #newfile = open("./testfiles/" + filename, "wb")
+            newfile = open(filename, "wb")
+            
+            #receives 100 bytes of the file at a time, loops until
+            #the whole file is received
+            #content = self.request.recv(filesize)
+            totalReceived = -1
+            
+            while totalReceived <= filesize:
+                if( totalReceived == -1 ):
+                    totalReceived =  0
+                print "looping!"
                 
-                if not content:
-                    break
-                else:
-                    print content
-            # just send back the same data, but upper-cased
+                content = self.request.recv(RECEIVESIZE)
+                totalReceived += RECEIVESIZE
+                newfile.write(content)
+
+            newfile.close() #close the file
+            
+            #send a response to the client
             self.request.send("Received %s" % filename)
             self.request.close()
-            print "Finished!"
+            print "Finished!\n"
             
 if __name__ == "__main__":
     HOST, PORT = "localhost", 30000
@@ -66,5 +86,6 @@ if __name__ == "__main__":
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     print "Running..."
+    #server.timeout = 60
     server.serve_forever()
     
