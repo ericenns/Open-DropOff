@@ -25,7 +25,7 @@ class DatabaseConnection(object):
         '''
         Constructor
         '''
-        self.connect('username','password','opendropoff')
+        self.connect('euwern','Kr749ykw','opendropoff')
         
     def connect(self, username, password, database):
         '''
@@ -47,6 +47,7 @@ class DatabaseConnection(object):
         Executes sql code
         '''
         self.cursor.execute(sql)
+        self.db.commit()
         
     def getResults(self):
         '''
@@ -57,7 +58,7 @@ class DatabaseConnection(object):
         '''
     
     def fetchOne(self):
-        data = cursor.fetchone()
+        data = self.cursor.fetchone()
         return data
     
     def fetchAll(self):
