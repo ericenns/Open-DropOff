@@ -25,7 +25,7 @@ class DatabaseConnection(object):
         '''
         Constructor
         '''
-        self.connect('euwern','Kr749ykw','opendropoff')
+        self.connect('username','password','opendropoff')
         
     def connect(self, username, password, database):
         '''
