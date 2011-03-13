@@ -38,17 +38,22 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
     def handle(self):
         # self.request is the TCP socket connected to the client
+        # get the protocol option
         self.data = self.request.recv(80)
-        print self.data
         command, arguments = self.data.split("\r\n", 1)
         if(command == "PUSH"):
+            # get the filename and filesize then tell the client to continue
             filename, filesize = arguments.split("\r\n", 1)
             filesize = int(filesize)
+            # I am not sure what we send back
             self.request.send("Onward")
             
+            #receive the entire file at once
+            #could be split into a loop only reading a certain number of bytes at a time
             content = self.request.recv(filesize)
             print content
             
+            #send a response to the client
             self.request.send("Received %s" % filename)
             self.request.close()
             print "Finished!"
