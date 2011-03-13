@@ -1,6 +1,7 @@
 import socket
 import sys
 import getopt
+import os
 
 SENDSIZE = 100
 
@@ -29,22 +30,30 @@ def main():
         sock.connect((serverHost, serverPort)) # connect to server on the port
        # while 1:
         filename = raw_input("Please enter name of file to transfer: ")
-        sendFile(sock, filename)
-        #data = sock.recv(1024)                 # receive up to 1K bytes
-        #sock.close()
-        #print data
+        filesize = os.path.getsize(filename)
+        sendFile(sock, filename, filesize)
+        data = sock.recv(1024)                 # receive up to 1K bytes
+        sock.close()
+        print data
     except:
         print "Unable to connect to server specified. %s" % serverHost
            
 #send file to server
-def sendFile(sock,filename):
+def sendFile(sock,filename, filesize):
     f = open(filename,"rb")
-    data = f.read()
-    f.close()
-    sock.send("PUSH\r\n%s\r\n%s" % (filename, data))
-    reply = sock.recv(1024)                 # receive up to 1K bytes
+    sock.send("PUSH\r\n%s\r\n%d" % (filename, filesize))
+    reply = sock.recv(80)
     print reply
-    sock.close()
+    
+    line = f.read(SENDSIZE)
+    while line:
+        print line
+        sent = sock.send(line)
+        while sent != SENDSIZE:
+            sent += sock.send(line[sent:])
+        line = f.read(SENDSIZE)
+    print "bitch"
+    f.close()
         
 if __name__ == "__main__":
     main()
