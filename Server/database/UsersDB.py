@@ -3,12 +3,17 @@ Created on 2011-03-11
 
 @author: Michael Yagudaev
 '''
-import DatabaseConnection
+from DatabaseConnection import *
 
 class UsersDB:
     '''
     All operations and data associated with a user in the database.
     '''
+    dbConnection = ""
+    
+    def __init__(self):
+        dbConnection = DatabaseConnection()
+        
     def getFiles(self, conn, username):
         '''
         Gets all the files a user has in their dropoff box
@@ -56,3 +61,24 @@ class UsersDB:
         '''
         TODO: write code...
         '''
+    def connect(self):
+        self.dbConnection = DatabaseConnection()
+        print "connected"
+    
+    def disconnect(self):
+        self.dbConnection.disconnect()
+        print "disconnected"
+    
+    def getAllUser(self):
+        tableName = 'students'
+        self.dbConnection.execute('SELECT * FROM ' + tableName)
+        data = self.dbConnection.fetchAll()
+        return data
+    
+    def createTable(self):
+        self.dbConnection.createTable()
+    
+    def deleteTable(self):
+        self.dbConnection.deleteTable()
+    
+        
