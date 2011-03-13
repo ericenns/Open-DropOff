@@ -47,9 +47,8 @@ def sendFile(sock,filename, filesize):
     
     line = f.read(SENDSIZE)
     while line:
-        print line
         sent = sock.send(line)
-        while sent != SENDSIZE:
+        while sent != len(line):
             sent += sock.send(line[sent:])
         line = f.read(SENDSIZE)
     print "bitch"
