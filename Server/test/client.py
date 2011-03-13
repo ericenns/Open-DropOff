@@ -33,7 +33,7 @@ def main():
             filesize = os.path.getsize(filename)
             sendFile(sock, filename, filesize)
             data = sock.recv(80)                 # receive up to 1K bytes
-            sock.close()
+            #sock.close()
             print data
     except:
         print "Unable to connect to server specified. %s" % serverHost
@@ -42,7 +42,7 @@ def main():
 def sendFile(sock,filename, filesize):
     f = open(filename,"rb")
     sock.send("PUSH\r\n%s\r\n%d" % (filename, filesize))
-    # wait for a reponse then start sending the file
+    # wait for a response then start sending the file
     reply = sock.recv(80)
     print reply
     

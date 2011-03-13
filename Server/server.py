@@ -27,6 +27,8 @@
 import SocketServer
 import re
 
+RECEIVESIZE = 100
+
 class ODOTCPHandler(SocketServer.BaseRequestHandler):
     """
     The RequestHandler class for our server.
@@ -45,18 +47,35 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             # get the filename and filesize then tell the client to continue
             filename, filesize = arguments.split("\r\n", 1)
             filesize = int(filesize)
+            print "filesize: ", filesize
             # I am not sure what we send back
             self.request.send("Onward")
             
-            #receive the entire file at once
-            #could be split into a loop only reading a certain number of bytes at a time
-            content = self.request.recv(filesize)
-            print content
+            #write the files to a test sub-directory prevents 
+            #clogging up the server folder with random test files
+            #newfile = open("./testfiles/" + filename, "wb")
+            newfile = open(filename, "wb")
+            
+            #receives 100 bytes of the file at a time, loops until
+            #the whole file is received
+            #content = self.request.recv(filesize)
+            totalReceived = -1
+            
+            while totalReceived <= filesize:
+                if( totalReceived == -1 ):
+                    totalReceived =  0
+                print "looping!"
+                
+                content = self.request.recv(RECEIVESIZE)
+                totalReceived += RECEIVESIZE
+                newfile.write(content)
+
+            newfile.close() #close the file
             
             #send a response to the client
             self.request.send("Received %s" % filename)
             self.request.close()
-            print "Finished!"
+            print "Finished!\n"
             
 if __name__ == "__main__":
     HOST, PORT = "localhost", 30000
@@ -67,6 +86,6 @@ if __name__ == "__main__":
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     print "Running..."
-    server.timeout = 60
+    #server.timeout = 60
     server.serve_forever()
     
