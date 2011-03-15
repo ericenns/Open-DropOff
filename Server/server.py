@@ -31,7 +31,7 @@ import re
 RECEIVESIZE = 100
 
 config = ConfigParser.ConfigParser()
-config.readfp(opend('odo-server.cfg'))
+config.readfp(open('odo-server.cfg'))
 
 class ODOTCPHandler(SocketServer.BaseRequestHandler):
     """
