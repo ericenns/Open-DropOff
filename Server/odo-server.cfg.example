@@ -1,5 +1,5 @@
 [Network]
-interface: 172.0.0.1
+host: 172.0.0.1
 port: 30000
 
 [Storage]
@@ -8,6 +8,7 @@ files: /files
 logs: /log
 
 [Database]
+host: localhost
 database: open-dropoff
 user: username
 pass: password
