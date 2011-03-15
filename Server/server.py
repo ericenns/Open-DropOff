@@ -25,9 +25,13 @@
 #    connection.close()
 
 import SocketServer
+import ConfigParser
 import re
 
 RECEIVESIZE = 100
+
+config = ConfigParser.ConfigParser()
+config.readfp(opend('odo-server.cfg'))
 
 class ODOTCPHandler(SocketServer.BaseRequestHandler):
     """
@@ -78,7 +82,9 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             print "Finished!\n"
             
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 30000
+    #HOST, PORT = "localhost", 30000
+    HOST = config.get(Network, interface)
+    PORT = config.get(Network, port)
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)

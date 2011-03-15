@@ -1,0 +1,13 @@
+[Network]
+interface: 172.0.0.1
+port: 30000
+
+[Storage]
+basedir: /home/dropoff
+files: /files
+logs: /log
+
+[Database]
+database: open-dropoff
+user: username
+pass: password
