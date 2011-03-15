@@ -83,8 +83,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
-    HOST = config.get(Network, interface)
-    PORT = config.get(Network, port)
+    HOST = config.get("Network", "interface")
+    PORT = config.get("Network", int, "port")
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)
