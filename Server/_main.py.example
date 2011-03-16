@@ -1,0 +1,35 @@
+'''
+This file does some adhoc testing for the DB OpenDropOff API and demonstrates
+some possible uses. WARNING: use this file with caution, it is not designed to
+be a complete example and may be outdated. UnitTest should be used instead when
+they are ready.
+'''
+from database import *
+from database.DatabaseConnection import DatabaseConnection
+from database.UsersDB import UsersDB
+
+conn = DatabaseConnection()
+conn.connect("localhost", "username", "pass", "dbname")
+x = UsersDB(conn)
+#data = x.getAllUser()
+#x.removeUser("user3")
+
+x.addUser("user1","123")
+x.removeUser("user1")
+x.addUser("user3", "234")
+result = x.authenticate("user2","234")
+print result
+
+x.addFile("user3" , 1, "file_1", "c:/samplefolder/file_1.html", "user3", "NULL", 1)
+x.addFile("user3" , 2, "file_2", "c:/samplefolder/file_2.html", "user3", "NULL", 1)
+fileinfo = x.getFile("user2", "c:/samplefolder/file_1.html")
+print fileinfo
+
+files = x.getFiles("user2")
+print files
+
+## clean up
+#x.removeUser("user3")
+conn._execute("TRUNCATE TABLE users_files")
+conn._execute("TRUNCATE TABLE files")
+conn._execute("TRUNCATE TABLE users")
