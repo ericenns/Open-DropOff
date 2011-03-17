@@ -29,7 +29,7 @@ class UsersDB:
     def authenticate(self, username, password):
         '''
         Returns true of false depending if the user passed authentication after
-        information was retrived from the DB.
+        information was retrieved from the DB.
         '''
         sql = "SELECT passwordHash FROM users "
         sql = sql + " WHERE username = %s "
@@ -53,11 +53,31 @@ class UsersDB:
         
         self._conn._execute(sql, username, password)
         
-    def updateUser(self, username, password):
+    def updateUsername(self, newUsername, username, password):
         '''
-        Update an existing user
+        Update an existing username
         '''
-        ''' TODO: write method '''
+        sql = "UPDATE users "
+        sql = sql + " SET username = %s"
+        sql = sql + " WHERE username = %s AND password = %s"
+        
+        try:
+            self._conn._execute(sql, username, password)
+        except:
+            print sys.exc_info()[1]; #Username, password not found
+      
+    def updatePassword(self, newPassword, username, password):
+        '''
+        Update an existing user password
+        '''
+        sql = "UPDATE users "
+        sql = sql + " SET passwordHash = %s"
+        sql = sql + " WHERE username = %s AND password = %s"
+        
+        try:
+            self._conn._execute(sql, username, password)
+        except:
+            print sys.exc_info()[1];
         
     def removeUser(self, username):
         '''
@@ -75,6 +95,7 @@ class UsersDB:
         ''' TODO: kill fileID and let it use the auto increment...'''
         ''' TODO: filename and path can be merged into one... '''
         ''' TODO: wrap in transaction! '''
+        
         sql = "INSERT INTO files "
         sql = sql + " ( fileID, filename, path , last_author, last_modified, version) "
         sql = sql + " VALUES ( %s, %s, %s , %s, %s, %s ) "
@@ -90,7 +111,7 @@ class UsersDB:
         '''
         Gets a file based on a the file path given. The system will also make sure 
         the user has permissions to access this file. An exception will be thrown if
-        the user is unautorized to access the file. 
+        the user is unauthorised to access the file. 
         '''
         
         sql = "SELECT * FROM users_files uf, files f "
