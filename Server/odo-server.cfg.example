@@ -1,0 +1,14 @@
+[Network]
+host: 127.0.0.1
+port: 30000
+
+[Storage]
+basedir: /home/dropoff
+files: /files
+logs: /log
+
+[Database]
+host: localhost
+database: open-dropoff
+user: username
+pass: password

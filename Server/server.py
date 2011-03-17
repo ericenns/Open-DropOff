@@ -25,9 +25,17 @@
 #    connection.close()
 
 import SocketServer
+import ConfigParser
 import re
 
+#from database import *
+#from database.DatabaseConnection import DatabaseConnection
+#from database.UsersDB import UsersDB
+
 RECEIVESIZE = 100
+
+config = ConfigParser.ConfigParser()
+config.readfp(open('odo-server.cfg'))
 
 class ODOTCPHandler(SocketServer.BaseRequestHandler):
     """
@@ -48,8 +56,16 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             filename, filesize = arguments.split("\r\n", 1)
             filesize = int(filesize)
             print "filesize: ", filesize
-            # I am not sure what we send back
-            self.request.send("Onward")
+            #echoing data for now, may be useful
+            self.request.send(self.data)
+            
+            #authenticate user information
+            self.data = self.request.recv(80)
+            userN, password = self.data.split("\r\n", 1)
+            
+            #verify user
+            
+            #verity password
             
             #write the files to a test sub-directory prevents 
             #clogging up the server folder with random test files
@@ -64,7 +80,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             while totalReceived <= filesize:
                 if( totalReceived == -1 ):
                     totalReceived =  0
-                print "looping!"
+                #print "looping!"
                 
                 content = self.request.recv(RECEIVESIZE)
                 totalReceived += RECEIVESIZE
@@ -78,10 +94,18 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             print "Finished!\n"
             
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 30000
+    #HOST, PORT = "localhost", 30000
+    HOST = config.get("Network", "host")
+    PORT = config.getint("Network", "port")
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)
+    
+    #connect to user database
+    #userconnect = DatabaseConnection.__init__()
+    #userconnect.connect(HOST,"User","Pass","UsersDB")
+    #userdb = UsersDB.__init__(userconnect)
+    #userdb.connect()
 
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C

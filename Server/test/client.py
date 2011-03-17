@@ -3,6 +3,7 @@ import sys
 import getopt
 import os
 
+RECEIVESIZE = 100
 SENDSIZE = 100
 
 def main():
@@ -46,6 +47,8 @@ def sendFile(sock,filename, filesize):
     reply = sock.recv(80)
     print reply
     
+    sock.send("%s\r\n%s" % ("JohnDoe","homie4life"))
+    
     line = f.read(SENDSIZE)
     while line:
         sent = sock.send(line)
@@ -54,5 +57,37 @@ def sendFile(sock,filename, filesize):
         line = f.read(SENDSIZE)
     f.close()
         
+def sendUser(sock, username):
+    sock.send("USER %s" % username)
+    #Could encrypt this as well
+    
+def sendPass(sock, password):
+    sock.send("PASS %s" % password)
+    #Should add encryption at this point
+    
+def sendListRequest(sock):
+    sock.send("LIST")
+    #should figure out what format contents list should have
+    
+def sendPullRequest(sock, filename):
+    sock.send("PULL\r\n%s" % filename)
+    newfile = open(filename, "wb")
+    
+    #receives 100 bytes of the file at a time, loops until
+    #the whole file is received
+    #content = self.request.recv(filesize)
+    totalReceived = -1
+    
+    while totalReceived <= filesize:
+        if( totalReceived == -1 ):
+            totalReceived =  0
+            #print "looping!"
+            
+            content = sock.recv(RECEIVESIZE)
+            totalReceived += RECEIVESIZE
+            newfile.write(content)
+    
+    newfile.close()
+    
 if __name__ == "__main__":
     main()

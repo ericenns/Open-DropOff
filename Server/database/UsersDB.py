@@ -9,24 +9,21 @@ class UsersDB:
     '''
     All operations and data associated with a user in the database.
     '''
-    dbConnection = ""
     
-    def __init__(self):
-        dbConnection = DatabaseConnection()
+    def __init__(self, conn):
+        self._conn = conn
         
     def getFiles(self, username):
         '''
         Gets all the files a user has in their dropoff box
         '''
-        usersFiles = "users_files"
-        files = "files"
         
-        sql = "SELECT * FROM " + usersFiles + " uf "+"," + files + " f "
-        sql = sql + "WHERE uf.fileID = f.fileID" 
-        sql = sql + " AND uf.username = " + "'" + username + "'"
+        sql = "SELECT * FROM users_files uf, files f "
+        sql = sql + "WHERE uf.fileID = f.fileID " 
+        sql = sql + " AND uf.username = %s "
         
-        self.dbConnection.execute(sql)
-        data = self.dbConnection.fetchAll()
+        self._conn._execute(sql, username)
+        data = self._conn._fetchAll()
         return data
         
     def authenticate(self, username, password):
@@ -34,59 +31,60 @@ class UsersDB:
         Returns true of false depending if the user passed authentication after
         information was retrived from the DB.
         '''
-        tableName = 'users'
-        sql = "SELECT passwordHash FROM " + tableName
-        sql = sql + " WHERE username = " + "'" + username + "'"
-        self.dbConnection.execute(sql)
-        data = self.dbConnection.fetchOne()  
-        userPassword = data[0]
-        if password == userPassword:
-            return True
-        else:
-            return False   
+        sql = "SELECT passwordHash FROM users "
+        sql = sql + " WHERE username = %s "
+        self._conn._execute(sql, username)
+        data = self._conn._fetchOne()
+        
+        if data != None:  
+            userPassword = data[0]
+            if password == userPassword:
+                return True
+            
+        return False   
         
     def addUser(self, username, password):
         '''
         Adds a user to the database
         '''
-        tableName = 'users'
-        sql = "INSERT INTO " + tableName
-        sql = sql + " ( username, passwordHash)"
-        sql = sql + " VALUES ( '" + username + "' , " + password + " ) "
+        sql = "INSERT INTO users "
+        sql = sql + " ( username, passwordHash) "
+        sql = sql + " VALUES ( %s , %s ) "
         
-        self.dbConnection.execute(sql)
+        self._conn._execute(sql, username, password)
         
+    def updateUser(self, username, password):
+        '''
+        Update an existing user
+        '''
+        ''' TODO: write method '''
         
     def removeUser(self, username):
         '''
         Remove a user from the database.
         '''
-        tableName = 'users'
-        sql = "DELETE FROM " + tableName
-        sql = sql + " WHERE username = " + "'" + username + "'" 
+        sql = "DELETE FROM users "
+        sql = sql + " WHERE username = %s " 
 
-        self.dbConnection.execute(sql)
+        self._conn._execute(sql, username)
         
-    def addFile(self, username, fileID, filename , path , last_author , version):
+    def addFile(self, username, fileID, filename , path , lastAuthor, lastModified, version):
         '''
-        Add a file to a specific users drop off account
+        Add a file to a specific users drop off account.
         '''
-        tableName = 'files'
-        sql = "INSERT INTO " + tableName
-        sql = sql + " ( fileID, filename, path , last_author, version )"
-        sql = sql + " VALUES ( " + fileID +" , '" + filename + "'"
-        sql = sql + ", '" + path + "' , '" + last_author + "'"
-        sql = sql + ",  " + version
-        sql = sql + " ) "
-        self.dbConnection.execute(sql)
+        ''' TODO: kill fileID and let it use the auto increment...'''
+        ''' TODO: filename and path can be merged into one... '''
+        ''' TODO: wrap in transaction! '''
+        sql = "INSERT INTO files "
+        sql = sql + " ( fileID, filename, path , last_author, last_modified, version) "
+        sql = sql + " VALUES ( %s, %s, %s , %s, %s, %s ) "
+        self._conn._execute(sql, fileID, filename, path, lastAuthor, lastModified, version)
         
+        sql = "INSERT INTO users_files "
+        sql = sql + " ( username, fileID) "
+        sql = sql + " VALUES ( %s , %s ) "
         
-        tableName = "users_files"
-        sql = "INSERT INTO " + tableName
-        sql = sql + " ( username, fileID)"
-        sql = sql + " VALUES ( '" + username + "' , " + fileID + " ) "
-        
-        self.dbConnection.execute(sql)
+        self._conn._execute(sql, username, fileID)
         
     def getFile(self, username, path):
         '''
@@ -94,35 +92,18 @@ class UsersDB:
         the user has permissions to access this file. An exception will be thrown if
         the user is unautorized to access the file. 
         '''
-        usersFiles = "users_files"
-        files = "files"
         
-        sql = "SELECT * FROM " + usersFiles + " uf "+"," + files + " f "
-        sql = sql + "WHERE uf.fileID = f.fileID AND f.path =" + "'" + path + "'"
-        sql = sql + " AND uf.username = " + "'" + username + "'"
+        sql = "SELECT * FROM users_files uf, files f "
+        sql = sql + "WHERE uf.fileID = f.fileID AND f.path = %s "
+        sql = sql + " AND uf.username = %s"
         
-        self.dbConnection.execute(sql)
-        data = self.dbConnection.fetchOne()
+        self._conn._execute(sql, path, username)
+        data = self._conn._fetchOne()
         return data
-        
-    def connect(self):
-        self.dbConnection = DatabaseConnection()
-        print "connected"
-    
-    def disconnect(self):
-        self.dbConnection.disconnect()
-        print "disconnected"
     
     def getAllUser(self):
-        tableName = 'students'
-        self.dbConnection.execute('SELECT * FROM ' + tableName)
-        data = self.dbConnection.fetchAll()
+        self._conn._execute('SELECT * FROM students')
+        data = self._conn._fetchAll()
         return data
-    
-    def createTable(self):
-        self.dbConnection.createTable()
-    
-    def deleteTable(self):
-        self.dbConnection.deleteTable()
     
         
