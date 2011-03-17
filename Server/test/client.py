@@ -46,6 +46,8 @@ def sendFile(sock,filename, filesize):
     reply = sock.recv(80)
     print reply
     
+    sock.send("%s\r\n%s" % ("JohnDoe","homie4life"))
+    
     line = f.read(SENDSIZE)
     while line:
         sent = sock.send(line)
