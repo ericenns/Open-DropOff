@@ -65,13 +65,18 @@ class RequestController(object):
         
     #Sends a listing of contents request to connection
     #params:    sock    connection to send list request to
+    #Returns: list of items returned by the server
     def list(self):
         self.sock.send("LIST")
         #should figure out what format contents list should have
+        contentsList = self.sock.recv(RECEIVESIZE)
+        
+        return contentsList
         
     #Send a request for a file to be pulled from connection
     #params:    sock    connection to have file pulled from
     #            filename    name of file to be pulled and saved
+    #Returns: File data
     def pull(self, filename):
         self.sock.send("PULL\r\n%s" % filename)
         newfile = open(filename, "wb")

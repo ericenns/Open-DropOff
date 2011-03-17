@@ -2,6 +2,7 @@ import socket
 import sys
 import getopt
 import os
+from Controllers import *
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -26,19 +27,17 @@ def main():
                 serverPort = int(val)
     
     sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )  # create a TCP socket
-
-    try:
-        sock.connect((serverHost, serverPort)) # connect to server on the port
-        while 1:
-            filename = raw_input("Please enter name of file to transfer: ")
-            filesize = os.path.getsize(filename)
-            sendFile(sock, filename, filesize)
-            data = sock.recv(80)                 # receive up to 1K bytes
-            #sock.close()
-            print data
-    except:
-        print "Unable to connect to server specified. %s" % serverHost
-           
+    rc = RequestController.RequestController()
+    rc.createConect( serverHost, serverPort)
+    
+    while 1:
+        filename = raw_input("Please enter name of file to transfer: ")
+        filesize = os.path.getsize(filename)
+        rc.sendFile(filename, filesize)
+        #data = sock.recv(80)                 # receive up to 1K bytes
+        #sock.close()
+        #print data
+   
 #send file to server
 def sendFile(sock,filename, filesize):
     f = open(filename,"rb")
