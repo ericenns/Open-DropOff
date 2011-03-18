@@ -71,7 +71,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
-        fullpath = "%s%s\%s" % (BASEDIR,FILEDIR,filename)
+        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
         if(fullpath):
             print "File already exists"
         newfile = open(fullpath, "wb")
