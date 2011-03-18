@@ -59,27 +59,22 @@ def retrieveFile(sock,filename):
     #fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
     sock.send("PULL\r\n%s" % filename)
     arguments = sock.recv(80)
-    print "arguments %s" % arguments
     command, filesize = arguments.split("\r\n", 1)
-    print "FILENAME1: %i" % (filesize)
+    filesize = int(filesize)
     if command == "RECV":
         sock.send("SEND")
         newfile = open(filename, "wb")
         totalReceived = -1
         
-        print "filesize!!!! %i" % filesize
-        
         while totalReceived <= filesize:
             if( totalReceived == -1 ):
                 totalReceived =  0
-            print "looping! %i" % totalReceived
             
             content = sock.recv(RECEIVESIZE)
             totalReceived += RECEIVESIZE
             newfile.write(content)
         
         newfile.close() #close the file
-        print "TEEEEEEST"
     else:
         print "FAILURE!"
     
