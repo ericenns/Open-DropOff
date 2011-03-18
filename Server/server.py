@@ -57,7 +57,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 self.push(arguments)
             elif(command == "PULL"):
                 self.pull(arguments)
-            elif(command == "CLOS");
+            elif(command == "CLOS"):
                 break
         self.request.close()
             
