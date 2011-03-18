@@ -25,6 +25,7 @@
 import SocketServer
 import ConfigParser
 import re
+import os
 
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
@@ -72,7 +73,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
         fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
-        if(fullpath):
+        if(os.path.isfile(fullpath)):
             print "File already exists"
         newfile = open(fullpath, "wb")
         
