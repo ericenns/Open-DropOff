@@ -73,7 +73,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
-        newfile = open(filename, "wb")
+        newfile = open("%s%s\%s" % (BASEDIR,FILEDIR,filename), "wb")
         
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
