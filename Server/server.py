@@ -27,8 +27,6 @@ import ConfigParser
 import re
 import os
 
-import os
-
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
 #from database.UsersDB import UsersDB
@@ -107,7 +105,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         filesize = os.path.getsize(filename)
         print "filename: ", filesize
-        self.request.send("%i" % filesize)
+        self.request.send("RECV\r\n%i" % filesize)
 
             
 if __name__ == "__main__":

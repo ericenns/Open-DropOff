@@ -29,9 +29,11 @@ def main():
 
     try:
         sock.connect((serverHost, serverPort)) # connect to server on the port
-        ppSelection = raw_input("Push or pull? Enter 1 for push, 2 for pull: ")
+        
         
         while 1:
+            ppSelection = raw_input("Push or pull? Enter 1 for push, 2 for pull, q to close: ")
+            
             if ppSelection == "1":
                 filename = raw_input("Please enter name of file to transfer: ")
                 filesize = os.path.getsize(filename)
@@ -42,8 +44,10 @@ def main():
             elif ppSelection == "2":
                 filename = raw_input("Please enter name of file to retrieve: ")
                 retrieveFile(sock,filename)
-            else:
-                print "Invalid input!"
+            elif ppSelection == "q":
+                print "Closing!"
+                sock.send("CLOS\r\n")
+                sock.close()
                 break
         
     except:
@@ -52,10 +56,16 @@ def main():
 #retrieve file from server
 def retrieveFile(sock,filename):
     sock.send("PULL\r\n%s" % (filename))
-    filesize = int(sock.recv(80))
+    arguments = sock.recv(80)
+    command, filesize = arguments.split("\r\n", 1)
     
-    print "FILESIZE ", filesize
-     
+    if command == "RECV":
+        filesize = int(sock.recv(80))
+        print "FILESIZE ", filesize
+    else:
+        print "FAILURE!"
+    
+    
 #send file to server
 def sendFile(sock,filename, filesize):
     f = open(filename,"rb")
