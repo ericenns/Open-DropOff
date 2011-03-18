@@ -55,8 +55,6 @@ def main():
 
 #retrieve file from server
 def retrieveFile(sock,filename):
-    
-    #fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
     sock.send("PULL\r\n%s" % filename)
     arguments = sock.recv(80)
     command, filesize = arguments.split("\r\n", 1)

@@ -26,7 +26,8 @@ import SocketServer
 import ConfigParser
 import re
 import os
-import sys
+import sys
+import md5
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
 #from database.UsersDB import UsersDB
@@ -80,7 +81,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
-        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
+        filename_hash = md5.new(filename).hexdigest()
+        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         if(os.path.isfile(fullpath)):
             print "File already exists"
         newfile = open(fullpath, "wb")
@@ -107,8 +109,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
 
 
     def pull(self, filename):
-        
-        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
+        filename_hash = md5.new(filename).hexdigest()
+        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         
         filesize = os.path.getsize(fullpath)
         print "filename: ", filesize
