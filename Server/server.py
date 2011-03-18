@@ -1,28 +1,26 @@
-#!/usr/bin/python
-#COMMENT!!!!
-#from socket import *
-
-#myHost = 'localhost'             # me
-#myPort = 30000           # arbitrary port
-#myFile = "sentReadme"   # file to write to
-
-#f = open(myFile,"wb")
-#s = socket( AF_INET, SOCK_STREAM )
-#s.bind((myHost,myPort))
-#s.listen(5)
-
-#while 1:
-#    connection, address = s.accept()
-#    print address
-#    while 1:
-#        data = connection.recv(1024)            # receive data from client
-#        if data:
-#            f.write(data)                       # write to file
-#            connection.send('echo -> ' + data)  # echo for confirmation
-#        else:
-#            break
-#    f.close()
-#    connection.close()
+###############################################################################
+# Open DropOff                                                                #
+# Copyright (C) 2011                                                          #
+#                                                                             #
+# Authors:                                                                    #
+#    Eric Enns                                                                #
+#    Travis Martindale                                                        #
+#    Andrew Matsuaka                                                          #
+#    Chris Janssens                                                           #
+#                                                                             #
+# This program is free software: you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+###############################################################################
 
 import SocketServer
 import ConfigParser
@@ -73,7 +71,10 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
-        newfile = open("%s%s\%s" % (BASEDIR,FILEDIR,filename), "wb")
+        fullpath = "%s%s\%s" % (BASEDIR,FILEDIR,filename)
+        if(fullpath):
+            print "File already exists"
+        newfile = open(fullpath, "wb")
         
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
