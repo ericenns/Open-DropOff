@@ -32,6 +32,7 @@ import sys
 #from database.UsersDB import UsersDB
 
 RECEIVESIZE = 100
+SENDSIZE = 100
 
 config = ConfigParser.ConfigParser()
 config.readfp(open('odo-server.cfg'))
@@ -50,6 +51,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         # get the protocol option
         while(1):
             self.data = self.request.recv(80)
+            print "TEST: %s" % self.data
             command, arguments = self.data.split("\r\n", 1)
             if(command == "PUSH"):
                 self.push(arguments)
@@ -106,11 +108,32 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
 
     def pull(self, filename):
         
-        filesize = os.path.getsize(filename)
+        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename)
+        
+        filesize = os.path.getsize(fullpath)
         print "filename: ", filesize
+        
         self.request.send("RECV\r\n%i" % filesize)
-
+        response = self.request.recv(80)
+        
+        print "RESPOSNE! %s" % response
+        if response == "SEND":
+            #start sending the file
             
+            file = open(fullpath, "rb")
+            
+            line = file.read(SENDSIZE)
+            
+            while line:
+                sent = self.request.send(line)
+                while sent != len(line):
+                    sent += self.request.send(line[sent:])
+                line = file.read(SENDSIZE)
+            
+            file.close()
+        else:
+            print "Don't send."
+             
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
     HOST = config.get("Network", "host")
