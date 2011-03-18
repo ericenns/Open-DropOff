@@ -26,8 +26,7 @@ import SocketServer
 import ConfigParser
 import re
 import os
-
-import os
+import sys
 
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
