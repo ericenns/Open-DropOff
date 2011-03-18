@@ -52,7 +52,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         self.data = self.request.recv(80)
         command, arguments = self.data.split("\r\n", 1)
         if(command == "PUSH"):
-            push(arguments)
+            self.push(arguments)
             
     def push(self, arguments):
         # get the filename and filesize then tell the client to continue
