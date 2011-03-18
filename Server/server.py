@@ -103,7 +103,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #send a response to the client
         self.request.send("Received %s" % filename)
-        self.request.close()
         print "Finished!\n"
 
 
