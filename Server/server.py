@@ -28,6 +28,8 @@ import SocketServer
 import ConfigParser
 import re
 
+import os
+
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
 #from database.UsersDB import UsersDB
@@ -53,6 +55,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         command, arguments = self.data.split("\r\n", 1)
         if(command == "PUSH"):
             self.push(arguments)
+        elif(command == "PULL"):
+            self.pull(arguments)
             
     def push(self, arguments):
         # get the filename and filesize then tell the client to continue
@@ -95,6 +99,13 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         self.request.send("Received %s" % filename)
         self.request.close()
         print "Finished!\n"
+        
+
+    def pull(self, filename):
+        
+        filesize = os.path.getsize(filename)
+        print "filename: ", filesize
+        self.request.send("%i" % filesize)
         
             
 if __name__ == "__main__":

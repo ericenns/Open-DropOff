@@ -29,16 +29,33 @@ def main():
 
     try:
         sock.connect((serverHost, serverPort)) # connect to server on the port
+        ppSelection = raw_input("Push or pull? Enter 1 for push, 2 for pull: ")
+        
         while 1:
-            filename = raw_input("Please enter name of file to transfer: ")
-            filesize = os.path.getsize(filename)
-            sendFile(sock, filename, filesize)
-            data = sock.recv(80)                 # receive up to 1K bytes
-            #sock.close()
-            print data
+            if ppSelection == "1":
+                filename = raw_input("Please enter name of file to transfer: ")
+                filesize = os.path.getsize(filename)
+                sendFile(sock, filename, filesize)
+                data = sock.recv(80)                 # receive up to 1K bytes
+                #sock.close()
+                print data
+            elif ppSelection == "2":
+                filename = raw_input("Please enter name of file to retrieve: ")
+                retrieveFile(sock,filename)
+            else:
+                print "Invalid input!"
+                break
+        
     except:
         print "Unable to connect to server specified. %s" % serverHost
-           
+
+#retrieve file from server
+def retrieveFile(sock,filename):
+    sock.send("PULL\r\n%s" % (filename))
+    filesize = int(sock.recv(80))
+    
+    print "FILESIZE ", filesize
+     
 #send file to server
 def sendFile(sock,filename, filesize):
     f = open(filename,"rb")
