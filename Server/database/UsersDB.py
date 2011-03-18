@@ -88,7 +88,7 @@ class UsersDB:
 
         self._conn._execute(sql, username)
         
-    def addFile(self, username, fileID, filename , path , lastAuthor, lastModified, version):
+    def addFile(self, username, filename , path , lastAuthor, lastModified, version):
         '''
         Add a file to a specific users drop off account.
         '''
@@ -97,9 +97,11 @@ class UsersDB:
         ''' TODO: wrap in transaction! '''
         
         sql = "INSERT INTO files "
-        sql = sql + " ( fileID, filename, path , last_author, last_modified, version) "
-        sql = sql + " VALUES ( %s, %s, %s , %s, %s, %s ) "
-        self._conn._execute(sql, fileID, filename, path, lastAuthor, lastModified, version)
+        sql = sql + " ( filename, path , last_author, last_modified, version) "
+        sql = sql + " VALUES ( %s, %s , %s, %s, %s ) "
+        self._conn._execute(sql, filename, path, lastAuthor, lastModified, version)
+        
+        fileID = self._conn._getLastRowID()
         
         sql = "INSERT INTO users_files "
         sql = sql + " ( username, fileID) "

@@ -43,6 +43,9 @@ class DatabaseConnection(object):
         '''
         self._cursor.execute(sql, args)
         self._conn.commit()
+    
+    def _getLastRowID(self):
+        return self._cursor.lastrowid
         
     def _fetchOne(self):
         '''
