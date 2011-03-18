@@ -97,7 +97,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         self.request.send("Received %s" % filename)
         self.request.close()
         print "Finished!\n"
-        
             
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
@@ -119,5 +118,8 @@ if __name__ == "__main__":
     # interrupt the program with Ctrl-C
     print "Running..."
     #server.timeout = 60
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        sys.exit(0)
     
