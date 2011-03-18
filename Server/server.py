@@ -101,6 +101,8 @@ if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
     HOST = config.get("Network", "host")
     PORT = config.getint("Network", "port")
+    BASEDIR = config.get("Storage", "basedir")
+    FILEDIR = config.get("Storage", "files")
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)
