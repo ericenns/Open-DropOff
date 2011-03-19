@@ -1,38 +1,39 @@
-#!/usr/bin/python
-#COMMENT!!!!
-#from socket import *
-
-#myHost = 'localhost'             # me
-#myPort = 30000           # arbitrary port
-#myFile = "sentReadme"   # file to write to
-
-#f = open(myFile,"wb")
-#s = socket( AF_INET, SOCK_STREAM )
-#s.bind((myHost,myPort))
-#s.listen(5)
-
-#while 1:
-#    connection, address = s.accept()
-#    print address
-#    while 1:
-#        data = connection.recv(1024)            # receive data from client
-#        if data:
-#            f.write(data)                       # write to file
-#            connection.send('echo -> ' + data)  # echo for confirmation
-#        else:
-#            break
-#    f.close()
-#    connection.close()
+###############################################################################
+# Open DropOff                                                                #
+# Copyright (C) 2011                                                          #
+#                                                                             #
+# Authors:                                                                    #
+#    Eric Enns                                                                #
+#    Travis Martindale                                                        #
+#    Andrew Matsuaka                                                          #
+#    Chris Janssens                                                           #
+#                                                                             #
+# This program is free software: you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+###############################################################################
 
 import SocketServer
 import ConfigParser
 import re
-
+import os
+import sys
+import md5
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
 #from database.UsersDB import UsersDB
 
 RECEIVESIZE = 100
+SENDSIZE = 100
 
 config = ConfigParser.ConfigParser()
 config.readfp(open('odo-server.cfg'))
@@ -49,54 +50,137 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         # get the protocol option
-        self.data = self.request.recv(80)
-        command, arguments = self.data.split("\r\n", 1)
-        if(command == "PUSH"):
-            # get the filename and filesize then tell the client to continue
-            filename, filesize = arguments.split("\r\n", 1)
-            filesize = int(filesize)
-            print "filesize: ", filesize
-            #echoing data for now, may be useful
-            self.request.send(self.data)
-            
-            #authenticate user information
+        while(1):
             self.data = self.request.recv(80)
-            userN, password = self.data.split("\r\n", 1)
+            try:
+                command, arguments = self.data.split("\r\n", 1)
+                print "\nCommand:\t%s" % command
+                if(command == "USER"):
+                   self.login(arguments)
+                elif(command == "PUSH"):
+                   self.receive(arguments)
+                elif(command == "PULL"):
+                   self.send(arguments)
+                elif(command == "CLOS"):
+                   print "Connection with Client closed"
+                   break
+            except ValueError:
+                print "Connection with Client lost"
+                break
             
-            #verify user
+        self.request.close()
+        
+    def login(self, arguments):
+        username = arguments
+        print "User: %s" % username
+        
+        if(username == "user"):
+            self.request.send("OKAY")
+            self.data = self.request.recv(RECEIVESIZE)
+            command, arguments = self.data.split("\r\n", 1)
+            if(command == "PASS"):
+                password = arguments
+                if(password == "pass"):
+                    key = md5.new("%s%s" % (username, password)).hexdigest()
+                    self.request.send("OKAY\r\n%s" % key)
+                else:
+                    self.request.send("FAIL")
+            else:
+                #not sure if this is needed
+                self.request.send("FAIL")
+        else:
+            self.request.send("FAIL")
             
-            #verity password
-            
-            #write the files to a test sub-directory prevents 
-            #clogging up the server folder with random test files
-            #newfile = open("./testfiles/" + filename, "wb")
-            newfile = open(filename, "wb")
-            
-            #receives 100 bytes of the file at a time, loops until
-            #the whole file is received
-            #content = self.request.recv(filesize)
-            totalReceived = -1
-            
-            while totalReceived <= filesize:
-                if( totalReceived == -1 ):
-                    totalReceived =  0
-                #print "looping!"
-                
-                content = self.request.recv(RECEIVESIZE)
-                totalReceived += RECEIVESIZE
-                newfile.write(content)
+    def receive(self, arguments):
+        filename, filesize, key = arguments.split("\r\n", 2)
+        filesize = int(filesize)
+        
+        #verify key
+        if(key == "63e780c3f321d13109c71bf81805476e"):
+            self.request.send("OKAY")
+        else:
+            self.request.send("FAIL")
+            return
+        
+        #authenticate user information
+        #self.data = self.request.recv(80)
+        #userN, password = self.data.split("\r\n", 1)
+        
+        #verify user
+        
+        #verity password
+        
+        #write the files to a test sub-directory prevents 
+        #clogging up the server folder with random test files
+        #newfile = open("./testfiles/" + filename, "wb")
+        filename_hash = md5.new(filename).hexdigest()
+        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
+        if(os.path.isfile(fullpath)):
+            print "File already exists"
+        newfile = open(fullpath, "wb")
+        
+        #receives 100 bytes of the file at a time, loops until
+        #the whole file is received
+        totalReceived = -1
+        
+        print filesize
+        
+        while totalReceived <= filesize:
+            if( totalReceived == -1 ):
+                totalReceived =  0
+            print "looping"
+            content = self.request.recv(RECEIVESIZE)
+            totalReceived += RECEIVESIZE
+            newfile.write(content)
 
-            newfile.close() #close the file
+        newfile.close() #close the file
+        
+        #send a response to the client
+        self.request.send("OKAY")
+        print "PUSH Request finished"
+
+
+    def send(self, arguments):
+        filename, key = arguments.split("\r\n", 1)
+        
+        if(key == "63e780c3f321d13109c71bf81805476e"):
+            filename_hash = md5.new(filename).hexdigest()
+            fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
+        
+            filesize = os.path.getsize(fullpath)
+        
+            self.request.send("RECV\r\n%i" % filesize)
+        else:
+            self.request.send("FAIL\r\n101")
+            return
             
-            #send a response to the client
-            self.request.send("Received %s" % filename)
-            self.request.close()
-            print "Finished!\n"
+        response = self.request.recv(80)
+        
+        print "RESPOSNE! %s" % response
+        if response == "SEND":
+            #start sending the file
             
+            file = open(fullpath, "rb")
+            
+            line = file.read(SENDSIZE)
+            
+            while line:
+                sent = self.request.send(line)
+                while sent != len(line):
+                    sent += self.request.send(line[sent:])
+                line = file.read(SENDSIZE)
+            
+            file.close()
+        else:
+            print "Don't send."
+        print "PULL Request finished"
+             
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
     HOST = config.get("Network", "host")
     PORT = config.getint("Network", "port")
+    BASEDIR = config.get("Storage", "basedir")
+    FILEDIR = config.get("Storage", "files")
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)
@@ -111,5 +195,8 @@ if __name__ == "__main__":
     # interrupt the program with Ctrl-C
     print "Running..."
     #server.timeout = 60
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        sys.exit(0)
     
