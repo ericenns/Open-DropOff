@@ -118,10 +118,12 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #the whole file is received
         totalReceived = -1
         
+        print filesize
+        
         while totalReceived <= filesize:
             if( totalReceived == -1 ):
                 totalReceived =  0
-            
+            print "looping"
             content = self.request.recv(RECEIVESIZE)
             totalReceived += RECEIVESIZE
             newfile.write(content)
@@ -130,7 +132,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #send a response to the client
         self.request.send("OKAY")
-        print "PUSH Request finsihed"
+        print "PUSH Request finished"
 
 
     def send(self, arguments):

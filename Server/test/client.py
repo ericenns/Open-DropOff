@@ -80,7 +80,7 @@ def retrieveFile(sock,filename, key):
 #send file to server
 def sendFile(sock,filename, filesize, key):
     f = open(filename,"rb")
-    sock.send("PUSH\r\n%s\r\n%d\r\n%s" % (filename, filesize, key))
+    sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (filename, filesize, key))
     # wait for a response then start sending the file
     reply = sock.recv(80)
     if(reply == "OKAY"):
