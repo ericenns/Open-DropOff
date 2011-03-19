@@ -19,7 +19,7 @@ class UsersDB:
         '''
         
         sql = "SELECT * FROM users_files uf, files f "
-        sql = sql + "WHERE uf.fileID = f.fileID " 
+        sql = sql + "WHERE uf.file_id = f.file_id " 
         sql = sql + " AND uf.username = %s "
         
         self._conn._execute(sql, username)
@@ -42,7 +42,7 @@ class UsersDB:
         Returns true of false depending if the user passed authentication after
         information was retrieved from the DB.
         '''
-        sql = "SELECT passwordHash FROM users "
+        sql = "SELECT password_hash FROM users "
         sql = sql + " WHERE username = %s "
         self._conn._execute(sql, username)
         data = self._conn._fetchOne()
@@ -59,7 +59,7 @@ class UsersDB:
         Adds a user to the database
         '''
         sql = "INSERT INTO users "
-        sql = sql + " ( username, passwordHash) "
+        sql = sql + " ( username, password_hash) "
         sql = sql + " VALUES ( %s , %s ) "
         
         self._conn._execute(sql, username, password)
@@ -82,7 +82,7 @@ class UsersDB:
         Update an existing user password
         '''
         sql = "UPDATE users "
-        sql = sql + " SET passwordHash = %s"
+        sql = sql + " SET password_hash = %s"
         sql = sql + " WHERE username = %s AND password = %s"
         
         try:
@@ -103,7 +103,6 @@ class UsersDB:
         '''
         Add a file to a specific users drop off account.
         '''
-        ''' TODO: kill fileID and let it use the auto increment...'''
         ''' TODO: filename and path can be merged into one... '''
         ''' TODO: wrap in transaction! '''
         
@@ -115,7 +114,7 @@ class UsersDB:
         fileID = self._conn._getLastRowID()
         
         sql = "INSERT INTO users_files "
-        sql = sql + " ( username, fileID) "
+        sql = sql + " ( username, file_id) "
         sql = sql + " VALUES ( %s , %s ) "
         
         self._conn._execute(sql, username, fileID)
@@ -128,7 +127,7 @@ class UsersDB:
         '''
         
         sql = "SELECT * FROM users_files uf, files f "
-        sql = sql + "WHERE uf.fileID = f.fileID AND f.path = %s "
+        sql = sql + "WHERE uf.file_id = f.file_id AND f.path = %s "
         sql = sql + " AND uf.username = %s"
         
         self._conn._execute(sql, path, username)
@@ -136,8 +135,31 @@ class UsersDB:
         return data
     
     def getAllUser(self):
-        self._conn._execute('SELECT * FROM students')
+        self._conn._execute('SELECT * FROM users')
         data = self._conn._fetchAll()
         return data
     
+    def getFilesInDir(self, path):
+        '''
+        Get a list of files in a given directory
+        '''
+        
+        sql = "SELECT * FROM files f"
+        sql = sql + " WHERE f.path LIKE %s "
+        
+        path =  path + '%' #adding wildcard 
+        
+        self._conn._execute(sql,path)
+        data = self._conn._fetchAll()
+        return data
+        
+    def updateLastAuthor(self, path, newAuthor):   
+        '''
+        update last_author in a given file path
+        '''
+                
+        sql = "UPDATE files f SET last_author = %s"
+        sql = sql + " WHERE f.path = %s "
+        
+        self._conn._execute(sql,newAuthor,path)
         
