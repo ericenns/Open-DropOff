@@ -19,19 +19,30 @@ class UsersDB:
         '''
         
         sql = "SELECT * FROM users_files uf, files f "
-        sql = sql + "WHERE uf.fileID = f.fileID " 
+        sql = sql + "WHERE uf.file_id = f.file_id " 
         sql = sql + " AND uf.username = %s "
         
         self._conn._execute(sql, username)
         data = self._conn._fetchAll()
         return data
+    
+    def userExists(self, username):
+        sql = "SELECT * FROM users "
+        sql = sql + "WHERE username = %s "
+        self._conn._execute(sql, username)
+        data = self._conn._getCount()
+        
+        if data == 1:
+            return True
+        else:
+            return False
         
     def authenticate(self, username, password):
         '''
         Returns true of false depending if the user passed authentication after
         information was retrieved from the DB.
         '''
-        sql = "SELECT passwordHash FROM users "
+        sql = "SELECT password_hash FROM users "
         sql = sql + " WHERE username = %s "
         self._conn._execute(sql, username)
         data = self._conn._fetchOne()
@@ -41,14 +52,14 @@ class UsersDB:
             if password == userPassword:
                 return True
             
-        return False   
+        return False
         
     def addUser(self, username, password):
         '''
         Adds a user to the database
         '''
         sql = "INSERT INTO users "
-        sql = sql + " ( username, passwordHash) "
+        sql = sql + " ( username, password_hash) "
         sql = sql + " VALUES ( %s , %s ) "
         
         self._conn._execute(sql, username, password)
@@ -71,7 +82,7 @@ class UsersDB:
         Update an existing user password
         '''
         sql = "UPDATE users "
-        sql = sql + " SET passwordHash = %s"
+        sql = sql + " SET password_hash = %s"
         sql = sql + " WHERE username = %s AND password = %s"
         
         try:
@@ -103,7 +114,7 @@ class UsersDB:
         fileID = self._conn._getLastRowID()
         
         sql = "INSERT INTO users_files "
-        sql = sql + " ( username, fileID) "
+        sql = sql + " ( username, file_id) "
         sql = sql + " VALUES ( %s , %s ) "
         
         self._conn._execute(sql, username, fileID)
@@ -116,7 +127,7 @@ class UsersDB:
         '''
         
         sql = "SELECT * FROM users_files uf, files f "
-        sql = sql + "WHERE uf.fileID = f.fileID AND f.path = %s "
+        sql = sql + "WHERE uf.file_id = f.file_id AND f.path = %s "
         sql = sql + " AND uf.username = %s"
         
         self._conn._execute(sql, path, username)

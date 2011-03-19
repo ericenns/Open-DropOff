@@ -20,8 +20,8 @@ x.addUser("user3", "234")
 result = x.authenticate("user2","234")
 print result
 
-x.addFile("user3" , 1, "file_1", "c:/samplefolder/file_1.html", "user3", "NULL", 1)
-x.addFile("user3" , 2, "file_2", "c:/samplefolder/file_2.html", "user3", "NULL", 1)
+x.addFile("user3", "file_1", "c:/samplefolder/file_1.html", "user3", "NULL", 1)
+x.addFile("user3", "file_2", "c:/samplefolder/file_2.html", "user3", "NULL", 1)
 fileinfo = x.getFile("user2", "c:/samplefolder/file_1.html")
 print fileinfo
 

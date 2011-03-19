@@ -77,25 +77,36 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         print "New user: %s" % newuser
         print "new pass: %s" % newpass
         
-        udb = UsersDB.UsersDB()
+        conn = DatabaseConnection()
+        conn.connect("localhost", "username", "password", "open-dropoff")
+        udb = UsersDB(conn)
         
         #Need a check to see if the user already exists here!
         udb.addUser( newuser, newpass )
         
         self.request.send("STAT 100")
         
+        conn.disconnect()
+        
         
     def login(self, arguments):
         username = arguments
         print "User: %s" % username
+        conn = DatabaseConnection()
+        conn.connect("localhost", "username", "password", "open-dropoff")
+        udb = UsersDB(conn)
         
-        if(username == "user"):
+        validUser = udb.userExists(username)
+        
+        if(validUser):
             self.request.send("OKAY")
             self.data = self.request.recv(RECEIVESIZE)
             command, arguments = self.data.split("\r\n", 1)
             if(command == "PASS"):
                 password = arguments
-                if(password == "pass"):
+                
+                validPass = udb.authenticate(username, password)
+                if(validPass):
                     key = md5.new("%s%s" % (username, password)).hexdigest()
                     self.request.send("OKAY\r\n%s" % key)
                 else:
@@ -105,6 +116,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 self.request.send("FAIL")
         else:
             self.request.send("FAIL")
+            
+        conn.disconnect()
             
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
