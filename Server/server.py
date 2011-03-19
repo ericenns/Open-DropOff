@@ -29,8 +29,6 @@ import os
 import sys
 import md5
 #from database import *
-#from database.DatabaseConnection import DatabaseConnection
-#from database import *
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -92,7 +90,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def login(self, arguments):
         username = arguments
         print "User: %s" % username
-        #conn = DatabaseConnection()
+        #conn = DatabaseConnection.DatabaseConnection()
         #conn.connect(DBHOST, DBUSER, DBPASS, DB)
         #udb = UsersDB.UsersDB(conn)
         
