@@ -25,6 +25,17 @@ class UsersDB:
         self._conn._execute(sql, username)
         data = self._conn._fetchAll()
         return data
+    
+    def userExists(self, username):
+        sql = "SELECT * FROM users "
+        sql = sql + "WHERE username = %s "
+        self._conn._execute(sql, username)
+        data = self._conn._getCount()
+        
+        if data == 1:
+            return True
+        else:
+            return False
         
     def authenticate(self, username, password):
         '''
@@ -41,7 +52,7 @@ class UsersDB:
             if password == userPassword:
                 return True
             
-        return False   
+        return False
         
     def addUser(self, username, password):
         '''

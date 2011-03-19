@@ -60,5 +60,7 @@ class DatabaseConnection(object):
         '''
         data = self._cursor.fetchall()
         return data
-    
         
+    def _getCount(self):
+        data = self._cursor.rowcount
+        return data

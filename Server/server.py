@@ -30,7 +30,7 @@ import sys
 import md5
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
-#from database import UsersDB
+from database import UsersDB
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -88,14 +88,19 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def login(self, arguments):
         username = arguments
         print "User: %s" % username
+        udb = UsersDB.UsersDB()
         
-        if(username == "user"):
+        validUser = udb.userExists(username)
+        
+        if(validUser):
             self.request.send("OKAY")
             self.data = self.request.recv(RECEIVESIZE)
             command, arguments = self.data.split("\r\n", 1)
             if(command == "PASS"):
                 password = arguments
-                if(password == "pass"):
+                
+                validPass = udb.authenticate(username, password)
+                if(validPass):
                     key = md5.new("%s%s" % (username, password)).hexdigest()
                     self.request.send("OKAY\r\n%s" % key)
                 else:

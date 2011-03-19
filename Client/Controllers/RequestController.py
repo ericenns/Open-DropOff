@@ -39,9 +39,9 @@ class RequestController(object):
         self.connect()
         
         print "newUser(RC)u: %s" % username
-        print "newUser(RC)p: %s" %username
+        print "newUser(RC)p: %s" % password
         
-        self.sock.send("NUSER\r\n%s\r\n%s" % username, password)
+        self.sock.send("NUSR\r\n%s\r\n%s" % username, password)
         
         response = self.sock.recv(RECEIVESIZE)
         
@@ -64,6 +64,7 @@ class RequestController(object):
         
         self.sock.send("USER\r\n%s" % username)
         response = self.sock.recv(RECEIVESIZE)
+        print response
         if(response == "OKAY"):
             password = raw_input("Please enter your password: ")
             self.sock.send("PASS\r\n%s" % password)
@@ -75,6 +76,7 @@ class RequestController(object):
                 return "";
         else:
             return "";
+        
         
         self.disconnect()
         
