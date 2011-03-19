@@ -154,8 +154,31 @@ class UsersDB:
         return data
     
     def getAllUser(self):
-        self._conn._execute('SELECT * FROM students')
+        self._conn._execute('SELECT * FROM users')
         data = self._conn._fetchAll()
         return data
     
+    def getFilesInDir(self, path):
+        '''
+        Get a list of files in a given directory
+        '''
+        
+        sql = "SELECT * FROM files f"
+        sql = sql + " WHERE f.path LIKE %s "
+        
+        path =  path + '%' #adding wildcard 
+        
+        self._conn._execute(sql,path)
+        data = self._conn._fetchAll()
+        return data
+        
+    def updateLastAuthor(self, path, newAuthor):   
+        '''
+        update last_author in a given file path
+        '''
+                
+        sql = "UPDATE files f SET last_author = %s"
+        sql = sql + " WHERE f.path = %s "
+        
+        self._conn._execute(sql,newAuthor,path)
         
