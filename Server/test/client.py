@@ -3,7 +3,6 @@ import sys
 import getopt
 import os
 
-RECEIVESIZE = 100
 SENDSIZE = 100
 
 def main():
