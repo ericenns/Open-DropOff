@@ -30,7 +30,7 @@ import sys
 import md5
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
-from database import UsersDB
+#from database import *
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -77,36 +77,39 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         print "New user: %s" % newuser
         print "new pass: %s" % newpass
         
-        conn = DatabaseConnection()
-        conn.connect("localhost", "username", "password", "open-dropoff")
-        udb = UsersDB(conn)
+        #conn = DatabaseConnection()
+        #conn.connect("localhost", "username", "password", "open-dropoff")
+        #udb = UsersDB(conn)
         
         #Need a check to see if the user already exists here!
-        udb.addUser( newuser, newpass )
+        #udb.addUser( newuser, newpass )
         
         self.request.send("STAT 100")
         
-        conn.disconnect()
+        #conn.disconnect()
         
         
     def login(self, arguments):
         username = arguments
         print "User: %s" % username
-        conn = DatabaseConnection()
-        conn.connect("localhost", "username", "password", "open-dropoff")
-        udb = UsersDB(conn)
+        #conn = DatabaseConnection()
+        #conn.connect("localhost", "username", "password", "open-dropoff")
+        #udb = UsersDB(conn)
         
-        validUser = udb.userExists(username)
+        #validUser = udb.userExists(username)
         
-        if(validUser):
+        #if(validUser):
+        if(username == "user"):
             self.request.send("OKAY")
             self.data = self.request.recv(RECEIVESIZE)
             command, arguments = self.data.split("\r\n", 1)
+            
             if(command == "PASS"):
                 password = arguments
                 
-                validPass = udb.authenticate(username, password)
-                if(validPass):
+                #validPass = udb.authenticate(username, password)
+                #if(validPass):
+                if(password == "pass"):
                     key = md5.new("%s%s" % (username, password)).hexdigest()
                     self.request.send("OKAY\r\n%s" % key)
                 else:
@@ -117,7 +120,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         else:
             self.request.send("FAIL")
             
-        conn.disconnect()
+        #conn.disconnect()
             
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
