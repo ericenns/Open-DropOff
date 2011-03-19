@@ -38,7 +38,9 @@ class RequestController(object):
     def newUser(self, username, password):
         self.connect()
         
-        print "Creating new user \"%s\" with pass \"%s\"" % username, password
+        print "newUser(RC)u: %s" % username
+        print "newUser(RC)p: %s" %username
+        
         self.sock.send("NUSER\r\n%s\r\n%s" % username, password)
         
         response = self.sock.recv(RECEIVESIZE)
