@@ -7,8 +7,6 @@ Created on Mar 17, 2011
 import os
 import sys
 import socket
-sys.path.append('../../Server')
-from database import *
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -20,7 +18,7 @@ class RequestController(object):
     
     def __init__(self, server, port):
         self.server = server
-        self.port = port
+        self.port = int(port)
 
     def connect(self):
         self.sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )  # create a TCP socket

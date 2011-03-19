@@ -46,12 +46,13 @@ def main():
                 break
             elif ppSelection == "c":
                 newuser = raw_input("Please enter your new user name: ")
-                newPass = 0
-                while newPass == 0:
+                newpass = 0
+                while newpass == 0:
                     firstPass = raw_input("Please enter your new password: ")
                     secondPass = raw_input("Please confirm your password: ")
                     if firstPass == secondPass:
                         newpass = firstPass
+                        print newpass
                     else:
                         print "Passwords do not match, please try again."
                 
