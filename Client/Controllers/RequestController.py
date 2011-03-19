@@ -64,13 +64,14 @@ class RequestController(object):
         
         self.sock.send("USER\r\n%s" % username)
         response = self.sock.recv(RECEIVESIZE)
-        print response
-        if(response == "OKAY"):
+        status, code = response.split("\r\n", 1)
+        print "%s %s" % (status, code)
+        if(status == "STAT" and code == "100"):
             password = raw_input("Please enter your password: ")
             self.sock.send("PASS\r\n%s" % password)
-            data = self.sock.recv(RECEIVESIZE)
-            response, key = data.split("\r\n",1)
-            if(response == "OKAY"):
+            response = self.sock.recv(RECEIVESIZE)
+            status, code, key = response.split("\r\n",2)
+            if(status == "STAT" and code =="100"):
                 self.key = key
             else:
                 return "";
@@ -90,9 +91,10 @@ class RequestController(object):
         f = open(filename,"rb")
         self.sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (filename, filesize, self.key))
         # wait for a response then start sending the file
-        reply = self.sock.recv(RECEIVESIZE)
-        if(reply == "OKAY"):
-            print reply
+        response = self.sock.recv(RECEIVESIZE)
+        status, code = response.split("\r\n", 1)
+        if(status == "STAT" and code == "100"):
+            print "%s %s" % (status, code)
         else:
             return
         
@@ -128,10 +130,10 @@ class RequestController(object):
     #Returns: File data
     def pull(self, filename):
         self.sock.send("PULL\r\n%s\r\n%s" % (filename, self.key))
-        arguments = self.sock.recv(80)
-        command, filesize = arguments.split("\r\n", 1)
+        response = self.sock.recv(80)
+        status, code, filesize = response.split("\r\n", 1)
         filesize = int(filesize)
-        if command == "RECV":
+        if(status == "STAT" and code == "100"):
             self.sock.send("SEND")
             newfile = open(filename, "wb")
             totalReceived = -1
