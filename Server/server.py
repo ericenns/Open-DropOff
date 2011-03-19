@@ -93,14 +93,14 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         username = arguments
         print "User: %s" % username
         #conn = DatabaseConnection()
-        #conn.connect("localhost", "username", "password", "open-dropoff")
-        #udb = UsersDB(conn)
+        #conn.connect(DBHOST, DBUSER, DBPASS, DB)
+        #udb = UsersDB.UsersDB(conn)
         
         #validUser = udb.userExists(username)
         
         #if(validUser):
         if(username == "user"):
-            self.request.send("OKAY")
+            self.request.send("STAT\r\n100")
             self.data = self.request.recv(RECEIVESIZE)
             command, arguments = self.data.split("\r\n", 1)
             
@@ -111,14 +111,14 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 #if(validPass):
                 if(password == "pass"):
                     key = md5.new("%s%s" % (username, password)).hexdigest()
-                    self.request.send("OKAY\r\n%s" % key)
+                    self.request.send("STAT\r\n100\r\n%s" % key)
                 else:
-                    self.request.send("FAIL")
+                    self.request.send("STAT\r\n202")
             else:
                 #not sure if this is needed
                 self.request.send("FAIL")
         else:
-            self.request.send("FAIL")
+            self.request.send("STAT\r\n201")
             
         #conn.disconnect()
             
@@ -128,7 +128,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #verify key
         if(key == "63e780c3f321d13109c71bf81805476e"):
-            self.request.send("OKAY")
+            self.request.send("STAT\r\n100")
         else:
             self.request.send("FAIL")
             return
@@ -167,7 +167,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         newfile.close() #close the file
         
         #send a response to the client
-        self.request.send("OKAY")
+        self.request.send("STAT\r\n100")
         print "PUSH Request finished"
 
 
@@ -180,7 +180,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
             filesize = os.path.getsize(fullpath)
         
-            self.request.send("RECV\r\n%i" % filesize)
+            self.request.send("STAT\r\n100\r\n%i" % filesize)
         else:
             self.request.send("FAIL\r\n101")
             return
@@ -212,6 +212,10 @@ if __name__ == "__main__":
     PORT = config.getint("Network", "port")
     BASEDIR = config.get("Storage", "basedir")
     FILEDIR = config.get("Storage", "files")
+    DBHOST = config.get("Database", "host")
+    DB = config.get("Database", "database")
+    DBUSER = config.get("Database", "user")
+    DBPASS = config.get("Database", "pass")
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)

@@ -45,14 +45,15 @@ class TestProtocol(unittest.TestCase):
         
         sock.send("USER\r\n%s" % self.username)
         response = sock.recv(80)
-        self.assertEqual("OKAY", response)
+        status, code = response.split("\r\n", 1)
+        self.assertEqual("STAT", status)
+        self.assertEqual("100", code)
         
         sock.send("PASS\r\n%s" % self.password)
         response = sock.recv(80)
-        status = response[:4]
-        self.assertEqual("OKAY", status)
-        
-        status, key = response.split("\r\n", 1)
+        status, code, key = response.split("\r\n", 2)
+        self.assertEqual("STAT", status)
+        self.assertEqual("100", code)
         self.assertEqual(self.key, key)
         
         self.closeConnection(sock)
@@ -62,7 +63,9 @@ class TestProtocol(unittest.TestCase):
         
         sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (self.testFile, self.testFileSize, self.key))
         response = sock.recv(80)
-        self.assertEqual("OKAY", response)
+        status, code = response.split("\r\n", 1)
+        self.assertEqual("STAT", status)
+        self.assertEqual("100", code)
         
         file = open(self.testFile,"rb")
         line = file.read(self.sendSize)
@@ -73,7 +76,9 @@ class TestProtocol(unittest.TestCase):
             line = file.read(self.sendSize)      
         file.close()
         response = sock.recv(80)
-        self.assertEqual("OKAY", response)
+        status, code = response.split("\r\n", 1)
+        self.assertEqual("STAT", status)
+        self.assertEqual("100", code)
         
         self.closeConnection(sock)
         
@@ -82,11 +87,10 @@ class TestProtocol(unittest.TestCase):
         
         sock.send("PULL\r\n%s\r\n%s" % (self.testFile, self.key))
         response = sock.recv(80)
-        command = response[:4]
-        self.assertEqual("RECV", command)
-        
-        command, fileSize = response.split("\r\n", 1)
+        status, code, fileSize = response.split("\r\n", 2)
         fileSize = int(fileSize)
+        self.assertEqual("STAT", status)
+        self.assertEqual("100", code)
         self.assertEqual(self.testFileSize, fileSize)
         
         sock.send("SEND")
