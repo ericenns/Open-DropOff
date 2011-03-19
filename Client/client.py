@@ -27,44 +27,42 @@ def main():
                 serverPort = int(val)
     
     rc = RequestController.RequestController( serverHost, serverPort )
-
-    try:
-        while 1:
-            ppSelection = raw_input("Push or pull? Enter:\n\tc for to create new user\n\tl for login\n\t1 for push\n\t2 for pull\n\tq to close: ")
-            
-            if ppSelection == "l":
-                rc.login()
-            elif ppSelection == "1":
-                filename = raw_input("Please enter name of file to transfer: ")
-                filesize = os.path.getsize(filename)
-                rc.push(filename, filesize)
-            elif ppSelection == "2":
-                filename = raw_input("Please enter name of file to retrieve: ")
-                rc.pull(filename)
-            elif ppSelection == "q":
-                print "Closing!"
-                break
-            elif ppSelection == "c":
-                newuser = raw_input("Please enter your new user name: ")
-                newpass = 0
-                while newpass == 0:
-                    firstPass = raw_input("Please enter your new password: ")
-                    secondPass = raw_input("Please confirm your password: ")
-                    if firstPass == secondPass:
-                        newpass = firstPass
-                        print newpass
-                    else:
-                        print "Passwords do not match, please try again."
-                
-                done = rc.newUser(newuser, newpass)
-                
-                if done:
-                    print "Successfully created your new account!"
-                else:
-                    print "Unable to create your account, try again!"
+    print "RC server: %s" % rc.server
+    print "RC port: %s" % rc.port
+    
+    while 1:
+        ppSelection = raw_input("Push or pull? Enter:\n\tc for to create new user\n\tl for login\n\t1 for push\n\t2 for pull\n\tq to close: ")
         
-    except:
-        print "Unable to connect to server specified. %s" % serverHost
+        if ppSelection == "l":
+            rc.login()
+        elif ppSelection == "1":
+            filename = raw_input("Please enter name of file to transfer: ")
+            filesize = os.path.getsize(filename)
+            rc.push(filename, filesize)
+        elif ppSelection == "2":
+            filename = raw_input("Please enter name of file to retrieve: ")
+            rc.pull(filename)
+        elif ppSelection == "q":
+            print "Closing!"
+            break
+        elif ppSelection == "c":
+            newuser = raw_input("Please enter your new user name: ")
+            newpass = 0
+            while newpass == 0:
+                firstPass = raw_input("Please enter your new password: ")
+                secondPass = raw_input("Please confirm your password: ")
+                if firstPass == secondPass:
+                    newpass = firstPass
+                    print newpass
+                else:
+                    print "Passwords do not match, please try again."
+            
+            done = rc.newUser(newuser, newpass)
+            
+            if done:
+                print "Successfully created your new account!"
+            else:
+                print "Unable to create your account, try again!"
 
 if __name__ == "__main__":
     main()

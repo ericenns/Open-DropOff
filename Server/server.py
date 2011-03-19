@@ -30,7 +30,7 @@ import sys
 import md5
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
-from database import UsersDB
+#from database import UsersDB
 
 RECEIVESIZE = 100
 SENDSIZE = 100
