@@ -52,17 +52,22 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         # get the protocol option
         while(1):
             self.data = self.request.recv(80)
-            command, arguments = self.data.split("\r\n", 1)
-            print "\nCommand:\t%s" % command
-            if(command == "USER"):
-                self.login(arguments)
-            elif(command == "PUSH"):
-                self.receive(arguments)
-            elif(command == "PULL"):
-                self.send(arguments)
-            elif(command == "CLOS"):
-                print "Connection with Client closed"
+            try:
+                command, arguments = self.data.split("\r\n", 1)
+                print "\nCommand:\t%s" % command
+                if(command == "USER"):
+                   self.login(arguments)
+                elif(command == "PUSH"):
+                   self.receive(arguments)
+                elif(command == "PULL"):
+                   self.send(arguments)
+                elif(command == "CLOS"):
+                   print "Connection with Client closed"
+                   break
+            except ValueError:
+                print "Connection with Client lost"
                 break
+            
         self.request.close()
         
     def login(self, arguments):
