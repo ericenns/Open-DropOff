@@ -30,7 +30,7 @@ import sys
 import md5
 #from database import *
 #from database.DatabaseConnection import DatabaseConnection
-#from database.UsersDB import UsersDB
+from database import UsersDB
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -55,7 +55,9 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             try:
                 command, arguments = self.data.split("\r\n", 1)
                 print "\nCommand:\t%s" % command
-                if(command == "USER"):
+                if(command == "NUSR"):
+                    self.createNewUser(arguments)
+                elif(command == "USER"):
                    self.login(arguments)
                 elif(command == "PUSH"):
                    self.receive(arguments)
@@ -69,6 +71,19 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 break
             
         self.request.close()
+        
+    def createNewUser(self, arguments):
+        newuser, newpass = arguments.split("\r\n")
+        print "New user: %s" % newuser
+        print "new pass: %s" % newpass
+        
+        udb = UsersDB.UsersDB()
+        
+        #Need a check to see if the user already exists here!
+        udb.addUser( newuser, newpass )
+        
+        self.request.send("STAT 100")
+        
         
     def login(self, arguments):
         username = arguments

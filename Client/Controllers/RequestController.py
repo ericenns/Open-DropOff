@@ -4,7 +4,10 @@ Created on Mar 17, 2011
 @author: Andrew
 '''
 
+import sys
 import socket
+sys.path.append('../../Server')
+from database import *
 
 RECEIVESIZE = 100
 SENDSIZE = 100
