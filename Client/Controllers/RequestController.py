@@ -41,7 +41,7 @@ class RequestController(object):
         print "newUser(RC)u: %s" % username
         print "newUser(RC)p: %s" % password
         
-        self.sock.send("NUSR\r\n%s\r\n%s" % username, password)
+        self.sock.send("NUSR\r\n%s\r\n%s" % (username, password))
         
         response = self.sock.recv(RECEIVESIZE)
         
