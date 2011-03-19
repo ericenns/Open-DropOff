@@ -52,27 +52,54 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         # get the protocol option
         while(1):
             self.data = self.request.recv(80)
-            print "TEST: %s" % self.data
             command, arguments = self.data.split("\r\n", 1)
-            if(command == "PUSH"):
-                self.push(arguments)
+            print "\nCommand:\t%s" % command
+            if(command == "USER"):
+                self.login(arguments)
+            elif(command == "PUSH"):
+                self.receive(arguments)
             elif(command == "PULL"):
-                self.pull(arguments)
+                self.send(arguments)
             elif(command == "CLOS"):
+                print "Connection with Client closed"
                 break
         self.request.close()
+        
+    def login(self, arguments):
+        username = arguments
+        print "User: %s" % username
+        
+        if(username == "user"):
+            self.request.send("OKAY")
+            self.data = self.request.recv(RECEIVESIZE)
+            command, arguments = self.data.split("\r\n", 1)
+            if(command == "PASS"):
+                password = arguments
+                if(password == "pass"):
+                    key = md5.new("%s%s" % (username, password)).hexdigest()
+                    self.request.send("OKAY\r\n%s" % key)
+                else:
+                    self.request.send("FAIL")
+            else:
+                #not sure if this is needed
+                self.request.send("FAIL")
+        else:
+            self.request.send("FAIL")
             
-    def push(self, arguments):
-        # get the filename and filesize then tell the client to continue
-        filename, filesize = arguments.split("\r\n", 1)
+    def receive(self, arguments):
+        filename, filesize, key = arguments.split("\r\n", 2)
         filesize = int(filesize)
-        print "filesize: ", filesize
-        #echoing data for now, may be useful
-        self.request.send(self.data)
+        
+        #verify key
+        if(key == "63e780c3f321d13109c71bf81805476e"):
+            self.request.send("OKAY")
+        else:
+            self.request.send("FAIL")
+            return
         
         #authenticate user information
-        self.data = self.request.recv(80)
-        userN, password = self.data.split("\r\n", 1)
+        #self.data = self.request.recv(80)
+        #userN, password = self.data.split("\r\n", 1)
         
         #verify user
         
@@ -89,13 +116,11 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
-        #content = self.request.recv(filesize)
         totalReceived = -1
         
         while totalReceived <= filesize:
             if( totalReceived == -1 ):
                 totalReceived =  0
-            #print "looping!"
             
             content = self.request.recv(RECEIVESIZE)
             totalReceived += RECEIVESIZE
@@ -104,18 +129,24 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         newfile.close() #close the file
         
         #send a response to the client
-        self.request.send("Received %s" % filename)
-        print "Finished!\n"
+        self.request.send("OKAY")
+        print "PUSH Request finsihed"
 
 
-    def pull(self, filename):
-        filename_hash = md5.new(filename).hexdigest()
-        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
+    def send(self, arguments):
+        filename, key = arguments.split("\r\n", 1)
         
-        filesize = os.path.getsize(fullpath)
-        print "filename: ", filesize
+        if(key == "63e780c3f321d13109c71bf81805476e"):
+            filename_hash = md5.new(filename).hexdigest()
+            fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         
-        self.request.send("RECV\r\n%i" % filesize)
+            filesize = os.path.getsize(fullpath)
+        
+            self.request.send("RECV\r\n%i" % filesize)
+        else:
+            self.request.send("FAIL\r\n101")
+            return
+            
         response = self.request.recv(80)
         
         print "RESPOSNE! %s" % response
@@ -135,6 +166,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             file.close()
         else:
             print "Don't send."
+        print "PULL Request finished"
              
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
