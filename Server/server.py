@@ -86,10 +86,13 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #conn.connect("localhost", "username", "password", "open-dropoff")
         #udb = UsersDB(conn)
         
-        #Need a check to see if the user already exists here!
-        #udb.addUser( newuser, newpass )
-        
-        self.request.send("STAT 100")
+        #nameTaken = udb.userExists(newuser)
+        #if not nameTaken:
+        #    udb.addUser( newuser, newpass )
+        #    self.request.send("STAT 100")
+        #else:
+        #    print "Name taken, try again!"
+        #    self.request.send("STAT 203")
         
         #conn.disconnect()
         
