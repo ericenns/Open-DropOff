@@ -22,12 +22,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
 
-import SocketServer
-import ConfigParser
-import re
 import os
 import sys
-import md5
+import re
+
+import SocketServer
+import ConfigParser
+
+try: 
+   from hashlib import sha1
+   sha_constructor = sha1
+except ImportError:
+   import sha
+   sha_constructor = sha.new
 #from database import *
 
 RECEIVESIZE = 100
@@ -79,13 +86,25 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #conn.connect("localhost", "username", "password", "open-dropoff")
         #udb = UsersDB(conn)
         
-        #Need a check to see if the user already exists here!
-        #udb.addUser( newuser, newpass )
-        
-        self.request.send("STAT 100")
+        #nameTaken = udb.userExists(newuser)
+        #if not nameTaken:
+        #    meetsReq = checkPassReq(newpass)
+        #    if meetsReq:
+        #        udb.addUser( newuser, newpass )
+        #        self.request.send("STAT 100")
+        #    else:
+        #        self.request.send("STAT 204")
+        #else:
+        #    print "Name taken, try again!"
+        #    self.request.send("STAT 203")
         
         #conn.disconnect()
-        
+    
+    def checkPassReq(self, newpass):
+        if len(newpass) > 8:
+            return True
+        else:
+            return False
         
     def login(self, arguments):
         username = arguments
@@ -108,7 +127,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 #validPass = udb.authenticate(username, password)
                 #if(validPass):
                 if(password == "pass"):
-                    key = md5.new("%s%s" % (username, password)).hexdigest()
+                    key = sha_constructor("%s%s" % (username, password)).hexdigest()
                     self.request.send("STAT\r\n100\r\n%s" % key)
                 else:
                     self.request.send("STAT\r\n202")
@@ -125,7 +144,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         filesize = int(filesize)
         
         #verify key
-        if(key == "63e780c3f321d13109c71bf81805476e"):
+        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
             self.request.send("STAT\r\n100")
         else:
             self.request.send("FAIL")
@@ -142,7 +161,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
-        filename_hash = md5.new(filename).hexdigest()
+        filename_hash = sha_constructor(filename).hexdigest()
         fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         if(os.path.isfile(fullpath)):
             print "File already exists"
@@ -172,8 +191,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def send(self, arguments):
         filename, key = arguments.split("\r\n", 1)
         
-        if(key == "63e780c3f321d13109c71bf81805476e"):
-            filename_hash = md5.new(filename).hexdigest()
+        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+            filename_hash = sha_constructor(filename).hexdigest()
             fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         
             filesize = os.path.getsize(fullpath)
