@@ -11,7 +11,7 @@ except ImportError:
 class TestProtocol(unittest.TestCase):
 
     def setUp(self):
-        self.key = "63e780c3f321d13109c71bf81805476e"
+        self.key = "45f106ef4d5161e7aa38cf6c666607f25748b6ca"
         self.username = "user"
         self.password = "pass"
         self.server = "localhost"
