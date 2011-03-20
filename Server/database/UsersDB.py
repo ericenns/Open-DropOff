@@ -83,6 +83,11 @@ class UsersDB:
         
         self._conn._execute(sql, username, password)
         
+    def getUser(self, username):
+        self._conn._execute('SELECT * FROM users WHERE username = %s', username)
+        data = self._conn._fetchOne()
+        return data
+    
     def updateUsername(self, newUsername, username, password):
         '''
         Update an existing username
@@ -153,6 +158,25 @@ class UsersDB:
         data = self._conn._fetchOne()
         return data
     
+    def removeFile(self,path):
+        '''
+        Remove a File from the database.
+        '''
+        
+        sql = "SELECT file_id FROM files WHERE path = %s"
+        self._conn._execute(sql,path) 
+        data = self._conn._fetchOne()
+        fileId = data[0]
+        
+        sql = "DELETE FROM users_files"
+        sql = sql + " WHERE file_id = %s " 
+
+        self._conn._execute(sql, fileId)
+        
+        sql = "DELETE FROM files WHERE file_id = %s"
+        
+        self._conn._execute(sql, fileId)
+            
     def getAllUser(self):
         self._conn._execute('SELECT * FROM users')
         data = self._conn._fetchAll()
