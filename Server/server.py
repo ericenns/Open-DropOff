@@ -88,14 +88,23 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #nameTaken = udb.userExists(newuser)
         #if not nameTaken:
-        #    udb.addUser( newuser, newpass )
-        #    self.request.send("STAT 100")
+        #    meetsReq = checkPassReq(newpass)
+        #    if meetsReq:
+        #        udb.addUser( newuser, newpass )
+        #        self.request.send("STAT 100")
+        #    else:
+        #        self.request.send("STAT 204")
         #else:
         #    print "Name taken, try again!"
         #    self.request.send("STAT 203")
         
         #conn.disconnect()
-        
+    
+    def checkPassReq(self, newpass):
+        if len(newpass) > 8:
+            return True
+        else:
+            return False
         
     def login(self, arguments):
         username = arguments
