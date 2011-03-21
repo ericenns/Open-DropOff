@@ -4,7 +4,7 @@
 -- Create users table
 CREATE TABLE users (
 	username VARCHAR(255) PRIMARY KEY, 
-	password_hash CHAR(64) NOT NULL, 
+	password_hash CHAR(40) NOT NULL, 
 	quota BIGINT UNSIGNED,
 	salt CHAR(32) NOT NULL) ENGINE = INNODB;
 
@@ -18,7 +18,7 @@ CREATE TABLE files (
 	last_author VARCHAR(255), 
 	directory BOOL DEFAULT 0, -- is the file a directory?
 	size BIGINT UNSIGNED,
-	checksum CHAR(32) NOT NULL,
+	checksum CHAR(40) NOT NULL,
 	deleted BOOL DEFAULT 0
 	) ENGINE = INNODB;
 
