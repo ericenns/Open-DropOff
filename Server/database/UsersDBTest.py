@@ -8,12 +8,12 @@ from DatabaseConnection import *
 from UsersDB import *
 
 
-class TestUserDB(unittest.TestCase):
+class UsersDBTest(unittest.TestCase):
 
 
     def setUp(self):
         self.connection = DatabaseConnection()
-        self.connection.connect("localhost","username","password","database_name")
+        self.connection.connect("localhost","username","password","database")
         self.userDB = UsersDB(self.connection)
         self.userDB.addUser("_TestUser" , 123)
         self.userDB.addFile("_TestUser","testFile1","c:/folder1/folder2/testFile1.txt","_TestUser","NULL",1)
@@ -32,10 +32,10 @@ class TestUserDB(unittest.TestCase):
         self.userDB.removeUser("_TestUser2")
 
     def testGetUser(self):
-        self.assertTrue(True)
+        self.assertTrue(1 == 1)
 
     def testUpdateUsername(self):
-        self.assertTrue(True)        
+        self.assertTrue(1 == 0)        
 
     def testUpdatePassword(self):
         self.assertTrue(True)
@@ -52,9 +52,6 @@ class TestUserDB(unittest.TestCase):
     def testUpdateLastAuthor(self):
         self.assertTrue(True)
 
-
-suite = unittest.TestLoader().loadTestsFromTestCase(TestUserDB)
-unittest.TextTestRunner(verbosity=2).run(suite)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
