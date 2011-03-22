@@ -99,7 +99,7 @@ class UsersDB:
         try:
             self._conn._execute(sql, username, password)
         except:
-            print sys.exc_info()[1]; #Username, password not found
+            print sys.exc_info()[1] #Username, password not found
       
     def updatePassword(self, newPassword, username, password):
         '''
@@ -112,7 +112,7 @@ class UsersDB:
         try:
             self._conn._execute(sql, username, password)
         except:
-            print sys.exc_info()[1];
+            print sys.exc_info()[1]
         
     def removeUser(self, username):
         '''
@@ -121,14 +121,21 @@ class UsersDB:
         sql = "DELETE FROM users "
         sql = sql + " WHERE username = %s " 
 
-        self._conn._execute(sql, username)
+        try:
+           self._conn._execute(sql, username)
+        except:
+            print sys.exc_info()[1]
         
-    def addFile(self, username, filename , path , lastAuthor, lastModified, version):
+    def addFile(self, username, filename , path , filesize , lastAuthor, lastModified, version):
         '''
         Add a file to a specific users drop off account.
         '''
         ''' TODO: filename and path can be merged into one... '''
         ''' TODO: wrap in transaction! '''
+        
+        '''Check if user has enough quota remaining 
+        if(getSpaceRemaining() < filesize)
+        '''
         
         sql = "INSERT INTO files "
         sql = sql + " ( filename, path , last_author, last_modified, version) "
@@ -206,3 +213,43 @@ class UsersDB:
         
         self._conn._execute(sql,newAuthor,path)
         
+    def getUserQuota():
+        '''
+        Return amount of space user has
+        '''
+                
+        sql = "SELECT quota FROM users"
+        sql = sql + " WHERE username = %s "
+        
+        try:
+            self._conn._execute(sql)
+        except:
+            print sys.exc_info()[1]
+       
+    def setUserQuota(self, quota, username):
+        '''
+        Return amount of space user has
+        '''
+        
+        sql = "UPDATE users "
+        sql = sql + " SET quota = %s"
+        sql = sql + " WHERE username = %s"
+        
+        try:
+            self._conn._execute(sql, username)
+        except:
+            print sys.exc_info()[1]
+
+    def getSpaceRemaining():
+       '''
+       Return amount of space left for user
+       '''
+    
+        sql = "SELECT users "
+        sql = sql + " SET quota = %s"
+        sql = sql + " WHERE username = %s"
+        
+        try:
+            self._conn._execute(sql, username)
+        except:
+            print sys.exc_info()[1]
