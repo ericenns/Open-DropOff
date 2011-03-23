@@ -58,14 +58,14 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         while(1):
             self.data = self.request.recv(80)
             try:
-                print "TEST11"
                 command, arguments = self.data.split("\r\n", 1)
-                print "TEST12"
                 print "\nCommand:\t%s" % command
                 if(command == "NUSR"):
                     self.createNewUser(arguments)
                 elif(command == "USER"):
                    self.login(arguments)
+                elif(command == "LIST"):
+                   self.list()
                 elif(command == "PUSH"):
                    self.receive(arguments)
                 elif(command == "PULL"):
@@ -78,6 +78,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 break
             
         self.request.close()
+        
         
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
@@ -102,11 +103,17 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #conn.disconnect()
     
+    
     def checkPassReq(self, newpass):
         if len(newpass) > 8:
             return True
         else:
             return False
+        
+        
+    def list(self):
+        print "IN LIST!"
+        
         
     def login(self, arguments):
         username = arguments
@@ -140,6 +147,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             self.request.send("STAT\r\n201")
             
         #conn.disconnect()
+            
             
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
@@ -223,6 +231,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         else:
             print "Don't send."
         print "PULL Request finished"
+             
              
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000

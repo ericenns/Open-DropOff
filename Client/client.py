@@ -31,8 +31,14 @@ def main():
     print "RC port: %s" % rc.port
     
     while 1:
-        ppSelection = raw_input("Push or pull? Enter:\n\tc for to create new user\n\tl for login\n\t1 for push\n\t2 for pull\n\tq to close: ")
-        
+        ppSelection = raw_input("Push or pull? Enter:\n\t" +
+                                "c for to create new user\n\t" +
+                                "l for login\n\t" +  
+                                "1 for push\n\t" +
+                                "2 for pull\n\t" +
+                                "3 for list\n\t" +
+                                "q to close\n: ")
+
         if ppSelection == "l":
             rc.login()
         elif ppSelection == "1":
@@ -42,7 +48,11 @@ def main():
         elif ppSelection == "2":
             filename = raw_input("Please enter name of file to retrieve: ")
             rc.pull(filename)
+        elif ppSelection == "3":
+            #print "Retreiving list of files for current user."
+            rc.list()
         elif ppSelection == "q":
+            rc.close()
             print "Closing!"
             break
         elif ppSelection == "c":
