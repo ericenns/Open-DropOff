@@ -31,6 +31,7 @@ class FilesDB:
     
     def __init__(self, conn):
         self._conn = conn
+        self._fileList = []
     
     def addFile(self, username, path , filesize , lastAuthor, lastModified, version):
         pass

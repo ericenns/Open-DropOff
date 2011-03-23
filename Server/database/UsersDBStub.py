@@ -23,39 +23,93 @@
 ###############################################################################
 
 import sys
-from DatabaseConnection import *
 
-class UsersDB:
+class UsersDBStub:
     '''
     FilesDB Stub class... should look the same but be more fake than Hollywood itself :)
+    '''
+    #we will be storing the data as tuples in a list - check out addUser
+    '''
+    tuple format - ("username" , password , quota , salt) - default quota and salt to zero
     '''
     
     def __init__(self, conn):
         self._conn = conn
+        self._userList = [] 
+        
+    def _getUserIndex(self, username):
+        '''
+        This function is only created in Stub database : it will return -1 if no username are found
+        '''
+        index = 0
+        foundUser = False        
+        while (index < len(self._userList)) & (foundUser == False) :
+            currUser = self._userList[index]
+            if currUser[0] == username :
+                foundUser = True
+            else:
+                index += 1       
+        
+        if foundUser == True:
+            return index
+        else:
+            return -1
         
     def userExists(self, username):
-        pass
+        user = self.getUser(username)
+        if user != None:
+            return True
+        else:
+            return False
         
     def authenticate(self, username, password):
-        pass
+        user = self.getUser(username)
+        if user[1] == password:
+            return True
+        else:
+            return False
         
     def addUser(self, username, password):
-        pass
+        user = ( username , password , 0 , 0)
+        self._userList.append(user)
         
     def getUser(self, username):
-        pass
+        index = 0
+        foundUser = False
+
+        while (index < len(self._userList)) & (foundUser == False) :
+            currUser = self._userList[index]
+            if currUser[0] == username :
+                foundUser = True
+            else:
+                index += 1
+        
+        if foundUser == True:
+            return self._userList[index]
+        else:
+            return None
+        
     
     def updateUsername(self, newUsername, username, password):
-        pass
-      
+        index = self._getUserIndex(username)
+        if index != -1:
+            user = self._userList[index]
+            self._userList[index] = ( newUsername , user[1] , user[2] , user[3] )
+                
+        
     def updatePassword(self, newPassword, username, password):
-        pass
+        index = self._getUserIndex(username)
+        if index != -1:
+            user = self._userList[index]
+            self._userList[index] = ( user[0] , newPassword , user[2] , user[3] )
         
     def removeUser(self, username):
-        pass
+        user = self.getUser(username)
+        if user != None:
+            self._userList.remove(user)
             
     def getAllUser(self):
-        pass
+        return tuple(self._userList)
                 
     def getUserQuota():
         pass

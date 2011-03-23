@@ -57,15 +57,79 @@ class UsersDBTest(unittest.TestCase):
         self.connection._execute('TRUNCATE users')
         self.connection.disconnect()
                 
-    def testAddUser(self):
-        self.userDB.addUser("TestUser1" , 123)
-        self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser1'")
-        self.assertEqual(("TestUser1",'123',None,''),self.userDB._conn._fetchOne())
+    def test_Add_Get_Remove_User(self):
+        userDB = self.userDB
+        userDB.addUser("user1" , 123)
+        
+        data = self.userDB.getUser("user1")
 
-    def testGetUser(self):
-        self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser2', '456')")
-        self.assertEqual(("TestUser2",'456',None,''),self.userDB.getUser('TestUser2'))
+        self.assertTrue( data[0] == "user1")
+        self.assertTrue( data[1] == "123" )
+        userDB.removeUser('user1')
+        
+        data = self.userDB.getUser("user1")
+        self.assertTrue(data == None)
+    
+    def testUserExist(self):
+        userDB = self.userDB
+        userDB.addUser("user1", 123)
+        value = userDB.userExists("user1")
+        self.assertTrue( value == True )
+        value = userDB.userExists("user123123")
+        self.assertTrue( value == False )
+        
+    def testAuthenticate(self):
+        userDB = self.userDB
+        userDB.addUser("user1", "123")
+        value = userDB.authenticate("user1" , "123")
+        self.assertTrue( value == True)
+        
+        
+    def testUpdateUsername(self):
+        userDB = self.userDB
+        userDB.addUser('user1', '123')
+        
+        userDB.updateUsername('user2', 'user1', '123')
+        user = userDB.getUser('user2')
+        self.assertTrue( user[0] == 'user2')
+        user = userDB.getUser('user1')
+        self.assertTrue( user == None)
+        
+        userDB.removeUser('user1') 
 
+    def testUpdatePassword(self):
+        userDB = self.userDB
+        userDB.addUser('user1', '123')
+        
+        userDB.updatePassword('234' , 'user1', '123')
+        user = userDB.getUser('user1')
+        self.assertTrue( user[1] == '234')
+        
+        userDB.removeUser('user1')
+
+    def testGetAllUser(self):
+        userDB = self.userDB
+        userTuples = (("user1", '123',0,0), ("user2", '223',0,0), ("user3", '323',0,0), ("user4", '423',0,0))
+        self.addUsers(userDB, userTuples)
+        userTuplesFromDB = userDB.getAllUser()
+        self.verifyUsers(userTuples,userTuplesFromDB)
+
+    def addUsers(self, userDB, userTuples):
+        index = 0
+        while (index < len( userTuples ) ):
+            user = userTuples[index]
+            userDB.addUser(user[0] , user[1])
+            index += 1
+    
+    def verifyUsers(self, userTuples, userTuplesFromDB):
+        index = 0
+        for tuple in userTuples:
+            tupleDB = userTuplesFromDB[index]
+            self.assertTrue( tuple[0],tupleDB[0])
+            self.assertTrue( tuple[1],tupleDB[1])
+            index += 1
+    '''
+   
     def testUpdateUsername(self):
         self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser3', '789')")
         self.userDB.updateUsername('NewName','TestUser3', '789')
@@ -78,11 +142,7 @@ class UsersDBTest(unittest.TestCase):
         self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser4'")
         self.assertEqual(("TestUser4",'new_pass',None,''),self.userDB._conn._fetchOne())
 
-    def testRemoveUser(self):
-        self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser5', 'pass2')")
-        self.userDB.removeUser("TestUser5")
-        self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser5'")
-        self.assertEqual(None,self.userDB._conn._fetchOne())
+    '''
 
     def testGetFile(self):
         self.assertTrue(True)
