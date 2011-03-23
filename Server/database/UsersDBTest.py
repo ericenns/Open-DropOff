@@ -52,6 +52,8 @@ class UsersDBTest(unittest.TestCase):
 #        self.userDB.addFile("_TestUser","testFile2","folder2/testFile2.txt","_TestUser","NULL",1)
        
     def tearDown(self):
+        self.connection._execute('TRUNCATE users_files')
+        self.connection._execute('TRUNCATE files')
         self.connection._execute('TRUNCATE users')
         self.connection.disconnect()
                 
