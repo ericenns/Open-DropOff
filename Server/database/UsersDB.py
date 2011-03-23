@@ -22,6 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
 
+import sys
 from DatabaseConnection import *
 
 class UsersDB:
@@ -81,10 +82,10 @@ class UsersDB:
         '''
         sql = "UPDATE users "
         sql = sql + " SET username = %s"
-        sql = sql + " WHERE username = %s AND password = %s"
+        sql = sql + " WHERE username = %s AND password_hash = %s"
         
         try:
-            self._conn._execute(sql, username, password)
+            self._conn._execute(sql, newUsername, username, password)
         except:
             print sys.exc_info()[1] #Username, password not found
       
@@ -94,10 +95,10 @@ class UsersDB:
         '''
         sql = "UPDATE users "
         sql = sql + " SET password_hash = %s"
-        sql = sql + " WHERE username = %s AND password = %s"
+        sql = sql + " WHERE username = %s AND password_hash = %s"
         
         try:
-            self._conn._execute(sql, username, password)
+            self._conn._execute(sql, newPassword, username, password)
         except:
             print sys.exc_info()[1]
         
