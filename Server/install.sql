@@ -6,7 +6,7 @@ CREATE TABLE users (
 	username VARCHAR(255) PRIMARY KEY, 
 	password_hash CHAR(40) NOT NULL, 
 	quota BIGINT UNSIGNED,
-	salt CHAR(32) NOT NULL) ENGINE = INNODB;
+	salt CHAR(40) NOT NULL) ENGINE = INNODB;
 
 -- Create files table
 CREATE TABLE files (
@@ -32,7 +32,7 @@ CREATE TABLE file_history (
 	last_author VARCHAR(255), 
 	directory BOOL DEFAULT 0, -- is the file a directory?
 	size BIGINT UNSIGNED NOT NULL,
-	checksum CHAR(32) NOT NULL,
+	checksum CHAR(40) NOT NULL,
 	deleted BOOL DEFAULT 0,
 	FOREIGN KEY (file_Id) REFERENCES files(file_id),
 	PRIMARY KEY (file_id, version) ) ENGINE = INNODB;
@@ -107,7 +107,7 @@ CREATE TABLE file_history (
 	last_author VARCHAR(255), 
 	directory BOOL DEFAULT 0, -- is the file a directory?
 	size BIGINT UNSIGNED NOT NULL,
-	checksum CHAR(32) NOT NULL,
+	checksum CHAR(40) NOT NULL,
 	deleted BOOL DEFAULT 0,
 	FOREIGN KEY (file_Id) REFERENCES files(file_id),
 	PRIMARY KEY (file_id, version) ) ENGINE = INNODB;
@@ -121,8 +121,8 @@ ALTER TABLE files DROP COLUMN path;
 ALTER TABLE files ADD COLUMN client_path VARCHAR(4096) NOT NULL;
 ALTER TABLE files ADD COLUMN server_path VARCHAR(4096) NOT NULL;
 ALTER TABLE files ADD COLUMN deleted BOOL DEFAULT 0;
-ALTER TABLE files ADD COLUMN checksum CHAR(32) NOT NULL;
+ALTER TABLE files ADD COLUMN checksum CHAR(40) NOT NULL;
 ALTER TABLE files MODIFY directory BOOL DEFAULT 0;
 
-ALTER TABLE users ADD COLUMN salt CHAR(32) NOT NULL;
+ALTER TABLE users ADD COLUMN salt CHAR(40) NOT NULL;
 -- END Patch 2 ----------------------------------------

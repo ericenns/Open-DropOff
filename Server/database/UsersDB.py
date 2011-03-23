@@ -241,9 +241,9 @@ class UsersDB:
             print sys.exc_info()[1]
 
     def getSpaceRemaining():
-       '''
-       Return amount of space left for user
-       '''
+        '''
+        Return amount of space left for user
+        '''
     
         sql = "SELECT users "
         sql = sql + " SET quota = %s"

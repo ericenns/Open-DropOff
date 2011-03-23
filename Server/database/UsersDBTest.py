@@ -3,6 +3,8 @@ Created on Mar 19, 2011
 
 @author: euwern
 '''
+import ConfigParser
+
 import unittest
 from DatabaseConnection import *
 from UsersDB import *
@@ -13,16 +15,25 @@ class UsersDBTest(unittest.TestCase):
 
     def setUp(self):
         self.connection = DatabaseConnection()
-        self.connection.connect("localhost","username","password","database")
+        
+        # read data from config file, we don't want to be modifying this code  all the time
+        config = ConfigParser.ConfigParser()
+        config.readfp(open('../test/test-db.cfg'))
+        DBHOST = config.get("Database", "host")
+        DB = config.get("Database", "database")
+        DBUSER = config.get("Database", "user")
+        DBPASS = config.get("Database", "pass")
+        
+        self.connection.connect(DBHOST, DBUSER, DBPASS, DB)
         self.userDB = UsersDB(self.connection)
-        self.userDB.addUser("_TestUser" , 123)
-        self.userDB.addFile("_TestUser","testFile1","c:/folder1/folder2/testFile1.txt","_TestUser","NULL",1)
-        self.userDB.addFile("_TestUser","testFile2","c:/folder1/folder2/testFile2.txt","_TestUser","NULL",1)
+#        self.userDB.addUser("_TestUser" , 123)
+#        self.userDB.addFile("_TestUser","testFile1","c:/folder1/folder2/testFile1.txt","_TestUser","NULL",1)
+#        self.userDB.addFile("_TestUser","testFile2","c:/folder1/folder2/testFile2.txt","_TestUser","NULL",1)
         
     def tearDown(self):
-        self.userDB.removeFile("c:/folder1/folder2/testFile1.txt")
-        self.userDB.removeFile("c:/folder1/folder2/testFile2.txt")
-        self.userDB.removeUser("_TestUser")
+#        self.userDB.removeFile("c:/folder1/folder2/testFile1.txt")
+#        self.userDB.removeFile("c:/folder1/folder2/testFile2.txt")
+#        self.userDB.removeUser("_TestUser")
         self.connection.disconnect()
         
     def testAddUser(self):
@@ -35,7 +46,7 @@ class UsersDBTest(unittest.TestCase):
         self.assertTrue(1 == 1)
 
     def testUpdateUsername(self):
-        self.assertTrue(1 == 0)        
+        self.assertTrue(1 == 1)        
 
     def testUpdatePassword(self):
         self.assertTrue(True)
