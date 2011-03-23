@@ -58,7 +58,9 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         while(1):
             self.data = self.request.recv(80)
             try:
+                print "TEST11"
                 command, arguments = self.data.split("\r\n", 1)
+                print "TEST12"
                 print "\nCommand:\t%s" % command
                 if(command == "NUSR"):
                     self.createNewUser(arguments)
@@ -141,6 +143,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
+        print "FILENAME: %s" % filename
         filesize = int(filesize)
         
         #verify key
@@ -161,12 +164,12 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
+        
         filename_hash = sha_constructor(filename).hexdigest()
         fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         if(os.path.isfile(fullpath)):
             print "File already exists"
         newfile = open(fullpath, "wb")
-        
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
         totalReceived = -1
@@ -189,8 +192,9 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
 
 
     def send(self, arguments):
+        print "TEST1"
         filename, key = arguments.split("\r\n", 1)
-        
+        print "TEST2"
         if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
             filename_hash = sha_constructor(filename).hexdigest()
             fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)

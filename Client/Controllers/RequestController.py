@@ -129,9 +129,11 @@ class RequestController(object):
     #            filename    name of file to be pulled and saved
     #Returns: File data
     def pull(self, filename):
+        self.connect()
         self.sock.send("PULL\r\n%s\r\n%s" % (filename, self.key))
         response = self.sock.recv(80)
-        status, code, filesize = response.split("\r\n", 1)
+        print "RESPONSE: %s" % response
+        status, code, filesize = response.split("\r\n", 2)
         filesize = int(filesize)
         if(status == "STAT" and code == "100"):
             self.sock.send("SEND")
@@ -147,5 +149,6 @@ class RequestController(object):
                 newfile.write(content)
             
             newfile.close() #close the file
+            self.disconnect()
         else:
             print "FAILURE!"
