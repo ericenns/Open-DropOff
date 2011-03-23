@@ -132,7 +132,6 @@ class RequestController(object):
         self.connect()
         self.sock.send("PULL\r\n%s\r\n%s" % (filename, self.key))
         response = self.sock.recv(80)
-        print "RESPONSE: %s" % response
         status, code, filesize = response.split("\r\n", 2)
         filesize = int(filesize)
         if(status == "STAT" and code == "100"):

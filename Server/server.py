@@ -192,9 +192,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
 
 
     def send(self, arguments):
-        print "TEST1"
         filename, key = arguments.split("\r\n", 1)
-        print "TEST2"
         if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
             filename_hash = sha_constructor(filename).hexdigest()
             fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
@@ -208,7 +206,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             
         response = self.request.recv(80)
         
-        print "RESPOSNE! %s" % response
         if response == "SEND":
             #start sending the file
             
