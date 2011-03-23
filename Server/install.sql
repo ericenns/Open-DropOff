@@ -51,6 +51,9 @@ CREATE TABLE users_files(
 	FOREIGN KEY (file_id) REFERENCES files(file_id),
 	FOREIGN KEY (permission_level) REFERENCES permissions(permission_level),
 	PRIMARY KEY (username, file_id)) ENGINE = INNODB;
+	
+-- Insert permissions to the permission look-up table
+INSERT INTO permissions (permission_level, description) VALUES (0, 'Owner');
 
 -- =======================================
 -- Patches
