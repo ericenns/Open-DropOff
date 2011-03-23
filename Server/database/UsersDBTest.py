@@ -96,7 +96,9 @@ class UsersDBTest(unittest.TestCase):
     def testPermissions(self):
         file = self.fileDB.getFile("_TestUser", "folder2/testFile1.txt")
         self.userDB.setPermission("_TestUser", file[1], 0)
-        self.assertTrue(True)
+        self.assertTrue(self.userDB.getPermission("_TestUser", file[1]) == 0)
+        randomFileID = 3145156
+        self.assertTrue(self.userDB.getPermission("_TestUser", randomFileID) == None)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

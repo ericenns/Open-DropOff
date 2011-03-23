@@ -160,24 +160,33 @@ class UsersDB:
         except:
             print sys.exc_info()[1]
             
-    def getPermission(self, username, file_id):
+    def getPermission(self, username, fileId):
         '''
         Returns the file permission
         '''
     
-        sql = "SELECT permission "
+        sql = "SELECT permission_level "
         sql = sql + " FROM users_files "
-        sql = sql + " WHERE username = %s"
-        
-        data = None
-        
+        sql = sql + " WHERE username = %s AND file_id = %s"
+                
         try:
-            self._conn._execute(sql, username)
-            data 
+            self._conn._execute(sql, username, fileId)
+            data = self._conn._fetchOne();
         except:
             print sys.exc_info()[1]
+            
+        return data[0] if data != None else None
     
-    def setPermission(self, username, file_id, newPermission):
+    def setPermission(self, username, fileId, newPermission):
         '''
         Sets the file permission on the specified file
         '''
+        sql = "UPDATE users_files "
+        sql = sql + " SET permission_level = %s"
+        sql = sql + " WHERE username = %s AND file_id = %s"
+        
+        try:
+            self._conn._execute(sql, newPermission, username, fileId)
+        except:
+            print sys.exc_info()[1]
+            
