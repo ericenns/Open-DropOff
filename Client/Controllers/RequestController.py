@@ -20,6 +20,7 @@ class RequestController(object):
         self.server = server
         self.port = int(port)
 
+
     def connect(self):
         self.sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )  # create a TCP socket
         
@@ -28,8 +29,16 @@ class RequestController(object):
         except:
             print "Unable to connect to server specified. %s" % self.server
     
+    
     def disconnect(self):
         self.sock.close()
+        
+        
+    def close(self):
+        self.connect()
+        self.sock.send("CLOS\r\n")
+        self.disconnect()
+        
         
     #Creates a new user with the given information:
     #params:    username    name to be used for new user
@@ -53,6 +62,7 @@ class RequestController(object):
             return False
         
         self.disconnect()
+
 
     def login(self):
         self.connect()
@@ -78,8 +88,23 @@ class RequestController(object):
         else:
             return "";
         
-        
         self.disconnect()
+        
+        
+    #Sends a listing of contents request to connection
+    #params:    sock    connection to send list request to
+    #Returns: list of items returned by the server
+    #def list(self, key):
+    def list(self):
+        self.connect()
+        print "IN LIST, RC"
+        self.sock.send("LIST\r\n")
+        self.disconnect()
+        #should figure out what format contents list should have
+        #contentsList = self.sock.recv(RECEIVESIZE)
+        
+        #return contentsList
+        
         
     #send file to server
     #params:    sock    connection to have file sent through
@@ -114,24 +139,15 @@ class RequestController(object):
         self.disconnect()
 
         
-    #Sends a listing of contents request to connection
-    #params:    sock    connection to send list request to
-    #Returns: list of items returned by the server
-    def list(self, key):
-        self.sock.send("LIST")
-        #should figure out what format contents list should have
-        contentsList = self.sock.recv(RECEIVESIZE)
-        
-        return contentsList
-        
     #Send a request for a file to be pulled from connection
     #params:    key    key that confirms identity of request sender
     #            filename    name of file to be pulled and saved
     #Returns: File data
     def pull(self, filename):
+        self.connect()
         self.sock.send("PULL\r\n%s\r\n%s" % (filename, self.key))
         response = self.sock.recv(80)
-        status, code, filesize = response.split("\r\n", 1)
+        status, code, filesize = response.split("\r\n", 2)
         filesize = int(filesize)
         if(status == "STAT" and code == "100"):
             self.sock.send("SEND")
@@ -147,5 +163,6 @@ class RequestController(object):
                 newfile.write(content)
             
             newfile.close() #close the file
+            self.disconnect()
         else:
             print "FAILURE!"

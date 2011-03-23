@@ -64,6 +64,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                     self.createNewUser(arguments)
                 elif(command == "USER"):
                    self.login(arguments)
+                elif(command == "LIST"):
+                   self.list()
                 elif(command == "PUSH"):
                    self.receive(arguments)
                 elif(command == "PULL"):
@@ -76,6 +78,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 break
             
         self.request.close()
+        
         
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
@@ -100,11 +103,17 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
         #conn.disconnect()
     
+    
     def checkPassReq(self, newpass):
         if len(newpass) > 8:
             return True
         else:
             return False
+        
+        
+    def list(self):
+        print "IN LIST!"
+        
         
     def login(self, arguments):
         username = arguments
@@ -139,8 +148,10 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             
         #conn.disconnect()
             
+            
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
+        print "FILENAME: %s" % filename
         filesize = int(filesize)
         
         #verify key
@@ -161,12 +172,12 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
+        
         filename_hash = sha_constructor(filename).hexdigest()
         fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
         if(os.path.isfile(fullpath)):
             print "File already exists"
         newfile = open(fullpath, "wb")
-        
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
         totalReceived = -1
@@ -190,7 +201,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
 
     def send(self, arguments):
         filename, key = arguments.split("\r\n", 1)
-        
         if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
             filename_hash = sha_constructor(filename).hexdigest()
             fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
@@ -204,7 +214,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             
         response = self.request.recv(80)
         
-        print "RESPOSNE! %s" % response
         if response == "SEND":
             #start sending the file
             
@@ -222,6 +231,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         else:
             print "Don't send."
         print "PULL Request finished"
+             
              
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 30000
