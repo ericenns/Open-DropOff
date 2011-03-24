@@ -119,7 +119,7 @@ class UsersDB:
         data = self._conn._fetchAll()
         return data
                 
-    def getUserQuota():
+    def getUserQuota(self):
         '''
         Return amount of space user has
         '''
@@ -129,8 +129,11 @@ class UsersDB:
         
         try:
             self._conn._execute(sql)
+            data = self._conn._fetchOne()
+            return data
         except:
             print sys.exc_info()[1]
+            
        
     def setUserQuota(self, quota, username):
         '''
@@ -151,12 +154,14 @@ class UsersDB:
         Return amount of space left for user
         '''
     
-        sql = "SELECT users "
-        sql = sql + " SET quota = %s"
+        sql = "SELECT sum(SIZE) FROM user_files JOIN files "
         sql = sql + " WHERE username = %s"
         
         try:
             self._conn._execute(sql, username)
+            data = self._conn._fetchOne()
+            return data
+       
         except:
             print sys.exc_info()[1]
             
