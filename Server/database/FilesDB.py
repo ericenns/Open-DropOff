@@ -137,4 +137,48 @@ class FilesDB:
         '''
         TODO: write code
         '''
+    def getClientPath(self, file_id):
+        '''
+        Gets the file path on the clients machine
+        '''
+        sql = "SELECT client_path FROM files"
+        sql = sql + " WHERE file_id = %s "
+        
+        self._conn._execute(sql,file_id)
+        data = self._conn._fetchOne()
+        return data[0]
+        
+    def getServerPath(self, file_id):
+        '''
+        Gets the file path on the server
+        '''
+        sql = "SELECT server_path FROM files"
+        sql = sql + " WHERE file_id = %s "
+        
+        self._conn._execute(sql,file_id)
+        data = self._conn._fetchOne()
+        return data[0]
+            
+    def getChecksum(self, file_id):
+        '''
+        Gets the checksum for a file
+        '''
+        sql = "SELECT checksum FROM files"
+        sql = sql + " WHERE file_id = %s "
+        
+        self._conn._execute(sql,file_id)
+        data = self._conn._fetchOne()
+        return data[0]
+            
+    def getLastModified(self, file_id):
+        '''
+        Gets the last modified timestamp for a file
+        '''
+        sql = "SELECT last_modified FROM files"
+        sql = sql + " WHERE file_id = %s "
+        
+        self._conn._execute(sql,file_id)
+        data = self._conn._fetchOne()
+        return data[0]        
+    
         

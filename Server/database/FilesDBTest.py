@@ -42,21 +42,14 @@ class FilesDBTest(unittest.TestCase):
         
         self.connection.connect(DBHOST, DBUSER, DBPASS, DB)
         self.userDB = UsersDB(self.connection)
-#        self.userDB.addUser("_TestUser" , 123)
-#        self.userDB.addFile("_TestUser","testFile1","c:/folder1/folder2/testFile1.txt","_TestUser","NULL",1)
-#        self.userDB.addFile("_TestUser","testFile2","c:/folder1/folder2/testFile2.txt","_TestUser","NULL",1)
+        
+        self.fileDB = FilesDB(self.connection)
         
     def tearDown(self):
-#        self.userDB.removeFile("c:/folder1/folder2/testFile1.txt")
-#        self.userDB.removeFile("c:/folder1/folder2/testFile2.txt")
-#        self.userDB.removeUser("_TestUser")
+        self.connection._execute('TRUNCATE users_files')
+        self.connection._execute('TRUNCATE files')
+        self.connection._execute('TRUNCATE users')
         self.connection.disconnect()
-        
-    def testAddUser(self):
-        self.userDB.addUser("_TestUser2" , 123)
-        data = self.userDB.getUser("_TestUser2")
-        self.assertEqual("_TestUser2",data[0])
-        self.userDB.removeUser("_TestUser2")
 
     def testGetUser(self):
         self.assertTrue(True)
@@ -77,6 +70,21 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testUpdateLastAuthor(self):
+        self.assertTrue(True)
+        
+    def testGetServerPath(self):
+        self.assertTrue(True)
+        
+    def testGetClientPath(self):
+        self.userDB.addUser("_TestUser" , "123")
+        self.fileDB.addFile("_TestUser","folder2/testFile1.txt", 35, "_TestUser","NULL",1)
+        file = self.fileDB.getFile("_TestUser","folder2/testFile1.txt")
+        self.assertEqual(self.fileDB.getClientPath(file[1]), "folder2/testFile1.txt")
+        
+    def testGetChecksum(self):
+        self.assertTrue(True)
+        
+    def testGetLastModified(self):
         self.assertTrue(True)
 
 if __name__ == "__main__":
