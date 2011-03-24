@@ -154,8 +154,8 @@ class UsersDB:
         Return amount of space left for user
         '''
     
-        sql = "SELECT sum(SIZE) FROM user_files JOIN files "
-        sql = sql + " WHERE username = %s"
+        sql = "SELECT sum(files.size) FROM users_files JOIN files "
+        sql = sql + " ON files.file_id = users_files.file_id WHERE username = %s"
         
         try:
             self._conn._execute(sql, username)

@@ -27,30 +27,94 @@ import DatabaseConnection
 class FilesDB:    
     '''
     FilesDB Stub class... should look the same but be more fake than Hollywood itself :)
+    
+    tuple format fileList - (fileID , client_path , server_path, version, last_modified, size, checksum)
+    tuple format usersFilesList - (fileID , username)
     '''
     
     def __init__(self, conn):
         self._conn = conn
-        self._fileList = []
-    
+        self._fileList = []    
+        self._usersFilesList = []
+        self._fileID = 0
+        
     def addFile(self, username, path , filesize , lastAuthor, lastModified, version):
-        pass
-    
+        self._fileID += 1
+        file = ( self._fileID , path , 0 , 0, lastModified, filesize)
+        self._fileList.append(file)
+        
+        fileRef = (self._fileID , username)
+        self._usersFilesList.append(fileRef)
+        
     def removeFile(self,path):
-        pass
+        '''
+        Remove a File from the database.
+        '''
+        
+        sql = "SELECT file_id FROM files WHERE client_path = %s"
+        self._conn._execute(sql, path) 
+        data = self._conn._fetchOne()
+        fileId = data[0]
+        
+        try:
+            sql = "DELETE FROM users_files"
+            sql = sql + " WHERE file_id = %s " 
+    
+            self._conn._execute(sql, fileId)
+            
+            sql = "DELETE FROM files WHERE file_id = %s"
+            
+            self._conn._execute(sql, fileId)
+        except:
+            print sys.exc_info()[1]
     
     def getFile(self, username, path):
-        pass
-    
-    def getFilesInDir(self, path):
-        pass
+        '''
+        Gets a file based on a the file path given. The system will also make sure 
+        the user has permissions to access this file. An exception will be thrown if
+        the user is unauthorised to access the file. 
+        '''
+        
+        sql = "SELECT * FROM users_files uf, files f "
+        sql = sql + "WHERE uf.file_id = f.file_id AND f.client_path = %s "
+        sql = sql + " AND uf.username = %s"
+        
+        self._conn._execute(sql, path, username)
+        data = self._conn._fetchOne()
+        return data
     
     def getFiles(self, username):
-        pass
-    
-    def updateLastAuthor(self, path, newAuthor):   
-        pass
-
-    def getLastAuthor(self, conn, path):
-        pass
+        '''
+        Gets all the files a user has in their dropoff box
+        '''
+        
+        sql = "SELECT * FROM users_files uf, files f "
+        sql = sql + "WHERE uf.file_id = f.file_id " 
+        sql = sql + " AND uf.username = %s "
+        
+        self._conn._execute(sql, username)
+        data = self._conn._fetchAll()
+        return data
+            
+    def getChecksum(self, file_id):
+        '''
+        Gets the checksum for a file
+        '''
+        sql = "SELECT checksum FROM files"
+        sql = sql + " WHERE file_id = %s "
+        
+        self._conn._execute(sql,file_id)
+        data = self._conn._fetchOne()
+        return data[0]
+            
+    def getLastModified(self, file_id):
+        '''
+        Gets the last modified timestamp for a file
+        '''
+        sql = "SELECT last_modified FROM files"
+        sql = sql + " WHERE file_id = %s "
+        
+        self._conn._execute(sql,file_id)
+        data = self._conn._fetchOne()
+        return data[0]        
         

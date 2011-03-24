@@ -111,12 +111,17 @@ class UsersDBStub:
     def getAllUser(self):
         return tuple(self._userList)
                 
-    def getUserQuota():
-        pass
+    def getUserQuota(self, username):
+        user = self.getUser(username)
+        if user != None:
+            return user[2]
        
     def setUserQuota(self, quota, username):
-        pass
-
+        index = self._getUserIndex(username)
+        if index != -1:
+            user = self._userList[index]
+            self._userList[index] = ( user[0] , user[1] , quota , user[3] )
+                
     def getSpaceRemaining(self, username):
         pass
             
