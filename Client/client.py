@@ -37,6 +37,7 @@ def main():
                                 "1 for push\n\t" +
                                 "2 for pull\n\t" +
                                 "3 for list\n\t" +
+                                "4 for change password\n\t" +
                                 "q to close\n: ")
 
         if ppSelection == "l":
@@ -51,6 +52,10 @@ def main():
         elif ppSelection == "3":
             #print "Retreiving list of files for current user."
             rc.list()
+        elif ppSelection == "4":
+            password = raw_input("Please enter your new password: ")
+            print "Changing password..."
+            rc.changePassword(password)
         elif ppSelection == "q":
             rc.close()
             print "Closing!"

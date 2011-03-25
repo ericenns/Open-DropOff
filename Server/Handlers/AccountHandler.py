@@ -45,7 +45,19 @@ class AccountHandler(object):
         #    self.connHandler.send("STAT 203")
         
         #conn.disconnect()
-    
+            
+
+    def changePassword(self, arguments):
+        password, key = arguments.split("\r\n")
+        print "in changePassword password: %s" % password
+        print "in changePassword key: %s" % key
+        
+        #verify key
+        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+            self.connHandler.send("STAT\r\n100")
+        else:
+            self.connHandler.send("STAT\r\n200")
+            return
     
     def checkPassReq(self, newpass):
         if len(newpass) > 8:
