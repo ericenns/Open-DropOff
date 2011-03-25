@@ -36,7 +36,7 @@ except ImportError:
    import sha
    sha_constructor = sha.new
 #from database import *
-from Handlers import GeneralHandler
+from handlers import GeneralHandler
 
 RECEIVESIZE = 100
 SENDSIZE = 100

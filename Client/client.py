@@ -2,7 +2,7 @@ import socket
 import sys
 import getopt
 import os
-from Controllers import RequestController
+from controllers import RequestController
 
 RECEIVESIZE = 100
 SENDSIZE = 100
