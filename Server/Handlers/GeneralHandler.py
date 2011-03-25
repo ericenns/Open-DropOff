@@ -1,8 +1,26 @@
-'''
-Created on Mar 24, 2011
-
-@author: Andrew
-'''
+###############################################################################
+# Open DropOff                                                                #
+# Copyright (C) 2011                                                          #
+#                                                                             #
+# Authors:                                                                    #
+#    Eric Enns                                                                #
+#    Travis Martindale                                                        #
+#    Andrew Matsuaka                                                          #
+#    Chris Janssens                                                           #
+#                                                                             #
+# This program is free software: you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+###############################################################################
 
 import AccountHandler
 import FileHandler
@@ -32,6 +50,9 @@ class GeneralHandler(object):
         
     def createNewUser(self, args):
         self.accHandle.createNewUser(args)
+        
+    def changePassword(self, args):
+        self.accHandler.changePassword(args)
     
     def login(self, args):
         self.accHandle.login(args)
