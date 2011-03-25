@@ -36,8 +36,8 @@ class GeneralHandler(object):
         Constructor
         '''
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, 100, 100)
-        self.accHandle = AccountHandler.AccountHandler(self.connHandler)
-        self.fileHandle = FileHandler.FileHandler(self.connHandler, basedir, filedir)
+        self.accHandler = AccountHandler.AccountHandler(self.connHandler)
+        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir)
         
     def push(self, args):
         self.fileHandle.receive(args)
