@@ -39,13 +39,9 @@ class FilesDB:
         '''
         Add a file to a specific users drop off account.
         '''
-        ''' TODO: filename and path can be merged into one... '''
-        ''' TODO: wrap in transaction! '''
         
         '''Check if user has enough quota remaining 
-        if(getSpaceRemaining() < filesize)
-        '''
-        
+        if UsersDB.getSpaceRemaining(username) > filesize:'''
         sql = "INSERT INTO files "
         sql = sql + " ( client_path, server_path , last_author, last_modified, version) "
         sql = sql + " VALUES ( %s , %s, %s, %s, %s ) "
@@ -58,7 +54,10 @@ class FilesDB:
         sql = sql + " VALUES ( %s , %s, 0 ) "
         
         self._conn._execute(sql, username, fileID)
-    
+        
+        '''else:
+            return 'User does not have enough space to add file' '''
+        
     def removeFile(self,path):
         '''
         Remove a File from the database.
@@ -69,14 +68,17 @@ class FilesDB:
         data = self._conn._fetchOne()
         fileId = data[0]
         
-        sql = "DELETE FROM users_files"
-        sql = sql + " WHERE file_id = %s " 
-
-        self._conn._execute(sql, fileId)
-        
-        sql = "DELETE FROM files WHERE file_id = %s"
-        
-        self._conn._execute(sql, fileId)
+        try:
+            sql = "DELETE FROM users_files"
+            sql = sql + " WHERE file_id = %s " 
+    
+            self._conn._execute(sql, fileId)
+            
+            sql = "DELETE FROM files WHERE file_id = %s"
+            
+            self._conn._execute(sql, fileId)
+        except:
+            '''print sys.exc_info()[1]'''
     
     def getFile(self, username, path):
         '''
@@ -123,6 +125,7 @@ class FilesDB:
     def updateLastAuthor(self, path, newAuthor):   
         '''
         update last_author in a given file path
+        Not Needed
         '''
                 
         sql = "UPDATE files f SET last_author = %s"
@@ -133,10 +136,9 @@ class FilesDB:
     def getLastAuthor(self, conn, path):
         '''
         Gets the last author of the file, i.e. who it was last modified by
+        Not Needed
         '''
-        '''
-        TODO: write code
-        '''
+        
     def getClientPath(self, file_id):
         '''
         Gets the file path on the clients machine
