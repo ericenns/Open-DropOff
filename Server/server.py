@@ -36,6 +36,7 @@ except ImportError:
    import sha
    sha_constructor = sha.new
 #from database import *
+from Handlers import GeneralHandler
 
 RECEIVESIZE = 100
 SENDSIZE = 100
@@ -55,21 +56,23 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         # get the protocol option
+        genHandler = GeneralHandler.GeneralHandler(self.request, BASEDIR, FILEDIR)
+        
         while(1):
-            self.data = self.request.recv(80)
+            self.data = genHandler.recvRequest()
             try:
                 command, arguments = self.data.split("\r\n", 1)
                 print "\nCommand:\t%s" % command
                 if(command == "NUSR"):
-                    self.createNewUser(arguments)
+                    genHandler.createNewUser(arguments)
                 elif(command == "USER"):
-                    self.login(arguments)
+                    genHandler.login(arguments)
                 elif(command == "LIST"):
-                    self.list()
+                    genHandler.list()
                 elif(command == "PUSH"):
-                    self.receive(arguments)
+                    genHandler.push(arguments)
                 elif(command == "PULL"):
-                    self.send(arguments)
+                    genHandler.pull(arguments)
                 elif(command == "CLOS"):
                     print "Connection with Client closed"
                     break
@@ -148,7 +151,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             
         #conn.disconnect()
             
-            
+                
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
         print "FILENAME: %s" % filename

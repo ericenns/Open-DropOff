@@ -19,6 +19,8 @@ class RequestController(object):
     def __init__(self, server, port):
         self.server = server
         self.port = int(port)
+        #TODO: THIS IS VERY BAD. Only here for getting things running
+        self.key = "45f106ef4d5161e7aa38cf6c666607f25748b6ca"
 
 
     def connect(self):
