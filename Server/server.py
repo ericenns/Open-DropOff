@@ -62,6 +62,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 print "\nCommand:\t%s" % command
                 if(command == "NUSR"):
                     self.createNewUser(arguments)
+                elif(command == "PASS"):
+                   self.changePassword(arguments)
                 elif(command == "USER"):
                    self.login(arguments)
                 elif(command == "LIST"):
@@ -71,15 +73,28 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 elif(command == "PULL"):
                    self.send(arguments)
                 elif(command == "CLOS"):
-                   print "Connection with Client closed"
-                   break
+                    print "Connection with Client closed"
+                    break
             except ValueError:
                 print "Connection with Client lost"
                 break
             
         self.request.close()
         
+
+    def changePassword(self, arguments):
+        password, key = arguments.split("\r\n")
+        print "in changePassword password: %s" % password
+        print "in changePassword key: %s" % key
         
+        #verify key
+        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+            self.request.send("STAT\r\n100")
+        else:
+            self.request.send("STAT\r\n200")
+            return
+
+
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
         print "New user: %s" % newuser
@@ -142,7 +157,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                     self.request.send("STAT\r\n202")
             else:
                 #not sure if this is needed
-                self.request.send("FAIL")
+                self.request.send("STAT\r\n200")
         else:
             self.request.send("STAT\r\n201")
             
@@ -158,7 +173,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
             self.request.send("STAT\r\n100")
         else:
-            self.request.send("FAIL")
+            self.request.send("STAT\r\n200")
             return
         
         #authenticate user information
@@ -209,7 +224,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         
             self.request.send("STAT\r\n100\r\n%i" % filesize)
         else:
-            self.request.send("FAIL\r\n101")
+            self.request.send("STAT\r\n200")
             return
             
         response = self.request.recv(80)
