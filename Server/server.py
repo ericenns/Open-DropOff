@@ -72,9 +72,9 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 elif(command == "LIST"):
                     genHandler.list()
                 elif(command == "PUSH"):
-                    genHandler.receive(arguments)
+                    genHandler.push(arguments)
                 elif(command == "PULL"):
-                    genHandler.send(arguments)
+                    genHandler.pull(arguments)
                 elif(command == "CLOS"):
                     print "Connection with Client closed"
                     break

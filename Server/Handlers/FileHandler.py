@@ -102,9 +102,9 @@ class FileHandler(object):
         
             filesize = os.path.getsize(fullpath)
         
-            self.request.send("STAT\r\n100\r\n%i" % filesize)
+            self.connHandler.send("STAT\r\n100\r\n%i" % filesize)
         else:
-            self.request.send("FAIL\r\n101")
+            self.connHandler.send("FAIL\r\n101")
             return
             
         response = self.connHandler.recv()
@@ -117,9 +117,9 @@ class FileHandler(object):
             line = file.read(self.connHandler.sendSize)
             
             while line:
-                sent = self.request.send(line)
+                sent = self.connHandler.send(line)
                 while sent != len(line):
-                    sent += self.request.send(line[sent:])
+                    sent += self.connHandler.send(line[sent:])
                 line = file.read(self.connHandler.sendSize)
             
             file.close()

@@ -40,7 +40,7 @@ class ConnectionHandler(object):
     def send(self, data):
         '''SEND STUFF HERE'''
         print "Sending data..."
-        self.connection.send( data )
+        return self.connection.send( data )
         
     def recv(self):
         '''RETURN STUFF HERE'''
