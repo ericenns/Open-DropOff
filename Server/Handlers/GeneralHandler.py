@@ -40,22 +40,22 @@ class GeneralHandler(object):
         self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir)
         
     def push(self, args):
-        self.fileHandle.receive(args)
+        self.fileHandler.receive(args)
     
     def pull(self, args):
-        self.fileHandle.send(args)
+        self.fileHandler.send(args)
     
     def list(self):
-        self.fileHandle.list()
+        self.fileHandler.list()
         
     def createNewUser(self, args):
-        self.accHandle.createNewUser(args)
+        self.accHandler.createNewUser(args)
         
     def changePassword(self, args):
         self.accHandler.changePassword(args)
     
     def login(self, args):
-        self.accHandle.login(args)
+        self.accHandler.login(args)
         
     def recvRequest(self):
         return self.connHandler.recv()
