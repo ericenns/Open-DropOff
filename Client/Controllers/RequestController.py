@@ -59,6 +59,7 @@ class RequestController(object):
     
     
     def disconnect(self):
+        self.sock.send("CLOS")
         self.sock.close()
         
         
