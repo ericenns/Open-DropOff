@@ -63,16 +63,16 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 if(command == "NUSR"):
                     self.createNewUser(arguments)
                 elif(command == "USER"):
-                   self.login(arguments)
+                    self.login(arguments)
                 elif(command == "LIST"):
-                   self.list()
+                    self.list()
                 elif(command == "PUSH"):
-                   self.receive(arguments)
+                    self.receive(arguments)
                 elif(command == "PULL"):
-                   self.send(arguments)
+                    self.send(arguments)
                 elif(command == "CLOS"):
-                   print "Connection with Client closed"
-                   break
+                    print "Connection with Client closed"
+                    break
             except ValueError:
                 print "Connection with Client lost"
                 break
