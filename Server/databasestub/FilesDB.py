@@ -22,9 +22,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
 
-import DatabaseConnection
-import sys
-
 class FilesDB:    
     '''
     FilesDB Stub class... should look the same but be more fake than Hollywood itself :)
@@ -39,83 +36,49 @@ class FilesDB:
         self._usersFilesList = []
         self._fileID = 0
         
-    def addFile(self, username, path , filesize , lastAuthor, lastModified, version):
+    def addFile(self, username, path , filesize , lastAuthor, lastModified, version, checksum):
         self._fileID += 1
-        file = ( self._fileID , path , 0 , 0, lastModified, filesize)
+        file = {'file_id': self._fileID , 'client_path': path , 'server_path': 0 , 'version': version, 'last_modified': lastModified, 'size': filesize, 'checksum': checksum}
         self._fileList.append(file)
         
-        fileRef = (self._fileID , username)
+        fileRef = {'file_id': self._fileID , 'username': username}
         self._usersFilesList.append(fileRef)
         
     def removeFile(self,path):
         '''
         Remove a File from the database.
         '''
-        
-        sql = "SELECT file_id FROM files WHERE client_path = %s"
-        self._conn._execute(sql, path) 
-        data = self._conn._fetchOne()
-        fileId = data[0]
-        
-        try:
-            sql = "DELETE FROM users_files"
-            sql = sql + " WHERE file_id = %s " 
+        pass
     
-            self._conn._execute(sql, fileId)
-            
-            sql = "DELETE FROM files WHERE file_id = %s"
-            
-            self._conn._execute(sql, fileId)
-        except:
-            print sys.exc_info()[1]
+    def getFile(self, username, client_path):
+        for userFile in self._usersFilesList:
+            if userFile['username'] == username:
+                for file in self._fileList:
+                    if file['file_id'] == userFile['file_id'] and file['client_path'] == client_path:
+                        return file
     
-    def getFile(self, username, path):
-        '''
-        Gets a file based on a the file path given. The system will also make sure 
-        the user has permissions to access this file. An exception will be thrown if
-        the user is unauthorised to access the file. 
-        '''
+    def getAllFiles(self, username):
+        data = []
         
-        sql = "SELECT * FROM users_files uf, files f "
-        sql = sql + "WHERE uf.file_id = f.file_id AND f.client_path = %s "
-        sql = sql + " AND uf.username = %s"
+        for userFile in self._usersFilesList:
+            if userFile['username'] == username:
+                for file in self._fileList:
+                    if file['file_id'] == userFile['file_id']:
+                        data.append(file)
         
-        self._conn._execute(sql, path, username)
-        data = self._conn._fetchOne()
-        return data
-    
-    def getFiles(self, username):
-        '''
-        Gets all the files a user has in their dropoff box
-        '''
-        
-        sql = "SELECT * FROM users_files uf, files f "
-        sql = sql + "WHERE uf.file_id = f.file_id " 
-        sql = sql + " AND uf.username = %s "
-        
-        self._conn._execute(sql, username)
-        data = self._conn._fetchAll()
         return data
             
     def getChecksum(self, file_id):
-        '''
-        Gets the checksum for a file
-        '''
-        sql = "SELECT checksum FROM files"
-        sql = sql + " WHERE file_id = %s "
+        for file in self._usersFilesList:
+            if file['file_id'] == file_id:
+                return file['checksum']
         
-        self._conn._execute(sql,file_id)
-        data = self._conn._fetchOne()
-        return data[0]
+        return None
             
     def getLastModified(self, file_id):
-        '''
-        Gets the last modified timestamp for a file
-        '''
-        sql = "SELECT last_modified FROM files"
-        sql = sql + " WHERE file_id = %s "
+        for file in self._usersFilesList:
+            if file['file_id'] == file_id:
+                return file['last_modified']
         
-        self._conn._execute(sql,file_id)
-        data = self._conn._fetchOne()
-        return data[0]        
+        return None
         
