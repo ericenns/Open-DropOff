@@ -21,6 +21,7 @@
 # You should have received a copy of the GNU General Public License           #
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
+import sys
 
 import DatabaseConnection
 
@@ -35,7 +36,7 @@ class FilesDB:
     def __init__(self, conn):
         self._conn = conn
     
-    def addFile(self, username, path , filesize , lastAuthor, lastModified, version):
+    def addFile(self, username, clientPath, serverPath , filesize , lastAuthor, lastModified, version):
         '''
         Add a file to a specific users drop off account.
         '''
@@ -45,7 +46,7 @@ class FilesDB:
         sql = "INSERT INTO files "
         sql = sql + " ( client_path, server_path , last_author, last_modified, version) "
         sql = sql + " VALUES ( %s , %s, %s, %s, %s ) "
-        self._conn._execute(sql, path, "temp_crap", lastAuthor, lastModified, version)
+        self._conn._execute(sql, clientPath, serverPath, lastAuthor, lastModified, version)
         
         fileID = self._conn._getLastRowID()
         
@@ -58,18 +59,20 @@ class FilesDB:
         '''else:
             return 'User does not have enough space to add file' '''
         
-    def removeFile(self,path):
+    def removeFile(self, username, client_path):
         '''
         Remove a File from the database.
         '''
+        # TODO: what about file history??? This is an over simplified version and needs to be changed...
         
-        sql = "SELECT file_id FROM files WHERE client_path = %s"
-        self._conn._execute(sql, path) 
+        sql = "SELECT f.file_id FROM files f INNER JOIN users_files uf ON f.file_id = uf.file_id "
+        sql = sql + " WHERE f.client_path = %s and uf.username = %s"
+        self._conn._execute(sql, client_path, username) 
         data = self._conn._fetchOne()
-        fileId = data[0]
+        fileId = data['file_id']
         
         try:
-            sql = "DELETE FROM users_files"
+            sql = "DELETE FROM users_files "
             sql = sql + " WHERE file_id = %s " 
     
             self._conn._execute(sql, fileId)
@@ -182,6 +185,36 @@ class FilesDB:
         
         self._conn._execute(sql,file_id)
         data = self._conn._fetchOne()
-        return data['last_modified'] if data != None else None        
+        return data['last_modified'] if data != None else None     
+    
+    def getPermission(self, username, fileId):
+        '''
+        Returns the file permission
+        '''
+    
+        sql = "SELECT permission_level "
+        sql = sql + " FROM users_files "
+        sql = sql + " WHERE username = %s AND file_id = %s"
+                
+        try:
+            self._conn._execute(sql, username, fileId)
+            data = self._conn._fetchOne();
+        except:
+            print sys.exc_info()[1]
+            
+        return data['permission_level'] if data != None else None
+    
+    def setPermission(self, username, fileId, newPermission):
+        '''
+        Sets the file permission on the specified file
+        '''
+        sql = "UPDATE users_files "
+        sql = sql + " SET permission_level = %s"
+        sql = sql + " WHERE username = %s AND file_id = %s"
+        
+        try:
+            self._conn._execute(sql, newPermission, username, fileId)
+        except:
+            print sys.exc_info()[1]   
     
         

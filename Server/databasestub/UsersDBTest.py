@@ -11,16 +11,16 @@ class UsersDBTest(unittest.TestCase):
 
 
     def setUp(self):
-        self.userDB = UsersDB("dummyConnection")
-
+        #self._fileDB = FilesDB("dummyConnection")
+        self._userDB = UsersDB("dummyConnection")
 
     def tearDown(self):
         pass
 
 
     def test_Add_Get_Remove_User(self):
-        self.addAndTestUser(self.userDB)
-        self.removeAndTestUser(self.userDB)
+        self.addAndTestUser(self._userDB)
+        self.removeAndTestUser(self._userDB)
     
     def addAndTestUser(self, userDB):
         userDB.addUser('user1',123)
@@ -34,14 +34,14 @@ class UsersDBTest(unittest.TestCase):
         self.assertTrue(user == None)        
     
     def testUserExists(self):
-        userDB = self.userDB
+        userDB = self._userDB
         userDB.addUser('user1','123')
         self.assertTrue(True == userDB.userExists('user1'))
         self.assertTrue(False == userDB.userExists('user123'))
         userDB.removeUser('user1')
 
     def testAuthenticate(self):
-        userDB = self.userDB
+        userDB = self._userDB
         userDB.addUser('user1', '123')
         value = userDB.authenticate('user1','123')
         self.assertTrue(value == True)
@@ -50,7 +50,7 @@ class UsersDBTest(unittest.TestCase):
         userDB.removeUser('user1')
     
     def testUpdateUsername(self):
-        userDB = self.userDB
+        userDB = self._userDB
         userDB.addUser('user1', '123')
         
         userDB.updateUsername('user2', 'user1', '123')
@@ -62,7 +62,7 @@ class UsersDBTest(unittest.TestCase):
         userDB.removeUser('user1')
 
     def testUpdatePassword(self):
-        userDB = self.userDB
+        userDB = self._userDB
         userDB.addUser('user1', '123')
         
         userDB.updatePassword('234' , 'user1', '123')
@@ -72,11 +72,11 @@ class UsersDBTest(unittest.TestCase):
         userDB.removeUser('user1')
 
     def testGetAllUser(self):
-        userDB = self.userDB
-        userTuples = (  {'username': "user1",'password_hash': '123', 'quota': 0, 'salt': 0}
-                      , {'username': "user2",'password_hash': '223', 'quota': 0, 'salt': 0}
-                      , {'username': "user3",'password_hash': '333', 'quota': 0, 'salt': 0}
-                      , {'username': "user4",'password_hash': '443', 'quota': 0, 'salt': 0})
+        userDB = self._userDB
+        userTuples = (  {'username': "user1",'password_hash': '123', 'quota': 0, 'salt': "abcdefg"}
+                      , {'username': "user2",'password_hash': '223', 'quota': 0, 'salt': "abcdefg"}
+                      , {'username': "user3",'password_hash': '333', 'quota': 0, 'salt': "abcdefg"}
+                      , {'username': "user4",'password_hash': '443', 'quota': 0, 'salt': "abcdefg"})
         self.addUsers(userDB, userTuples)
         userTuplesFromDB = userDB.getAllUser()
         self.assertTrue( userTuples == userTuplesFromDB)

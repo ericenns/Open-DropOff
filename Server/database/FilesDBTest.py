@@ -30,7 +30,7 @@ from DatabaseConnection import *
 
 class FilesDBTest(unittest.TestCase):
     def setUp(self):
-        self.connection = DatabaseConnection()
+        self._connection = DatabaseConnection()
         
         # read data from config file, we don't want to be modifying this code  all the time
         config = ConfigParser.ConfigParser()
@@ -40,43 +40,33 @@ class FilesDBTest(unittest.TestCase):
         DBUSER = config.get("Database", "user")
         DBPASS = config.get("Database", "pass")
         
-        self.connection.connect(DBHOST, DBUSER, DBPASS, DB)
-        self.userDB = UsersDB(self.connection)
+        self._connection.connect(DBHOST, DBUSER, DBPASS, DB)
+        self._userDB = UsersDB(self._connection)
         
-        self.fileDB = FilesDB(self.connection)
-        self.userDB.addUser("_TestUser" , "123")
-        self.fileDB.addFile("_TestUser","folder2/testFile1.txt", 35, "_TestUser","NULL",1)
-        self.fileDB.addFile("_TestUser","folder2/testFile2.txt", 35, "_TestUser","NULL",1)
+        self._fileDB = FilesDB(self._connection)
+        self._userDB.addUser("_TestUser" , "123")
+        self._fileDB.addFile("_TestUser","folder2/testFile1.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 35, "_TestUser","NULL",1)
+        self._fileDB.addFile("_TestUser","folder2/testFile2.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile2.txt", 35, "_TestUser","NULL",1)
         
     def tearDown(self):
-        self.connection._execute('TRUNCATE users_files')
-        self.connection._execute('TRUNCATE files')
-        self.connection._execute('TRUNCATE users')
-        self.connection.disconnect()
+        self._connection._execute('TRUNCATE users_files')
+        self._connection._execute('TRUNCATE files')
+        self._connection._execute('TRUNCATE users')
+        self._connection.disconnect() 
 
-    def testGetUser(self):
-        self.assertTrue(True)
-
-    def testUpdateUsername(self):
-        self.assertTrue(True)        
-
-    def testUpdatePassword(self):
-        self.assertTrue(True)
-
-    def testRemoveUser(self):
-        self.assertTrue(True)
-
-    def testGetFile(self):
-        self.assertTrue({'username': "_TestUser", 'client_path': "folder2/testFile1.txt", 'server_path': 35, 'last_author': "_TestUser", 'last_modified': "NULL", 'version': 1}, \
-                        self.fileDB.getFile("_TestUser", "folder2/testFile1.txt"))
+    def testFile(self):
+        self._fileDB.addFile("_TestUser","folder5/testFile1.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 35, "_TestUser", "NULL", 1)
+        self.assertTrue({'username': "_TestUser", 'client_path': "folder5/testFile1.txt", 'server_path': "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 'size': 35, 'last_author': "_TestUser", 'last_modified': "NULL", 'version': 1}, \
+                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
+        self._fileDB.removeFile("_TestUser", "folder5/testFile1.txt")
 
     def testGetFilesInDir(self):
-        files = self.fileDB.getFilesInDir("folder2/", "_TestUser")
+        files = self._fileDB.getFilesInDir("folder2/", "_TestUser")
         self.assertTrue(files[0]['client_path'], "folder2/testFile1.txt")
         self.assertTrue(files[1]['client_path'], "folder2/testFile2.txt")
 
     def testGetAllFiles(self):
-        files = self.fileDB.getAllFiles("_TestUser")
+        files = self._fileDB.getAllFiles("_TestUser")
         self.assertTrue(files[0]['client_path'], "folder2/testFile1.txt")
         self.assertTrue(files[1]['client_path'], "folder2/testFile2.txt")
         
@@ -87,7 +77,7 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testGetClientPath(self):
-        file = self.fileDB.getFile("_TestUser","folder2/testFile1.txt")
+        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
         self.assertEqual(file['client_path'], "folder2/testFile1.txt")
         
     def testGetChecksum(self):
@@ -95,6 +85,13 @@ class FilesDBTest(unittest.TestCase):
         
     def testGetLastModified(self):
         self.assertTrue(True)
+        
+    def testPermissions(self):
+        file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt")
+        self._fileDB.setPermission("_TestUser", file['file_id'], 0)
+        self.assertTrue(self._fileDB.getPermission("_TestUser", file['file_id']) == 0)
+        randomFileID = 3145156
+        self.assertTrue(self._fileDB.getPermission("_TestUser", randomFileID) == None)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

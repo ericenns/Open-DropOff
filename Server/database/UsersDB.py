@@ -61,15 +61,15 @@ class UsersDB:
             
         return False
         
-    def addUser(self, username, password):
+    def addUser(self, username, password, quota=0, salt="abcdefg"):
         '''
         Adds a user to the database
         '''
         sql = "INSERT INTO users "
-        sql = sql + " ( username, password_hash) "
-        sql = sql + " VALUES ( %s , %s ) "
+        sql = sql + " ( username, password_hash, quota, salt) "
+        sql = sql + " VALUES ( %s , %s, %s, %s ) "
         
-        self._conn._execute(sql, username, password)
+        self._conn._execute(sql, username, password, quota, salt)
         
     def getUser(self, username):
         self._conn._execute('SELECT * FROM users WHERE username = %s', username)
@@ -160,38 +160,8 @@ class UsersDB:
         try:
             self._conn._execute(sql, username)
             data = self._conn._fetchOne()
-            return data
+            return self._getQuota(username) - data
        
-        except:
-            print sys.exc_info()[1]
-            
-    def getPermission(self, username, fileId):
-        '''
-        Returns the file permission
-        '''
-    
-        sql = "SELECT permission_level "
-        sql = sql + " FROM users_files "
-        sql = sql + " WHERE username = %s AND file_id = %s"
-                
-        try:
-            self._conn._execute(sql, username, fileId)
-            data = self._conn._fetchOne();
-        except:
-            print sys.exc_info()[1]
-            
-        return data['permission_level'] if data != None else None
-    
-    def setPermission(self, username, fileId, newPermission):
-        '''
-        Sets the file permission on the specified file
-        '''
-        sql = "UPDATE users_files "
-        sql = sql + " SET permission_level = %s"
-        sql = sql + " WHERE username = %s AND file_id = %s"
-        
-        try:
-            self._conn._execute(sql, newPermission, username, fileId)
         except:
             print sys.exc_info()[1]
             
