@@ -23,6 +23,7 @@
 ###############################################################################
 
 import DatabaseConnection
+import sys
 
 class FilesDB:    
     '''

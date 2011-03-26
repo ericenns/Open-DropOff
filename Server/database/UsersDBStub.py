@@ -45,7 +45,7 @@ class UsersDBStub:
         foundUser = False        
         while (index < len(self._userList)) & (foundUser == False) :
             currUser = self._userList[index]
-            if currUser[0] == username :
+            if currUser['username'] == username :
                 foundUser = True
             else:
                 index += 1       
@@ -64,13 +64,13 @@ class UsersDBStub:
         
     def authenticate(self, username, password):
         user = self.getUser(username)
-        if user[1] == password:
+        if user['password_hash'] == password:
             return True
         else:
             return False
         
     def addUser(self, username, password):
-        user = ( username , password , 0 , 0)
+        user = { 'username' : username , 'password_hash' : password ,'quota': 0 ,'salt': 0}
         self._userList.append(user)
         
     def getUser(self, username):
@@ -79,7 +79,7 @@ class UsersDBStub:
 
         while (index < len(self._userList)) & (foundUser == False) :
             currUser = self._userList[index]
-            if currUser[0] == username :
+            if currUser['username'] == username :
                 foundUser = True
             else:
                 index += 1
@@ -94,15 +94,20 @@ class UsersDBStub:
         index = self._getUserIndex(username)
         if index != -1:
             user = self._userList[index]
-            self._userList[index] = ( newUsername , user[1] , user[2] , user[3] )
+            self._userList[index] = { 'username' : newUsername 
+                                    , 'password_hash' : user['password_hash'] 
+                                    , 'quota' : user['quota'] 
+                                    , 'salt' : user['salt'] }
                 
         
     def updatePassword(self, newPassword, username, password):
         index = self._getUserIndex(username)
         if index != -1:
             user = self._userList[index]
-            self._userList[index] = ( user[0] , newPassword , user[2] , user[3] )
-        
+            self._userList[index] = { 'username' : user['username'] 
+                                    , 'password_hash' : newPassword 
+                                    , 'quota' : user['quota'] 
+                                    , 'salt' : user['salt'] }
     def removeUser(self, username):
         user = self.getUser(username)
         if user != None:

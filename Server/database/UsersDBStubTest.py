@@ -25,8 +25,8 @@ class UsersDBStubTest(unittest.TestCase):
     def addAndTestUser(self, userDB):
         userDB.addUser('user1',123)
         user = userDB.getUser('user1')
-        self.assertTrue( user[0] == 'user1')
-        self.assertTrue( user[1] == 123 )        
+        self.assertTrue( user['username'] == 'user1')
+        self.assertTrue( user['password_hash'] == 123 )        
     
     def removeAndTestUser(self, userDB):
         userDB.removeUser('user1')
@@ -55,7 +55,7 @@ class UsersDBStubTest(unittest.TestCase):
         
         userDB.updateUsername('user2', 'user1', '123')
         user = userDB.getUser('user2')
-        self.assertTrue( user[0] == 'user2')
+        self.assertTrue( user['username'] == 'user2')
         user = userDB.getUser('user1')
         self.assertTrue( user == None)
         
@@ -67,13 +67,16 @@ class UsersDBStubTest(unittest.TestCase):
         
         userDB.updatePassword('234' , 'user1', '123')
         user = userDB.getUser('user1')
-        self.assertTrue( user[1] == '234')
+        self.assertTrue( user['password_hash'] == '234')
         
         userDB.removeUser('user1')
 
     def testGetAllUser(self):
         userDB = self.userDB
-        userTuples = (("user1", '123',0,0), ("user2", '223',0,0), ("user3", '323',0,0), ("user4", '423',0,0))
+        userTuples = (  {'username': "user1",'password_hash': '123', 'quota': 0, 'salt': 0}
+                      , {'username': "user2",'password_hash': '223', 'quota': 0, 'salt': 0}
+                      , {'username': "user3",'password_hash': '333', 'quota': 0, 'salt': 0}
+                      , {'username': "user4",'password_hash': '443', 'quota': 0, 'salt': 0})
         self.addUsers(userDB, userTuples)
         userTuplesFromDB = userDB.getAllUser()
         self.assertTrue( userTuples == userTuplesFromDB)
@@ -83,14 +86,14 @@ class UsersDBStubTest(unittest.TestCase):
         index = 0
         while (index < len( userTuples ) ):
             user = userTuples[index]
-            userDB.addUser(user[0] , user[1])
+            userDB.addUser(user['username'] , user['password_hash'])
             index += 1
     
     def removeAllUsers(self, userDB, userTuples):   
         index = 0
         while (index < len( userTuples ) ):
             user = userTuples[index]
-            userDB.removeUser(user[0])
+            userDB.removeUser(user['username'])
             index += 1        
 
 if __name__ == "__main__":
