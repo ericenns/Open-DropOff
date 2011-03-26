@@ -69,14 +69,14 @@ class DatabaseConnection(object):
         '''
         Return one row from the database resulting from the most recent query
         '''
-        data = self._cursor.fetchoneDict()
+        data = self._cursor.fetchone()
         return data
     
     def _fetchAll(self):
         '''
         Return all rows found in database resulting from the most recent query
         '''
-        data = self._cursor.fetchallDict()
+        data = self._cursor.fetchall()
         return data
         
     def _getCount(self):

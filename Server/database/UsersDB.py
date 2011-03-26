@@ -110,7 +110,7 @@ class UsersDB:
         sql = sql + " WHERE username = %s " 
 
         try:
-           self._conn._execute(sql, username)
+            self._conn._execute(sql, username)
         except:
             print sys.exc_info()[1]
             

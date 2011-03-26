@@ -60,23 +60,23 @@ class UsersDBTest(unittest.TestCase):
     def testAddUser(self):
         self.userDB.addUser("TestUser1" , 123)
         self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser1'")
-        self.assertEqual(("TestUser1",'123',None,''),self.userDB._conn._fetchOne())
+        self.assertEqual({'username': 'TestUser1', 'salt': '', 'quota': None, 'password_hash': '123'},self.userDB._conn._fetchOne())
 
     def testGetUser(self):
         self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser2', '456')")
-        self.assertEqual(("TestUser2",'456',None,''),self.userDB.getUser('TestUser2'))
+        self.assertEqual({'username': 'TestUser2', 'salt': '', 'quota': None, 'password_hash': '456'},self.userDB.getUser('TestUser2'))
 
     def testUpdateUsername(self):
         self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser3', '789')")
         self.userDB.updateUsername('NewName','TestUser3', '789')
         self.userDB._conn._execute("SELECT * FROM users WHERE username = 'NewName'")
-        self.assertEqual(("NewName",'789',None,''),self.userDB._conn._fetchOne())        
+        self.assertEqual({'username': 'NewName', 'salt': '', 'quota': None, 'password_hash': '789'},self.userDB._conn._fetchOne())        
 
     def testUpdatePassword(self):
         self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser4', 'pass1')")
         self.userDB.updatePassword('new_pass', 'TestUser4', 'pass1')
         self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser4'")
-        self.assertEqual(("TestUser4",'new_pass',None,''),self.userDB._conn._fetchOne())
+        self.assertEqual({'username': 'TestUser4', 'salt': '', 'quota': None, 'password_hash': 'new_pass'},self.userDB._conn._fetchOne())
 
     def testRemoveUser(self):
         self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser5', 'pass2')")

@@ -120,7 +120,7 @@ class FilesDB:
         
         self._conn._execute(sql, username)
         data = self._conn._fetchAll()
-        return data
+        return data if data != None else None
     
     def updateLastAuthor(self, path, newAuthor):   
         '''
@@ -148,7 +148,7 @@ class FilesDB:
         
         self._conn._execute(sql,file_id)
         data = self._conn._fetchOne()
-        return data[0]
+        return data['client_path'] if data != None else None
         
     def getServerPath(self, file_id):
         '''
@@ -159,7 +159,7 @@ class FilesDB:
         
         self._conn._execute(sql,file_id)
         data = self._conn._fetchOne()
-        return data[0]
+        return data['server_path'] if data != None else None
             
     def getChecksum(self, file_id):
         '''
@@ -170,7 +170,7 @@ class FilesDB:
         
         self._conn._execute(sql,file_id)
         data = self._conn._fetchOne()
-        return data[0]
+        return data['checksum'] if data != None else None
             
     def getLastModified(self, file_id):
         '''
@@ -181,6 +181,6 @@ class FilesDB:
         
         self._conn._execute(sql,file_id)
         data = self._conn._fetchOne()
-        return data[0]        
+        return data['last_modified'] if data != None else None        
     
         
