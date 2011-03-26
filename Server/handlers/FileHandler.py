@@ -36,13 +36,14 @@ class FileHandler(object):
     classdocs
     '''
 
-    def __init__(self, conn, basedir, filedir):
+    def __init__(self, conn, basedir, filedir, dbconn):
         '''
         Constructor
         '''
         self.connHandler = conn
         self.BASEDIR = basedir
         self.FILEDIR = filedir
+        self.dbConnection = dbconn
         
     def receive(self, arguments):
         filename, filesize, key = arguments.split("\r\n", 2)
@@ -50,10 +51,10 @@ class FileHandler(object):
         filesize = int(filesize)
         
         #verify key
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             self.connHandler.send("STAT\r\n100")
         else:
-            self.connHandler.send("FAIL")
+            self.connHandler.send("STAT\r\n200")
             return
         
         version = str(1)
@@ -97,18 +98,23 @@ class FileHandler(object):
 
     def send(self, arguments):
         filename, key, version = arguments.split("\r\n", 2)
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             filename_hash = sha_constructor(filename).hexdigest()
             user_hash = sha_constructor("user").hexdigest()
-            fullpath = "%s%s/%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
-            fileversion = "/"+filename_hash+version
-            fullpathfile = fullpath + fileversion
+            fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
+            fileversion = "/%s" % filename_hash
+            if(version == "0"):
+                # should get newest version currently gets just the first version
+                fileversion = "%s%s" % (fileversion, 1)
+            else:
+                fileversion = "%s%s" % (fileversion, version)
+            fullpathfile = "%s%s" % (fullpath, fileversion)
             
             filesize = os.path.getsize(fullpathfile)
         
             self.connHandler.send("STAT\r\n100\r\n%i" % filesize)
         else:
-            self.connHandler.send("FAIL\r\n101")
+            self.connHandler.send("STAT\r\n101")
             return
             
         response = self.connHandler.recv()

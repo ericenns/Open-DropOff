@@ -46,7 +46,7 @@ class RequestController(object):
         self.server = server
         self.port = int(port)
         #TODO: THIS IS VERY BAD. Only here for getting things running
-        self.key = "45f106ef4d5161e7aa38cf6c666607f25748b6ca"
+        self.key = "440f23c58848769685e481ff270b046659f40b7c"
 
 
     def connect(self):
@@ -64,24 +64,22 @@ class RequestController(object):
         
         
     def close(self):
-        self.connect()
+        #self.connect()
         self.sock.send("CLOS\r\n")
-        self.disconnect()
+        #self.disconnect()
         
         
-    def changePassword(self, password):
-        self.connect()
-        print "changePassword(RC)p: %s" % password
-        print "key: %s" % self.key
-        self.sock.send("PASS\r\n%s\r\n%s" % (password, self.key))
+    def changePassword(self, newpass, oldpass):
+        #self.connect()
+        newpass_hash = sha_constructor(newpass).hexdigest()
+        oldpass_hash = sha_constructor(oldpass).hexdigest()
+        print self.key
+        self.sock.send("PASS\r\n%s\r\n%s\r\n%s" % (newpass_hash, oldpass_hash, self.key))
         response = self.sock.recv(RECEIVESIZE)
         status, code = response.split("\r\n", 1)
-        print "%s %s" % (status, code)
-        
-        password_hash = sha_constructor(password).hexdigest()
-        print "Password hash: %s" % password_hash    
+        print "%s %s" % (status, code)  
     
-        self.disconnect()
+        #self.disconnect()
         
         
 
@@ -91,12 +89,12 @@ class RequestController(object):
     #            password    password for the new user
     #returns: true if user creation was successful, false if not
     def newUser(self, username, password):
-        self.connect()
+        #self.connect()
         
         print "newUser(RC)u: %s" % username
         print "newUser(RC)p: %s" % password
-        
-        self.sock.send("NUSR\r\n%s\r\n%s" % (username, password))
+        password_hash = sha_constructor(password).hexdigest()
+        self.sock.send("NUSR\r\n%s\r\n%s" % (username, password_hash))
         
         response = self.sock.recv(RECEIVESIZE)
         
@@ -107,11 +105,11 @@ class RequestController(object):
             print "Unable to create user"
             return False
         
-        self.disconnect()
+        #self.disconnect()
 
 
     def login(self):
-        self.connect()
+        #self.connect()
         
         #Simply data access for initial use
         username = raw_input("Please enter your username: ")
@@ -124,7 +122,8 @@ class RequestController(object):
         print "%s %s" % (status, code)
         if(status == "STAT" and code == "100"):
             password = raw_input("Please enter your password: ")
-            self.sock.send("PASS\r\n%s" % password)
+            password_hash = sha_constructor(password).hexdigest()
+            self.sock.send("PASS\r\n%s" % password_hash)
             response = self.sock.recv(RECEIVESIZE)
             status, code, key = response.split("\r\n",2)
             if(status == "STAT" and code =="100"):
@@ -134,7 +133,7 @@ class RequestController(object):
         else:
             return "";
         
-        self.disconnect()
+        #self.disconnect()
         
         
     #Sends a listing of contents request to connection
@@ -142,10 +141,10 @@ class RequestController(object):
     #Returns: list of items returned by the server
     #def list(self, key):
     def list(self):
-        self.connect()
+        #self.connect()
         print "IN LIST, RC"
         self.sock.send("LIST\r\n")
-        self.disconnect()
+        #self.disconnect()
         #should figure out what format contents list should have
         #contentsList = self.sock.recv(RECEIVESIZE)
         
@@ -157,7 +156,7 @@ class RequestController(object):
     #            filename    name of file to be sent
     #            filesize    size of file being sent
     def push(self, filename, filesize):
-        self.connect()
+        #self.connect()
         
         f = open(filename,"rb")
         self.sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (filename, filesize, self.key))
@@ -168,8 +167,6 @@ class RequestController(object):
             print "%s %s" % (status, code)
         else:
             return
-        
-        #sock.send("%s\r\n%s" % ("JohnDoe","homie4life"))
         
         line = f.read(SENDSIZE)
         while line:
@@ -182,19 +179,24 @@ class RequestController(object):
         data = self.sock.recv(80)
         print data
         
-        self.disconnect()
+        #self.disconnect()
 
         
     #Send a request for a file to be pulled from connection
     #params:    key    key that confirms identity of request sender
     #            filename    name of file to be pulled and saved
     #Returns: File data
-    def pull(self, filename, version):
-        self.connect()
+    def pull(self, filename, version=0):
+        #self.connect()
         self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, self.key, version))
         response = self.sock.recv(80)
-        status, code, filesize = response.split("\r\n", 2)
-        filesize = int(filesize)
+        values = response.split("\r\n")
+        #status, code, filesize = response.split("\r\n")
+        status = values[0]
+        code = values[1]
+        filesize = 0
+        if len(values) == 3:
+            filesize = int(values[2])
         if(status == "STAT" and code == "100"):
             self.sock.send("SEND")
             newfile = open(filename, "wb")
@@ -209,6 +211,6 @@ class RequestController(object):
                 newfile.write(content)
             
             newfile.close() #close the file
-            self.disconnect()
+            #self.disconnect()
         else:
             print "FAILURE!"

@@ -22,6 +22,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
 
+import time
+
 try: 
     from hashlib import sha1
     sha_constructor = sha1
@@ -29,49 +31,49 @@ except ImportError:
     import sha
     sha_constructor = sha.new
 
+from databasestub import *
 
 class AccountHandler(object):
     '''
     classdocs
     '''
 
-    def __init__(self, conn):
+    def __init__(self, conn, dbconn):
         '''
         Constructor
         '''
         self.connHandler = conn
+        self.dbConnection = dbconn
+        self.udb = UsersDB.UsersDB(dbconn)
     
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
         print "New user: %s" % newuser
         print "new pass: %s" % newpass
         
-        #conn = DatabaseConnection()
-        #conn.connect("localhost", "username", "password", "open-dropoff")
-        #udb = UsersDB(conn)
-        
-        #nameTaken = udb.userExists(newuser)
-        #if not nameTaken:
-        #    meetsReq = checkPassReq(newpass)
-        #    if meetsReq:
-        #        udb.addUser( newuser, newpass )
-        #        self.connHandler.send("STAT 100")
-        #    else:
-        #        self.connHandler.send("STAT 204")
-        #else:
-        #    print "Name taken, try again!"
-        #    self.connHandler.send("STAT 203")
-        
-        #conn.disconnect()
+        nameTaken = self.udb.userExists(newuser)
+        if not nameTaken:
+            meetsReq = True
+            #meetsReq = checkPassReq(newpass)
+            if meetsReq:
+                self.udb.addUser(newuser, newpass, 1000)
+                self.connHandler.send("STAT 100")
+            else:
+                self.connHandler.send("STAT 204")
+        else:
+            print "Name taken, try again!"
+            self.connHandler.send("STAT 203")
             
 
     def changePassword(self, arguments):
-        password, key = arguments.split("\r\n")
-        print "in changePassword password: %s" % password
-        print "in changePassword key: %s" % key
+        newpass, oldpass, key = arguments.split("\r\n", 3)
         
         #verify key
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+        print key
+        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
+            print oldpass
+            print newpass
+            self.udb.updatePassword(newpass, "user", oldpass)
             self.connHandler.send("STAT\r\n100")
         else:
             self.connHandler.send("STAT\r\n200")
@@ -86,14 +88,11 @@ class AccountHandler(object):
     def login(self, arguments):
         username = arguments
         print "User: %s" % username
-        #conn = DatabaseConnection.DatabaseConnection()
-        #conn.connect(DBHOST, DBUSER, DBPASS, DB)
-        #udb = UsersDB.UsersDB(conn)
         
-        #validUser = udb.userExists(username)
+        validUser = self.udb.userExists(username)
         
-        #if(validUser):
-        if(username == "user"):
+        if(validUser):
+        #if(username == "user"):
             self.connHandler.send("STAT\r\n100")
             self.data = self.connHandler.recv()
             command, arguments = self.data.split("\r\n", 1)
@@ -101,10 +100,16 @@ class AccountHandler(object):
             if(command == "PASS"):
                 password = arguments
                 
-                #validPass = udb.authenticate(username, password)
-                #if(validPass):
-                if(password == "pass"):
-                    key = sha_constructor("%s%s" % (username, password)).hexdigest()
+                validPass = self.udb.authenticate(username, password)
+                if(validPass):
+                #if(password == "pass"):
+                    #ipAddr = self.connHandler.clientAddr()
+                    #time = time.time()
+                    ipAddr = "172.0.0.1"
+                    time = "1234567"
+                    key = sha_constructor("%s%s%s" 
+                                          % (username, ipAddr
+                                             , time)).hexdigest()
                     self.connHandler.send("STAT\r\n100\r\n%s" % key)
                 else:
                     self.connHandler.send("STAT\r\n202")
@@ -113,7 +118,5 @@ class AccountHandler(object):
                 self.connHandler.send("FAIL")
         else:
             self.connHandler.send("STAT\r\n201")
-            
-        #conn.disconnect()
             
         
