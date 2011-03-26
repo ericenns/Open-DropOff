@@ -179,14 +179,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
             self.request.send("STAT\r\n200")
             return
         
-        #authenticate user information
-        #self.data = self.request.recv(80)
-        #userN, password = self.data.split("\r\n", 1)
-        
-        #verify user
-        
-        #verity password
-        
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
         #newfile = open("./testfiles/" + filename, "wb")
@@ -264,12 +256,6 @@ if __name__ == "__main__":
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)
-    
-    #connect to user database
-    #userconnect = DatabaseConnection.__init__()
-    #userconnect.connect(HOST,"User","Pass","UsersDB")
-    #userdb = UsersDB.__init__(userconnect)
-    #userdb.connect()
 
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C

@@ -189,9 +189,9 @@ class RequestController(object):
     #params:    key    key that confirms identity of request sender
     #            filename    name of file to be pulled and saved
     #Returns: File data
-    def pull(self, filename):
+    def pull(self, filename, version):
         self.connect()
-        self.sock.send("PULL\r\n%s\r\n%s" % (filename, self.key))
+        self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, self.key, version))
         response = self.sock.recv(80)
         status, code, filesize = response.split("\r\n", 2)
         filesize = int(filesize)

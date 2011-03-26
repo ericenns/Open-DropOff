@@ -48,7 +48,8 @@ def main():
             rc.push(filename, filesize)
         elif ppSelection == "2":
             filename = raw_input("Please enter name of file to retrieve: ")
-            rc.pull(filename)
+            version = raw_input("Please enter version of the file to retrieve: ")
+            rc.pull(filename, version)
         elif ppSelection == "3":
             #print "Retreiving list of files for current user."
             rc.list()
