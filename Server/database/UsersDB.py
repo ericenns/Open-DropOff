@@ -180,7 +180,7 @@ class UsersDB:
         except:
             print sys.exc_info()[1]
             
-        return data[0] if data != None else None
+        return data['permission_level'] if data != None else None
     
     def setPermission(self, username, fileId, newPermission):
         '''

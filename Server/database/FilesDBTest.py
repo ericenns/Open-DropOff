@@ -79,7 +79,7 @@ class FilesDBTest(unittest.TestCase):
         self.userDB.addUser("_TestUser" , "123")
         self.fileDB.addFile("_TestUser","folder2/testFile1.txt", 35, "_TestUser","NULL",1)
         file = self.fileDB.getFile("_TestUser","folder2/testFile1.txt")
-        self.assertEqual(self.fileDB.getClientPath(file[1]), "folder2/testFile1.txt")
+        self.assertEqual(self.fileDB.getClientPath(file['client_path']), "folder2/testFile1.txt")
         
     def testGetChecksum(self):
         self.assertTrue(True)

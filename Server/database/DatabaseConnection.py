@@ -47,7 +47,7 @@ class DatabaseConnection(object):
         Connects to the database using the given creditials. To disconnect call disconnect
         ''' 
         self._conn = MySQLdb.connect(host, username, password, database)
-        self._cursor = self._conn.cursor()
+        self._cursor = self._conn.cursor(MySQLdb.cursors.DictCursor)
         
     def disconnect(self):
         '''
@@ -69,14 +69,14 @@ class DatabaseConnection(object):
         '''
         Return one row from the database resulting from the most recent query
         '''
-        data = self._cursor.fetchone()
+        data = self._cursor.fetchoneDict()
         return data
     
     def _fetchAll(self):
         '''
         Return all rows found in database resulting from the most recent query
         '''
-        data = self._cursor.fetchall()
+        data = self._cursor.fetchallDict()
         return data
         
     def _getCount(self):
