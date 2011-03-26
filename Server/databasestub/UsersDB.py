@@ -33,9 +33,8 @@ class UsersDB:
     tuple format - ("username" , password , quota , salt) - default quota and salt to zero
     '''
     
-    def __init__(self, conn, fileDBInstance):
+    def __init__(self, conn):
         self._conn = conn
-        self.fileDB = fileDBInstance
         self._userList = [] 
         
     def _getUserIndex(self, username):
@@ -70,8 +69,8 @@ class UsersDB:
         else:
             return False
         
-    def addUser(self, username, password, quota=0, salt="abcdefg"):
-        user = { 'username' : username , 'password_hash' : password ,'quota': quota ,'salt': salt}
+    def addUser(self, username, password):
+        user = { 'username' : username , 'password_hash' : password ,'quota': 0 ,'salt': 0}
         self._userList.append(user)
         
     def getUser(self, username):
@@ -128,8 +127,8 @@ class UsersDB:
             user = self._userList[index]
             self._userList[index] = ( user[0] , user[1] , quota , user[3] )
                 
-    def getSpaceRemaining(self, username):
-        spaceUsed = self._fileDB.getAllFilesSize(self, username)
+    def getSpaceRemaining(self, username, fileDB):
+        spaceUsed = fileDB.getAllFilesSize(self, username)
         
         return self.getUserQuota(username) - spaceUsed
             
