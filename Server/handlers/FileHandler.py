@@ -23,6 +23,7 @@
 ###############################################################################
 
 import os
+from databasestub import FilesDB
 
 try: 
     from hashlib import sha1
@@ -65,6 +66,7 @@ class FileHandler(object):
         
         filename_hash = sha_constructor(filename).hexdigest()
         user_hash = sha_constructor("user").hexdigest()
+        #fullpath = serverPath (for database)
         fullpath = "%s%s/%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
         fileversion = "/"+filename_hash+version
         fullpathfile = fullpath + fileversion
