@@ -43,10 +43,12 @@ class ConnectionHandler(object):
         print "Sending data..."
         return self.connection.send( data )
         
-    def recv(self):
+    def recv(self, size=0):
         '''RETURN STUFF HERE'''
+        if(size == 0):
+            size = self.recvSize
         print "Receiving data..."
-        data = self.connection.recv(self.recvSize)
+        data = self.connection.recv(size)
         return data
     
     def clientAddr(self):

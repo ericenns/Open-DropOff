@@ -61,5 +61,5 @@ class GeneralHandler(object):
     def login(self, args):
         self.accHandler.login(args)
         
-    def recvRequest(self):
-        return self.connHandler.recv()
+    def recvRequest(self, size=100):
+        return self.connHandler.recv(size)

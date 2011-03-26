@@ -69,12 +69,12 @@ class RequestController(object):
         #self.disconnect()
         
         
-    def changePassword(self, password):
+    def changePassword(self, newpass, oldpass):
         #self.connect()
-        print "changePassword(RC)p: %s" % password
-        print "key: %s" % self.key
-        password_hash = sha_constructor(password).hexdigest()
-        self.sock.send("PASS\r\n%s\r\n%s" % (password_hash, self.key))
+        newpass_hash = sha_constructor(newpass).hexdigest()
+        oldpass_hash = sha_constructor(oldpass).hexdigest()
+        print self.key
+        self.sock.send("PASS\r\n%s\r\n%s\r\n%s" % (newpass_hash, oldpass_hash, self.key))
         response = self.sock.recv(RECEIVESIZE)
         status, code = response.split("\r\n", 1)
         print "%s %s" % (status, code)  
@@ -190,8 +190,13 @@ class RequestController(object):
         #self.connect()
         self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, self.key, version))
         response = self.sock.recv(80)
-        status, code, filesize = response.split("\r\n", 2)
-        filesize = int(filesize)
+        values = response.split("\r\n")
+        #status, code, filesize = response.split("\r\n")
+        status = values[0]
+        code = values[1]
+        filesize = 0
+        if len(values) == 3:
+            filesize = int(values[2])
         if(status == "STAT" and code == "100"):
             self.sock.send("SEND")
             newfile = open(filename, "wb")
