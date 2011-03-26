@@ -108,6 +108,7 @@ class UsersDB:
                                     , 'password_hash' : newPassword 
                                     , 'quota' : user['quota'] 
                                     , 'salt' : user['salt'] }
+            
     def removeUser(self, username):
         user = self.getUser(username)
         if user != None:

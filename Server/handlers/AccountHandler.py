@@ -56,7 +56,7 @@ class AccountHandler(object):
             meetsReq = True
             #meetsReq = checkPassReq(newpass)
             if meetsReq:
-                self.udb.addUser( newuser, newpass )
+                self.udb.addUser(newuser, newpass, 1000)
                 self.connHandler.send("STAT 100")
             else:
                 self.connHandler.send("STAT 204")
@@ -66,12 +66,14 @@ class AccountHandler(object):
             
 
     def changePassword(self, arguments):
-        password, key = arguments.split("\r\n")
-        print "in changePassword password: %s" % password
-        print "in changePassword key: %s" % key
+        newpass, oldpass, key = arguments.split("\r\n", 3)
         
         #verify key
+        print key
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
+            print oldpass
+            print newpass
+            self.udb.updatePassword(newpass, "user", oldpass)
             self.connHandler.send("STAT\r\n100")
         else:
             self.connHandler.send("STAT\r\n200")
@@ -106,8 +108,8 @@ class AccountHandler(object):
                     ipAddr = "172.0.0.1"
                     time = "1234567"
                     key = sha_constructor("%s%s%s" 
-                                          % (username, time
-                                             , ipAddr)).hexdigest()
+                                          % (username, ipAddr
+                                             , time)).hexdigest()
                     self.connHandler.send("STAT\r\n100\r\n%s" % key)
                 else:
                     self.connHandler.send("STAT\r\n202")

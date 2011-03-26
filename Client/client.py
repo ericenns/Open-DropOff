@@ -60,9 +60,19 @@ def main():
             #print "Retreiving list of files for current user."
             rc.list()
         elif ppSelection == "5":
-            password = raw_input("Please enter your new password: ")
+            oldpass = raw_input("Please enter your old password: ")
+            newpass = ""
+            while newpass == "":
+                firstPass= raw_input("Please enter your new password: ")
+                secondPass = raw_input("Please enter your new password again: ")
+                if firstPass == secondPass:
+                    newpass = firstPass
+                    print newpass
+                else:
+                    print "Passwords do not match, please try again."
+                        
             print "Changing password..."
-            rc.changePassword(password)
+            rc.changePassword(newpass, oldpass)
         elif ppSelection == "q":
             rc.close()
             print "Closing!"
