@@ -37,7 +37,7 @@ class FilesDB:
         self._usersFilesList = []
         self._fileID = 0
         
-    def addFile(self, username, clientPath , serverPath, filesize , lastAuthor, lastModified, version, checksum):
+    def addFile(self, username, clientPath, serverPath , filesize , lastAuthor, lastModified, version, checksum):
         self._fileID += 1
         file = {'file_id': self._fileID , 'client_path': clientPath , 'server_path': serverPath , 'version': version, 'last_modified': lastModified, 'size': filesize, 'checksum': checksum}
         self._fileList.append(file)
@@ -45,11 +45,17 @@ class FilesDB:
         fileRef = {'file_id': self._fileID , 'username': username, 'permission_level': 0}
         self._usersFilesList.append(fileRef)
         
+        return self._fileID
+        
     def removeFile(self, username, clientPath):
         '''
         Remove a File from the database.
         '''
-        pass
+        for userFile in self._usersFilesList:
+            for file in self._fileList:
+                if file['file_id'] == userFile['file_id'] and userFile['username'] == username and file['client_path'] == clientPath:
+                    self._fileList.remove(file)
+                    return self._usersFilesList.remove(userFile)
     
     def getFile(self, username, clientPath):
         for userFile in self._usersFilesList:

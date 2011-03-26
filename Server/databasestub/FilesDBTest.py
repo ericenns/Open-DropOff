@@ -22,6 +22,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
 import unittest
+import datetime
+
 from UsersDB import *
 from FilesDB import *
 
@@ -36,23 +38,38 @@ class FilesDBTest(unittest.TestCase):
         self._fileDB.addFile("_TestUser","folder2/testFile2.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile2.txt", 35, "_TestUser","NULL",1, 0)
 
     def tearDown(self):
-        pass
+        self._fileDB._fileList = []    
+        self._fileDB._usersFilesList = []
+        self._fileDB._fileID = 0
     
     def testFile(self):
-        self._fileDB.addFile("_TestUser","folder5/testFile1.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 35, "_TestUser", "NULL", 1, 0)
-        self.assertTrue({'username': "_TestUser", 'client_path': "folder5/testFile1.txt", 'server_path': "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 'last_author': "_TestUser", 'last_modified': "NULL", 'version': 1}, \
-                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
+        fileId = self._fileDB.addFile("_TestUser","folder5/testFile1.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 35, "_TestUser", datetime.datetime(2011, 3, 26, 15, 6, 17), 1, "2b61cdf97336e06720df")
+#        self.assertEqual({'username': "_TestUser",
+#                          'file_id': fileId, \
+#                          'f.file_id': fileId, \
+#                          'client_path': "folder5/testFile1.txt", \
+#                          'server_path': "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", \
+#                          'size': 35, \
+#                          'last_author': "_TestUser", \
+#                          'last_modified': datetime.datetime(2011, 3, 26, 15, 6, 17), \
+#                          'version': 1, \
+#                          'deleted': 0, \
+#                          'permission_level': 0,
+#                          'directory': 0, \
+#                          'checksum': "2b61cdf97336e06720df"}, \
+#                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
         self._fileDB.removeFile("_TestUser", "folder5/testFile1.txt")
+        self.assertEqual(None, self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
 
     def testGetFilesInDir(self):
         files = self._fileDB.getFilesInDir("folder2/", "_TestUser")
-        self.assertTrue(files[0]['client_path'], "folder2/testFile1.txt")
-        self.assertTrue(files[1]['client_path'], "folder2/testFile2.txt")
+        self.assertEqual(files[0]['client_path'], "folder2/testFile1.txt")
+        self.assertEqual(files[1]['client_path'], "folder2/testFile2.txt")
 
     def testGetAllFiles(self):
         files = self._fileDB.getAllFiles("_TestUser")
-        self.assertTrue(files[0]['client_path'], "folder2/testFile1.txt")
-        self.assertTrue(files[1]['client_path'], "folder2/testFile2.txt")
+        self.assertEqual(files[0]['client_path'], "folder2/testFile1.txt")
+        self.assertEqual(files[1]['client_path'], "folder2/testFile2.txt")
         
     def testUpdateLastAuthor(self):
         self.assertTrue(True)
@@ -69,7 +86,7 @@ class FilesDBTest(unittest.TestCase):
         
     def testGetLastModified(self):
         self.assertTrue(True)
-                
+        
     def testPermissions(self):
         file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt")
         self._fileDB.setPermission("_TestUser", file['file_id'], 0)
