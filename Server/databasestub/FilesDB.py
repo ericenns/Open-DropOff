@@ -68,6 +68,17 @@ class FilesDB:
                         data.append(file)
         
         return data
+    
+    def getAllFilesSize(self, username):
+        size = 0
+        
+        for userFile in self._usersFilesList:
+            if userFile['username'] == username:
+                for file in self._fileList:
+                    if file['file_id'] == userFile['file_id']:
+                        size += file['size']
+        
+        return size
             
     def getFilesInDir(self, client_path, username):
         data = []

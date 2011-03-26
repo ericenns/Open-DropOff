@@ -11,8 +11,8 @@ class UsersDBTest(unittest.TestCase):
 
 
     def setUp(self):
-        self._userDB = UsersDB("dummyConnection")
-
+        self._fileDB = FilesDB("dummyConnection")
+        self._userDB = UsersDB(self._fileDB, "dummyConnection")
 
     def tearDown(self):
         pass

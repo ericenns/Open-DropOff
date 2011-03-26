@@ -160,7 +160,7 @@ class UsersDB:
         try:
             self._conn._execute(sql, username)
             data = self._conn._fetchOne()
-            return data
+            return self._getQuota(username) - data
        
         except:
             print sys.exc_info()[1]
