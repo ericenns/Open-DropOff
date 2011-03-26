@@ -33,7 +33,7 @@ class UsersDBTest(unittest.TestCase):
 
 
     def setUp(self):
-        self.connection = DatabaseConnection()
+        self._connection = DatabaseConnection()
         
         # read data from config file, we don't want to be modifying this code  all the time
         config = ConfigParser.ConfigParser()
@@ -43,62 +43,42 @@ class UsersDBTest(unittest.TestCase):
         DBUSER = config.get("Database", "user")
         DBPASS = config.get("Database", "pass")
         
-        self.connection.connect(DBHOST, DBUSER, DBPASS, DB)
-        self.userDB = UsersDB.UsersDB(self.connection)
-        self.userDB.addUser("_TestUser" , "123")
+        self._connection.connect(DBHOST, DBUSER, DBPASS, DB)
+        self._userDB = UsersDB.UsersDB(self._connection)
+        self._userDB.addUser("_TestUser" , "123")
         
-        self.fileDB = FilesDB.FilesDB(self.connection)
-        self.fileDB.addFile("_TestUser","folder2/testFile1.txt", 35, "_TestUser","NULL",1)
-#        self.userDB.addFile("_TestUser","testFile2","folder2/testFile2.txt","_TestUser","NULL",1)
-       
     def tearDown(self):
-        self.connection._execute('TRUNCATE users_files')
-        self.connection._execute('TRUNCATE files')
-        self.connection._execute('TRUNCATE users')
-        self.connection.disconnect()
+        self._connection._execute('TRUNCATE users_files')
+        self._connection._execute('TRUNCATE files')
+        self._connection._execute('TRUNCATE users')
+        self._connection.disconnect()
                 
     def testAddUser(self):
-        self.userDB.addUser("TestUser1" , 123)
-        self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser1'")
-        self.assertEqual({'username': 'TestUser1', 'salt': '', 'quota': None, 'password_hash': '123'},self.userDB._conn._fetchOne())
+        self._userDB.addUser("TestUser1" , 123)
+        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser1'")
+        self.assertEqual({'username': 'TestUser1', 'salt': 'abcdefg', 'quota': 0, 'password_hash': '123'},self._userDB._conn._fetchOne())
 
     def testGetUser(self):
-        self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser2', '456')")
-        self.assertEqual({'username': 'TestUser2', 'salt': '', 'quota': None, 'password_hash': '456'},self.userDB.getUser('TestUser2'))
+        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser2', '456')")
+        self.assertEqual({'username': 'TestUser2', 'salt': '', 'quota': None, 'password_hash': '456'},self._userDB.getUser('TestUser2'))
 
     def testUpdateUsername(self):
-        self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser3', '789')")
-        self.userDB.updateUsername('NewName','TestUser3', '789')
-        self.userDB._conn._execute("SELECT * FROM users WHERE username = 'NewName'")
-        self.assertEqual({'username': 'NewName', 'salt': '', 'quota': None, 'password_hash': '789'},self.userDB._conn._fetchOne())        
+        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser3', '789')")
+        self._userDB.updateUsername('NewName','TestUser3', '789')
+        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'NewName'")
+        self.assertEqual({'username': 'NewName', 'salt': '', 'quota': None, 'password_hash': '789'},self._userDB._conn._fetchOne())        
 
     def testUpdatePassword(self):
-        self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser4', 'pass1')")
-        self.userDB.updatePassword('new_pass', 'TestUser4', 'pass1')
-        self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser4'")
-        self.assertEqual({'username': 'TestUser4', 'salt': '', 'quota': None, 'password_hash': 'new_pass'},self.userDB._conn._fetchOne())
+        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser4', 'pass1')")
+        self._userDB.updatePassword('new_pass', 'TestUser4', 'pass1')
+        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser4'")
+        self.assertEqual({'username': 'TestUser4', 'salt': '', 'quota': None, 'password_hash': 'new_pass'},self._userDB._conn._fetchOne())
 
     def testRemoveUser(self):
-        self.userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser5', 'pass2')")
-        self.userDB.removeUser("TestUser5")
-        self.userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser5'")
-        self.assertEqual(None,self.userDB._conn._fetchOne())
-
-    def testGetFile(self):
-        self.assertTrue(True)
-
-    def testGetFiles(self):
-        self.assertTrue(True)
-        
-    def testUpdateLastAuthor(self):
-        self.assertTrue(True)
-        
-    def testPermissions(self):
-        file = self.fileDB.getFile("_TestUser", "folder2/testFile1.txt")
-        self.userDB.setPermission("_TestUser", file['file_id'], 0)
-        self.assertTrue(self.userDB.getPermission("_TestUser", file['file_id']) == 0)
-        randomFileID = 3145156
-        self.assertTrue(self.userDB.getPermission("_TestUser", randomFileID) == None)
+        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser5', 'pass2')")
+        self._userDB.removeUser("TestUser5")
+        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser5'")
+        self.assertEqual(None,self._userDB._conn._fetchOne())
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

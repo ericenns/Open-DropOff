@@ -69,8 +69,8 @@ class UsersDB:
         else:
             return False
         
-    def addUser(self, username, password):
-        user = { 'username' : username , 'password_hash' : password ,'quota': 0 ,'salt': 0}
+    def addUser(self, username, password, quota=0, salt="abcdefg"):
+        user = { 'username' : username , 'password_hash' : password ,'quota': quota ,'salt': salt}
         self._userList.append(user)
         
     def getUser(self, username):
