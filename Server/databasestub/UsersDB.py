@@ -33,8 +33,9 @@ class UsersDB:
     tuple format - ("username" , password , quota , salt) - default quota and salt to zero
     '''
     
-    def __init__(self, conn):
+    def __init__(self, conn, fileDBInstance):
         self._conn = conn
+        self.fileDB = fileDBInstance
         self._userList = [] 
         
     def _getUserIndex(self, username):
@@ -122,13 +123,15 @@ class UsersDB:
             return user[2]
        
     def setUserQuota(self, quota, username):
-        index = self._getUserIndex(username)
+        index = self.getUserIndex(username)
         if index != -1:
             user = self._userList[index]
             self._userList[index] = ( user[0] , user[1] , quota , user[3] )
                 
     def getSpaceRemaining(self, username):
-        pass
+        spaceUsed = self._fileDB.getAllFilesSize(self, username)
+        
+        return self.getUserQuota(username) - spaceUsed
             
     def getPermission(self, username, fileId):
         pass
