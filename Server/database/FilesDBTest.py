@@ -44,6 +44,9 @@ class FilesDBTest(unittest.TestCase):
         self.userDB = UsersDB(self.connection)
         
         self.fileDB = FilesDB(self.connection)
+        self.userDB.addUser("_TestUser" , "123")
+        self.fileDB.addFile("_TestUser","folder2/testFile1.txt", 35, "_TestUser","NULL",1)
+        self.fileDB.addFile("_TestUser","folder2/testFile2.txt", 35, "_TestUser","NULL",1)
         
     def tearDown(self):
         self.connection._execute('TRUNCATE users_files')
@@ -64,10 +67,18 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
 
     def testGetFile(self):
-        self.assertTrue(True)
+        self.assertTrue({'username': "_TestUser", 'client_path': "folder2/testFile1.txt", 'server_path': 35, 'last_author': "_TestUser", 'last_modified': "NULL", 'version': 1}, \
+                        self.fileDB.getFile("_TestUser", "folder2/testFile1.txt"))
 
-    def testGetFiles(self):
-        self.assertTrue(True)
+    def testGetFilesInDir(self):
+        files = self.fileDB.getFilesInDir("folder2/", "_TestUser")
+        self.assertTrue(files[0]['client_path'], "folder2/testFile1.txt")
+        self.assertTrue(files[1]['client_path'], "folder2/testFile2.txt")
+
+    def testGetAllFiles(self):
+        files = self.fileDB.getAllFiles("_TestUser")
+        self.assertTrue(files[0]['client_path'], "folder2/testFile1.txt")
+        self.assertTrue(files[1]['client_path'], "folder2/testFile2.txt")
         
     def testUpdateLastAuthor(self):
         self.assertTrue(True)
@@ -76,8 +87,6 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testGetClientPath(self):
-        self.userDB.addUser("_TestUser" , "123")
-        self.fileDB.addFile("_TestUser","folder2/testFile1.txt", 35, "_TestUser","NULL",1)
         file = self.fileDB.getFile("_TestUser","folder2/testFile1.txt")
         self.assertEqual(file['client_path'], "folder2/testFile1.txt")
         

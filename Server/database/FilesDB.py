@@ -95,21 +95,22 @@ class FilesDB:
         data = self._conn._fetchOne()
         return data
     
-    def getFilesInDir(self, path):
+    def getFilesInDir(self, client_path, username):
         '''
         Get a list of files in a given directory
         '''
         
-        sql = "SELECT * FROM files f"
-        sql = sql + " WHERE f.client_path LIKE %s "
+        sql = "SELECT * FROM files f "
+        sql = sql + " INNER JOIN users_files uf ON f.file_id = uf.file_id "
+        sql = sql + " WHERE f.client_path LIKE %s AND uf.username = %s "
         
-        path =  path + '%' #adding wildcard 
+        client_path =  client_path + '%' #adding wildcard 
         
-        self._conn._execute(sql,path)
+        self._conn._execute(sql, client_path, username)
         data = self._conn._fetchAll()
         return data
     
-    def getFiles(self, username):
+    def getAllFiles(self, username):
         '''
         Gets all the files a user has in their dropoff box
         '''
