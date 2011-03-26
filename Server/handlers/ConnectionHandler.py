@@ -29,13 +29,14 @@ class ConnectionHandler(object):
     classdocs
     '''
 
-    def __init__(self, conn, ssize, rsize):
+    def __init__(self, conn, clientAddr, ssize, rsize):
         '''
         Constructor
         '''
         self.connection = conn
         self.recvSize = ssize
         self.sendSize = rsize
+        self.clientAddr = clientAddr
         
     def send(self, data):
         '''SEND STUFF HERE'''
@@ -47,3 +48,6 @@ class ConnectionHandler(object):
         print "Receiving data..."
         data = self.connection.recv(self.recvSize)
         return data
+    
+    def clientAddr(self):
+        return self.clientAddr

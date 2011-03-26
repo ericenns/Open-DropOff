@@ -9,7 +9,7 @@ SENDSIZE = 100
 
 def main():
     #Reading in options from the command line
-    optlist, args = getopt.getopt(sys.argv[1:], 's:p:', ['server', 'port'] )
+    optlist, args = getopt.getopt(sys.argv[1:], 's:p:', ['server', 'port'])
 
     if(not optlist):
         print """Options are:
@@ -26,7 +26,7 @@ def main():
             if opt == "-p" or opt == "--port":
                 serverPort = int(val)
     
-    rc = RequestController.RequestController( serverHost, serverPort )
+    rc = RequestController.RequestController(serverHost, serverPort)
     print "RC server: %s" % rc.server
     print "RC port: %s" % rc.port
     

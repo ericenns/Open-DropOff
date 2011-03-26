@@ -33,13 +33,13 @@ class GeneralHandler(object):
     classdocs
     '''
 
-    def __init__(self, tcpConn, basedir, filedir, dbhost, db, dbuser, dbpass):
+    def __init__(self, tcpConn, clientAddr, basedir, filedir, dbhost, db, dbuser, dbpass):
         '''
         Constructor
         '''
         self.dbConnection = DatabaseConnection.DatabaseConnection()
         self.dbConnection.connect(dbhost, dbuser, dbpass, db)
-        self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, 100, 100)
+        self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, clientAddr, 100, 100)
         self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection)
         self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
         

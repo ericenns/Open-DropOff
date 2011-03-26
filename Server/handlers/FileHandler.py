@@ -51,10 +51,10 @@ class FileHandler(object):
         filesize = int(filesize)
         
         #verify key
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             self.connHandler.send("STAT\r\n100")
         else:
-            self.connHandler.send("FAIL")
+            self.connHandler.send("STAT\r\n200")
             return
         
         version = str(1)
@@ -98,7 +98,7 @@ class FileHandler(object):
 
     def send(self, arguments):
         filename, key, version = arguments.split("\r\n", 2)
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
+        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             filename_hash = sha_constructor(filename).hexdigest()
             user_hash = sha_constructor("user").hexdigest()
             fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)

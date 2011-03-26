@@ -56,10 +56,15 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         # get the protocol option
-        genHandler = GeneralHandler.GeneralHandler(self.request, BASEDIR, FILEDIR, DBHOST, DB, DBUSER, DBPASS)
+        genHandler = GeneralHandler.GeneralHandler(self.request
+                                                   , self.client_address
+                                                   , BASEDIR, FILEDIR
+                                                   , DBHOST, DB
+                                                   , DBUSER, DBPASS)
         
         while(1):
             self.data = genHandler.recvRequest()
+            print self.client_address
             try:
                 command, arguments = self.data.split("\r\n", 1)
                 print "\nCommand:\t%s" % command
@@ -83,164 +88,6 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 #break
             
         self.request.close()
-        
-
-    def changePassword(self, arguments):
-        password, key = arguments.split("\r\n")
-        print "in changePassword password: %s" % password
-        print "in changePassword key: %s" % key
-        
-        #verify key
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
-            self.request.send("STAT\r\n100")
-        else:
-            self.request.send("STAT\r\n200")
-            return
-
-
-    def createNewUser(self, arguments):
-        newuser, newpass = arguments.split("\r\n")
-        print "New user: %s" % newuser
-        print "new pass: %s" % newpass
-        
-        #conn = DatabaseConnection()
-        #conn.connect("localhost", "username", "password", "open-dropoff")
-        #udb = UsersDB(conn)
-        
-        #nameTaken = udb.userExists(newuser)
-        #if not nameTaken:
-        #    meetsReq = checkPassReq(newpass)
-        #    if meetsReq:
-        #        udb.addUser( newuser, newpass )
-        #        self.request.send("STAT 100")
-        #    else:
-        #        self.request.send("STAT 204")
-        #else:
-        #    print "Name taken, try again!"
-        #    self.request.send("STAT 203")
-        
-        #conn.disconnect()
-    
-    
-    def checkPassReq(self, newpass):
-        if len(newpass) > 8:
-            return True
-        else:
-            return False
-        
-        
-    def list(self):
-        print "IN LIST!"
-        
-        
-    def login(self, arguments):
-        username = arguments
-        print "User: %s" % username
-        #conn = DatabaseConnection.DatabaseConnection()
-        #conn.connect(DBHOST, DBUSER, DBPASS, DB)
-        #udb = UsersDB.UsersDB(conn)
-        
-        #validUser = udb.userExists(username)
-        
-        #if(validUser):
-        if(username == "user"):
-            self.request.send("STAT\r\n100")
-            self.data = self.request.recv(RECEIVESIZE)
-            command, arguments = self.data.split("\r\n", 1)
-            
-            if(command == "PASS"):
-                password = arguments
-                
-                #validPass = udb.authenticate(username, password)
-                #if(validPass):
-                if(password == "pass"):
-                    key = sha_constructor("%s%s" % (username, password)).hexdigest()
-                    self.request.send("STAT\r\n100\r\n%s" % key)
-                else:
-                    self.request.send("STAT\r\n202")
-            else:
-                #not sure if this is needed
-                self.request.send("STAT\r\n200")
-        else:
-            self.request.send("STAT\r\n201")
-            
-        #conn.disconnect()
-            
-                
-    def receive(self, arguments):
-        filename, filesize, key = arguments.split("\r\n", 2)
-        print "FILENAME: %s" % filename
-        filesize = int(filesize)
-        
-        #verify key
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
-            self.request.send("STAT\r\n100")
-        else:
-            self.request.send("STAT\r\n200")
-            return
-        
-        #write the files to a test sub-directory prevents 
-        #clogging up the server folder with random test files
-        #newfile = open("./testfiles/" + filename, "wb")
-        
-        filename_hash = sha_constructor(filename).hexdigest()
-        fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
-        if(os.path.isfile(fullpath)):
-            print "File already exists"
-        newfile = open(fullpath, "wb")
-        #receives 100 bytes of the file at a time, loops until
-        #the whole file is received
-        totalReceived = -1
-        
-        print filesize
-        
-        while totalReceived <= filesize:
-            if( totalReceived == -1 ):
-                totalReceived =  0
-            print "looping"
-            content = self.request.recv(RECEIVESIZE)
-            totalReceived += RECEIVESIZE
-            newfile.write(content)
-
-        newfile.close() #close the file
-        
-        #send a response to the client
-        self.request.send("STAT\r\n100")
-        print "PUSH Request finished"
-
-
-    def send(self, arguments):
-        filename, key = arguments.split("\r\n", 1)
-        if(key == "45f106ef4d5161e7aa38cf6c666607f25748b6ca"):
-            filename_hash = sha_constructor(filename).hexdigest()
-            fullpath = "%s%s%s" % (BASEDIR,FILEDIR,filename_hash)
-        
-            filesize = os.path.getsize(fullpath)
-        
-            self.request.send("STAT\r\n100\r\n%i" % filesize)
-        else:
-            self.request.send("STAT\r\n200")
-            return
-            
-        response = self.request.recv(80)
-        
-        if response == "SEND":
-            #start sending the file
-            
-            file = open(fullpath, "rb")
-            
-            line = file.read(SENDSIZE)
-            
-            while line:
-                sent = self.request.send(line)
-                while sent != len(line):
-                    sent += self.request.send(line[sent:])
-                line = file.read(SENDSIZE)
-            
-            file.close()
-        else:
-            print "Don't send."
-        print "PULL Request finished"
              
              
 if __name__ == "__main__":
@@ -263,7 +110,6 @@ if __name__ == "__main__":
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     print "Running..."
-    #server.timeout = 60
     try:
         server.serve_forever()
     except KeyboardInterrupt:

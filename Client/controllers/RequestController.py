@@ -46,7 +46,7 @@ class RequestController(object):
         self.server = server
         self.port = int(port)
         #TODO: THIS IS VERY BAD. Only here for getting things running
-        self.key = "45f106ef4d5161e7aa38cf6c666607f25748b6ca"
+        self.key = "440f23c58848769685e481ff270b046659f40b7c"
 
 
     def connect(self):
@@ -73,13 +73,11 @@ class RequestController(object):
         #self.connect()
         print "changePassword(RC)p: %s" % password
         print "key: %s" % self.key
-        self.sock.send("PASS\r\n%s\r\n%s" % (password, self.key))
+        password_hash = sha_constructor(password).hexdigest()
+        self.sock.send("PASS\r\n%s\r\n%s" % (password_hash, self.key))
         response = self.sock.recv(RECEIVESIZE)
         status, code = response.split("\r\n", 1)
-        print "%s %s" % (status, code)
-        
-        password_hash = sha_constructor(password).hexdigest()
-        print "Password hash: %s" % password_hash    
+        print "%s %s" % (status, code)  
     
         #self.disconnect()
         
@@ -95,8 +93,8 @@ class RequestController(object):
         
         print "newUser(RC)u: %s" % username
         print "newUser(RC)p: %s" % password
-        
-        self.sock.send("NUSR\r\n%s\r\n%s" % (username, password))
+        password_hash = sha_constructor(password).hexdigest()
+        self.sock.send("NUSR\r\n%s\r\n%s" % (username, password_hash))
         
         response = self.sock.recv(RECEIVESIZE)
         
@@ -124,7 +122,8 @@ class RequestController(object):
         print "%s %s" % (status, code)
         if(status == "STAT" and code == "100"):
             password = raw_input("Please enter your password: ")
-            self.sock.send("PASS\r\n%s" % password)
+            password_hash = sha_constructor(password).hexdigest()
+            self.sock.send("PASS\r\n%s" % password_hash)
             response = self.sock.recv(RECEIVESIZE)
             status, code, key = response.split("\r\n",2)
             if(status == "STAT" and code =="100"):
@@ -168,8 +167,6 @@ class RequestController(object):
             print "%s %s" % (status, code)
         else:
             return
-        
-        #sock.send("%s\r\n%s" % ("JohnDoe","homie4life"))
         
         line = f.read(SENDSIZE)
         while line:
