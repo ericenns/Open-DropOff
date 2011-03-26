@@ -24,7 +24,7 @@
 
 import sys
 
-class UsersDBStub:
+class UsersDB:
     '''
     FilesDB Stub class... should look the same but be more fake than Hollywood itself :)
     '''

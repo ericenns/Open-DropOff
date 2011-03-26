@@ -4,14 +4,14 @@ Created on Mar 19, 2011
 @author: euwern
 '''
 import unittest
-from UsersDBStub import *
-from FilesDBStub import *
+from UsersDB import *
+from FilesDB import *
 
-class UsersDBStubTest(unittest.TestCase):
+class UsersDBTest(unittest.TestCase):
 
 
     def setUp(self):
-        self.userDB = UsersDBStub("dummyConnection")
+        self.userDB = UsersDB("dummyConnection")
 
 
     def tearDown(self):
