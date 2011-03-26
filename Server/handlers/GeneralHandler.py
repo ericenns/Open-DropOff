@@ -26,18 +26,22 @@ import AccountHandler
 import FileHandler
 import ConnectionHandler
 
+from databasestub import *
+
 class GeneralHandler(object):
     '''
     classdocs
     '''
 
-    def __init__(self, tcpConn, basedir, filedir):
+    def __init__(self, tcpConn, basedir, filedir, dbhost, db, dbuser, dbpass):
         '''
         Constructor
         '''
+        self.dbConnection = DatabaseConnection.DatabaseConnection()
+        self.dbConnection.connect(dbhost, dbuser, dbpass, db)
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, 100, 100)
-        self.accHandler = AccountHandler.AccountHandler(self.connHandler)
-        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir)
+        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection)
+        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
         
     def push(self, args):
         self.fileHandler.receive(args)

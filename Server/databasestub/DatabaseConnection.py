@@ -24,12 +24,12 @@
 class DatabaseConnection(object):
 
     def __init__(self):
-        pass
+        return
         
     def connect(self, host, username, password, database):
-        pass
+        return
 
         
     def disconnect(self):
-        pass
+        return
         

@@ -56,7 +56,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         # get the protocol option
-        genHandler = GeneralHandler.GeneralHandler(self.request, BASEDIR, FILEDIR)
+        genHandler = GeneralHandler.GeneralHandler(self.request, BASEDIR, FILEDIR, DBHOST, DB, DBUSER, DBPASS)
         
         while(1):
             self.data = genHandler.recvRequest()
@@ -80,7 +80,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                     break
             except ValueError:
                 print "Connection with Client lost"
-                break
+                #break
             
         self.request.close()
         
@@ -253,6 +253,9 @@ if __name__ == "__main__":
     DB = config.get("Database", "database")
     DBUSER = config.get("Database", "user")
     DBPASS = config.get("Database", "pass")
+    
+    currentDir = os.getcwd()
+    sys.path.append("%s/" % currentDir)
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), ODOTCPHandler)

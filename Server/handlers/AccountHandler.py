@@ -29,38 +29,42 @@ except ImportError:
     import sha
     sha_constructor = sha.new
 
+from databasestub import *
 
 class AccountHandler(object):
     '''
     classdocs
     '''
 
-    def __init__(self, conn):
+    def __init__(self, conn, dbconn):
         '''
         Constructor
         '''
         self.connHandler = conn
+        self.dbConnection = dbconn
+        self.udb = UsersDB.UsersDB(dbconn)
     
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
         print "New user: %s" % newuser
         print "new pass: %s" % newpass
         
-        #conn = DatabaseConnection()
-        #conn.connect("localhost", "username", "password", "open-dropoff")
-        #udb = UsersDB(conn)
+        #conn = DatabaseConnection.DatabaseConnection()
+        #conn.connect(self.DBHOST, self.DBUSER, self.DBPASS, self.DB)
+        #udb = UsersDB.UsersDB(conn)
         
-        #nameTaken = udb.userExists(newuser)
-        #if not nameTaken:
-        #    meetsReq = checkPassReq(newpass)
-        #    if meetsReq:
-        #        udb.addUser( newuser, newpass )
-        #        self.connHandler.send("STAT 100")
-        #    else:
-        #        self.connHandler.send("STAT 204")
-        #else:
-        #    print "Name taken, try again!"
-        #    self.connHandler.send("STAT 203")
+        nameTaken = self.udb.userExists(newuser)
+        if not nameTaken:
+            meetsReq = True
+            #meetsReq = checkPassReq(newpass)
+            if meetsReq:
+                self.udb.addUser( newuser, newpass )
+                self.connHandler.send("STAT 100")
+            else:
+                self.connHandler.send("STAT 204")
+        else:
+            print "Name taken, try again!"
+            self.connHandler.send("STAT 203")
         
         #conn.disconnect()
             
@@ -87,13 +91,13 @@ class AccountHandler(object):
         username = arguments
         print "User: %s" % username
         #conn = DatabaseConnection.DatabaseConnection()
-        #conn.connect(DBHOST, DBUSER, DBPASS, DB)
+        #conn.connect(self.DBHOST, self.DBUSER, self.DBPASS, self.DB)
         #udb = UsersDB.UsersDB(conn)
         
-        #validUser = udb.userExists(username)
+        validUser = self.udb.userExists(username)
         
-        #if(validUser):
-        if(username == "user"):
+        if(validUser):
+        #if(username == "user"):
             self.connHandler.send("STAT\r\n100")
             self.data = self.connHandler.recv()
             command, arguments = self.data.split("\r\n", 1)
@@ -101,9 +105,9 @@ class AccountHandler(object):
             if(command == "PASS"):
                 password = arguments
                 
-                #validPass = udb.authenticate(username, password)
-                #if(validPass):
-                if(password == "pass"):
+                validPass = self.udb.authenticate(username, password)
+                if(validPass):
+                #if(password == "pass"):
                     key = sha_constructor("%s%s" % (username, password)).hexdigest()
                     self.connHandler.send("STAT\r\n100\r\n%s" % key)
                 else:

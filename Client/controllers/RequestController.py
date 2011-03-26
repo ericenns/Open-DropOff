@@ -64,13 +64,13 @@ class RequestController(object):
         
         
     def close(self):
-        self.connect()
+        #self.connect()
         self.sock.send("CLOS\r\n")
-        self.disconnect()
+        #self.disconnect()
         
         
     def changePassword(self, password):
-        self.connect()
+        #self.connect()
         print "changePassword(RC)p: %s" % password
         print "key: %s" % self.key
         self.sock.send("PASS\r\n%s\r\n%s" % (password, self.key))
@@ -81,7 +81,7 @@ class RequestController(object):
         password_hash = sha_constructor(password).hexdigest()
         print "Password hash: %s" % password_hash    
     
-        self.disconnect()
+        #self.disconnect()
         
         
 
@@ -91,7 +91,7 @@ class RequestController(object):
     #            password    password for the new user
     #returns: true if user creation was successful, false if not
     def newUser(self, username, password):
-        self.connect()
+        #self.connect()
         
         print "newUser(RC)u: %s" % username
         print "newUser(RC)p: %s" % password
@@ -107,11 +107,11 @@ class RequestController(object):
             print "Unable to create user"
             return False
         
-        self.disconnect()
+        #self.disconnect()
 
 
     def login(self):
-        self.connect()
+        #self.connect()
         
         #Simply data access for initial use
         username = raw_input("Please enter your username: ")
@@ -134,7 +134,7 @@ class RequestController(object):
         else:
             return "";
         
-        self.disconnect()
+        #self.disconnect()
         
         
     #Sends a listing of contents request to connection
@@ -142,10 +142,10 @@ class RequestController(object):
     #Returns: list of items returned by the server
     #def list(self, key):
     def list(self):
-        self.connect()
+        #self.connect()
         print "IN LIST, RC"
         self.sock.send("LIST\r\n")
-        self.disconnect()
+        #self.disconnect()
         #should figure out what format contents list should have
         #contentsList = self.sock.recv(RECEIVESIZE)
         
@@ -157,7 +157,7 @@ class RequestController(object):
     #            filename    name of file to be sent
     #            filesize    size of file being sent
     def push(self, filename, filesize):
-        self.connect()
+        #self.connect()
         
         f = open(filename,"rb")
         self.sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (filename, filesize, self.key))
@@ -182,15 +182,15 @@ class RequestController(object):
         data = self.sock.recv(80)
         print data
         
-        self.disconnect()
+        #self.disconnect()
 
         
     #Send a request for a file to be pulled from connection
     #params:    key    key that confirms identity of request sender
     #            filename    name of file to be pulled and saved
     #Returns: File data
-    def pull(self, filename, version):
-        self.connect()
+    def pull(self, filename, version=0):
+        #self.connect()
         self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, self.key, version))
         response = self.sock.recv(80)
         status, code, filesize = response.split("\r\n", 2)
@@ -209,6 +209,6 @@ class RequestController(object):
                 newfile.write(content)
             
             newfile.close() #close the file
-            self.disconnect()
+            #self.disconnect()
         else:
             print "FAILURE!"
