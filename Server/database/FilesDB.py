@@ -148,7 +148,7 @@ class FilesDB:
             data = None
             print sys.exc_info()[1]
             
-        return data if data != None else None
+        return data
     
     def getFileHistory(self, file_id):
         '''
@@ -184,7 +184,10 @@ class FilesDB:
             data = None
             print sys.exc_info()[1]
             
-        return data['client_path'] if data != None else None
+        if data != None:
+            return data['client_path']
+        else:
+            return None
         
     def getServerPath(self, file_id):
         '''
@@ -200,7 +203,10 @@ class FilesDB:
             data = None
             print sys.exc_info()[1]
             
-        return data['server_path'] if data != None else None
+        if data != None:
+            return data['server_path']
+        else:
+            return None
             
     def getChecksum(self, file_id):
         '''
@@ -216,7 +222,10 @@ class FilesDB:
             data = None
             print sys.exc_info()[1]
             
-        return data['checksum'] if data != None else None
+        if data != None:
+            return data['checksum']
+        else:
+            return None
             
     def getLastModified(self, file_id):
         '''
@@ -232,7 +241,10 @@ class FilesDB:
             data = None
             print sys.exc_info()[1]
             
-        return data['last_modified'] if data != None else None     
+        if data != None:
+            return data['last_modified']
+        else: 
+            return None     
     
     def getPermission(self, username, fileId):
         '''
@@ -249,7 +261,10 @@ class FilesDB:
         except:
             print sys.exc_info()[1]
             
-        return data['permission_level'] if data != None else None
+        if data != None:
+            return data['permission_level']
+        else:
+            return None
     
     def setPermission(self, username, fileId, newPermission):
         '''
