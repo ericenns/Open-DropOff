@@ -59,15 +59,17 @@ class FileHandler(object):
     def createFullPath(self, filename, username, baseDir, fileDir, version):
         filenameHash = sha_constructor(filename).hexdigest()
         userHash = sha_constructor(username).hexdigest()
-        fullPath = "%s%s/%s" % (baseDir, fileDir, userHash)  
+        fullPath = "%s%s/%s" % (baseDir, fileDir, userHash)
+        print "Building fullPathFile: %s" % fullPath
         if(version == "0"):
             # should get newest version currently gets just the first version
             fileVersion = "%s" % 1
         else:
-            fileVersion = version
+            fileVersion = "%s" % version
         fileVersion = "/" + filenameHash + fileVersion
         fullPathFile = fullPath + fileVersion
         
+        print "Created fullPathFile: %s" % fullPathFile
         return fullPathFile
     
     #Writes data found in the specified file to the socket
