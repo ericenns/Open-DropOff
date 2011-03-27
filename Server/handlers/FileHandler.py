@@ -113,7 +113,7 @@ class FileHandler(object):
     def receive(self, arguments):
         filename, fileSize, checksum, key = arguments.split("\r\n", 3)
         print "FILENAME: %s" % filename
-        filesize = int(fileSize)
+        fileSize = int(fileSize)
         
         if self.verifyKey(key):
             
@@ -124,7 +124,7 @@ class FileHandler(object):
             #clogging up the server folder with random test files
             #newfile = open("./testfiles/" + filename, "wb")
             
-            fullPath = self.createFullPath(filename, "user", self.BASEDIR, self.FILEDIR, version)
+            fullPath = self.createFullPath(filename, "user", self.BASEDIR, self.FILEDIR)
             
             if not os.path.exists(fullPath):
                 os.makedirs(fullPath)
@@ -134,7 +134,7 @@ class FileHandler(object):
                 
             fullPathFile = self.createFullPathFile(fullPath, filename, version)
             
-            self.fdb.addFile("user", filename, fullPathFile, filesize, "user", datetime.datetime, version, checksum)
+            self.fdb.addFile("user", filename, fullPathFile, fileSize, "user", datetime.datetime, version, checksum)
             
             self.writeFileFromSocket(fullPathFile, fileSize)
             
