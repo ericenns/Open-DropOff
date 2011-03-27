@@ -40,7 +40,7 @@ class TestProtocol(unittest.TestCase):
         self.port = 30000
         self.testFile = "test.txt"
         self.testFileSize = 84
-        self.version = 0
+        self.version = 
         self.sendSize = 100
         self.receiveSize = 100
         self.sock = self.openConnection()
@@ -57,13 +57,15 @@ class TestProtocol(unittest.TestCase):
         sock.send("CLOS\r\n")
         sock.close()
         
-    def computeChecksum(self, file):
+    def computeChecksum(self, filename):
         file_hash = sha_constructor()
         
+        file = open(self.testFile, "rb")
         line = file.read(128)
         while line:
             file_hash.update(line)
             line = file.read(128)
+        file.close()
         
         return file_hash.hexdigest()
         
@@ -91,17 +93,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(self.key, key)
         
         #self.closeConnection(sock)
-        
-    def calcChecksum(self, filename):
-        checksum = sha_constructor()
-        
-        f = open(filename, "rb")
-        line = f.read(100)
-        
-        while line:
-            checksum.append(line)
-            
-        return checksum.hexdigest()
+
     
     def test_pushAndPull(self):
         #sock = self.openConnection()
@@ -146,9 +138,8 @@ class TestProtocol(unittest.TestCase):
             newfile.write(content)
         newfile.close()
         
-        file = open(self.testFile, "rb")
-        file_digest = self.computeChecksum(file)
-        file.close()
+        file_digest = self.computeChecksum(self.testFile)
+        
         testFile = open("%s.test" % self.testFile, "rb")
         testFile_digest = self.computeChecksum(testFile)
         testFile.close()
