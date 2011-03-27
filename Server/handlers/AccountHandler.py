@@ -57,12 +57,12 @@ class AccountHandler(object):
             #meetsReq = checkPassReq(newpass)
             if meetsReq:
                 self.udb.addUser(newuser, newpass, 1000)
-                self.connHandler.send("STAT 100")
+                self.connHandler.send("STAT\r\n100")
             else:
-                self.connHandler.send("STAT 204")
+                self.connHandler.send("STAT\r\n204")
         else:
             print "Name taken, try again!"
-            self.connHandler.send("STAT 203")
+            self.connHandler.send("STAT\r\n203")
             
 
     def changePassword(self, arguments):
@@ -99,7 +99,7 @@ class AccountHandler(object):
             
             if(command == "PASS"):
                 password = arguments
-                
+                print password
                 validPass = self.udb.authenticate(username, password)
                 if(validPass):
                 #if(password == "pass"):

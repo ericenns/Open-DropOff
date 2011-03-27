@@ -119,11 +119,14 @@ class FileHandler(object):
             fullpath = fileInfo['server_path']
             fileversion = 
             
-            filesize = os.path.getsize(fullpathfile)
-        
-            self.connHandler.send("STAT\r\n100\r\n%i" % filesize)
+            if(os.path.exists(fullpathfile)):
+                filesize = os.path.getsize(fullpathfile)
+                self.connHandler.send("STAT\r\n100\r\n%i" % filesize)
+            else:
+                self.connHandler.send("STAT\r\n302")
+                return
         else:
-            self.connHandler.send("STAT\r\n101")
+            self.connHandler.send("STAT\r\n200")
             return
             
         response = self.connHandler.recv()

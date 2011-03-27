@@ -98,8 +98,9 @@ class RequestController(object):
         self.sock.send("NUSR\r\n%s\r\n%s" % (username, password_hash))
         
         response = self.sock.recv(RECEIVESIZE)
+        status, code = response.split("\r\n", 1)
         
-        if( response == "STAT 100"):
+        if(status == "STAT" and code == "100"):
             print "New user made!"
             return True
         else:

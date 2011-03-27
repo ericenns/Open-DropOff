@@ -24,9 +24,8 @@
 import ConfigParser
 import unittest
 
-import UsersDB
-import FilesDB
-from DatabaseConnection import *
+from database.DatabaseConnection import DatabaseConnection
+from database import UsersDB
 
 
 class UsersDBTest(unittest.TestCase):
