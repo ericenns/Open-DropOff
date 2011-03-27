@@ -55,7 +55,7 @@ class UsersDB:
         data = self._conn._fetchOne()
         
         if data != None:  
-            userPassword = data[0]
+            userPassword = data['password_hash']
             if password == userPassword:
                 return True
             
