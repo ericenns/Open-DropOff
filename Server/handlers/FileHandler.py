@@ -47,47 +47,53 @@ class FileHandler(object):
         self.FILEDIR = filedir
         self.fdb = FilesDB.FilesDB(dbconn)
         
-    def receive(self, arguments):
-        filename, filesize, checksum, key = arguments.split("\r\n", 3)
-        print "FILENAME: %s" % filename
-        filesize = int(filesize)
-        
+    def verifyKey(self, key):
         #verify key
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             self.connHandler.send("STAT\r\n100")
+            return True
         else:
             self.connHandler.send("STAT\r\n200")
-            return
+            return False
         
-        #TODO: Calculate the correct version of the file
-        version = str(0)
+    def createFullPath(self, filename, username, baseDir, fileDir, version):
+        filenameHash = sha_constructor(filename).hexdigest()
+        userHash = sha_constructor(username).hexdigest()
+        fullPath = "%s%s/%s/%s" % (baseDir, fileDir, userHash, filenameHash)  
+        if(version == "0"):
+            # should get newest version currently gets just the first version
+            fileVersion = "%s" % 1
+        else:
+            fileVersion = version
+        fileVersion = "/" + filenameHash + fileVersion
+        fullPathFile = fullPath + fileVersion
         
-        #write the files to a test sub-directory prevents 
-        #clogging up the server folder with random test files
-        #newfile = open("./testfiles/" + filename, "wb")
+        return fullPathFile
+    
+    #Writes data found in the specified file to the socket
+    def writeFileToSocket(self, fullPathFile):
+        file = open(fullPathFile, "rb")
+                
+        line = file.read(self.connHandler.sendSize)
         
-        filename_hash = sha_constructor(filename).hexdigest()
-        user_hash = sha_constructor("user").hexdigest()
-        fullpath = "%s%s/%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
-        fileversion = "/"+filename_hash+version
-        fullpathfile = fullpath + fileversion
+        while line:
+            sent = self.connHandler.send(line)
+            while sent != len(line):
+                sent += self.connHandler.send(line[sent:])
+            line = file.read(self.connHandler.sendSize)
         
-        if not os.path.exists(fullpath):
-            os.makedirs(fullpath)
-        
-        if(os.path.isfile(fullpath)):
-            print "File already exists"
-            
-        self.fdb.addFile("user", filename, fullpath, filesize, "user", datetime.datetime, version, checksum)
-        
-        newfile = open(fullpathfile, "wb")
+        file.close()
+    
+    #Accepts data from the socket and writes out to a new file
+    def writeFileFromSocket(self, fullPath, fileSize):
+        newfile = open(fullPath, "wb")
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
         totalReceived = -1
         
-        print filesize
+        print fileSize
         
-        while totalReceived <= filesize:
+        while totalReceived <= fileSize:
             if( totalReceived == -1 ):
                 totalReceived =  0
             print "looping"
@@ -97,9 +103,35 @@ class FileHandler(object):
 
         newfile.close() #close the file
         
-        #send a response to the client
-        self.connHandler.send("STAT\r\n100")
-        print "PUSH Request finished"
+    def receive(self, arguments):
+        filename, fileSize, checksum, key = arguments.split("\r\n", 3)
+        print "FILENAME: %s" % filename
+        filesize = int(fileSize)
+        
+        if self.verifyKey(key):
+            
+            #TODO: Calculate the correct version of the file
+            version = str(0)
+            
+            #write the files to a test sub-directory prevents 
+            #clogging up the server folder with random test files
+            #newfile = open("./testfiles/" + filename, "wb")
+            
+            fullPath = self.createFullPath(filename, "user", self.BASEDIR, self.FILEDIR, version)
+            
+            if not os.path.exists(fullPath):
+                os.makedirs(fullPath)
+            
+            if(os.path.isfile(fullPath)):
+                print "File already exists"
+                
+            self.fdb.addFile("user", filename, fullPath, filesize, "user", datetime.datetime, version, checksum)
+            
+            self.writeFileFromSocket(fullPath, fileSize)
+            
+            #send a response to the client
+            self.connHandler.send("STAT\r\n100")
+            print "PUSH Request finished"
 
     #NOTE: Unable to implement version controlling properly at the moment.
     #        Ideally when sending a file, if the version is 0, then return the most recent version.
@@ -109,51 +141,26 @@ class FileHandler(object):
     
     def send(self, arguments):
         filename, version, key = arguments.split("\r\n", 2)
-        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
-            filename_hash = sha_constructor(filename).hexdigest()
-            '''user_hash = sha_constructor("user").hexdigest()
-            fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
-            fileversion = "/%s" % filename_hash
-            if(version == "0"):
-                # should get newest version currently gets just the first version
-                fileversion = "%s%s" % (fileversion, 1)
-            else:
-                fileversion = "%s%s" % (fileversion, version)
-            fullpathfile = "%s%s" % (fullpath, fileversion)'''
-            
+        
+        if self.verifyKey(key):
+            #Can't use version to grab a specific version yet, DB is working on it
             fileInfo = self.fdb.getFile("user", filename)
-            fullpath = fileInfo['server_path']
-            fileversion = "/"+filename_hash+version
-            fullpathfile = fullpath + fileversion
+            fullPath = fileInfo['server_path']
             
-            if(os.path.exists(fullpathfile)):
-                filesize = os.path.getsize(fullpathfile)
-                self.connHandler.send("STAT\r\n100\r\n%i" % filesize)
+            if(os.path.exists(fullPath)):
+                fileSize = os.path.getsize(fullPath)
+                self.connHandler.send("STAT\r\n100\r\n%i" % fileSize)
             else:
                 self.connHandler.send("STAT\r\n302")
                 return
-        else:
-            self.connHandler.send("STAT\r\n200")
-            return
+
+            response = self.connHandler.recv()
             
-        response = self.connHandler.recv()
-        
-        if response == "SEND":
-            #start sending the file
-            
-            file = open(fullpathfile, "rb")
-            
-            line = file.read(self.connHandler.sendSize)
-            
-            while line:
-                sent = self.connHandler.send(line)
-                while sent != len(line):
-                    sent += self.connHandler.send(line[sent:])
-                line = file.read(self.connHandler.sendSize)
-            
-            file.close()
-        else:
-            print "Don't send."
-        print "PULL Request finished"
+            if response == "SEND":
+                #start sending the file
+                self.writeFileToSocket(fullPath)
+            else:
+                print "Don't send."
+            print "PULL Request finished"
              
              

@@ -70,6 +70,10 @@ class AccountHandler(object):
         
         #verify key
         print key
+        #Should probably change the ordering of key protocol so that it would be:
+        #    COMMAND/r/nkey/r/nargs
+        #    That way we can parse the key and confirm it in the general handler
+        #        as opposed to handling it within each function
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             print oldpass
             print newpass
@@ -84,6 +88,17 @@ class AccountHandler(object):
             return True
         else:
             return False
+        
+    def generateKey(self, username):
+        #ipAddr = self.connHandler.clientAddr()
+        #time = time.time()
+        ipAddr = "172.0.0.1"
+        time = "1234567"
+        key = sha_constructor("%s%s%s" 
+                              % (username, ipAddr
+                                 , time)).hexdigest()
+                                 
+        return key
         
     def login(self, arguments):
         username = arguments
@@ -103,13 +118,7 @@ class AccountHandler(object):
                 validPass = self.udb.authenticate(username, password)
                 if(validPass):
                 #if(password == "pass"):
-                    #ipAddr = self.connHandler.clientAddr()
-                    #time = time.time()
-                    ipAddr = "172.0.0.1"
-                    time = "1234567"
-                    key = sha_constructor("%s%s%s" 
-                                          % (username, ipAddr
-                                             , time)).hexdigest()
+                    key = self.generateKey(username)
                     self.connHandler.send("STAT\r\n100\r\n%s" % key)
                 else:
                     self.connHandler.send("STAT\r\n202")
