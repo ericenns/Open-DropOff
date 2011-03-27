@@ -40,7 +40,7 @@ class TestProtocol(unittest.TestCase):
         self.port = 30000
         self.testFile = "test.txt"
         self.testFileSize = 84
-        self.version = 
+        self.version = 0
         self.sendSize = 100
         self.receiveSize = 100
         self.sock = self.openConnection()
@@ -99,7 +99,7 @@ class TestProtocol(unittest.TestCase):
         #sock = self.openConnection()
         sock = self.sock
         
-        checksum = self.calcChecksum(self.testFile)
+        checksum = self.computeChecksum(self.testFile)
         sock.send("PUSH\r\n%s\r\n%i\r\n%s\r\n%s" % (self.testFile, self.testFileSize, checksum, self.key))
         response = sock.recv(80)
         status, code = response.split("\r\n", 1)
@@ -119,8 +119,9 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual("STAT", status)
         self.assertEqual("100", code)
         
-        sock.send("PULL\r\n%s\r\n%s\r\n%s" % (self.testFile, self.key, self.version))
+        sock.send("PULL\r\n%s\r\n%s\r\n%s" % (self.testFile, self.version, self.key))
         response = sock.recv(80)
+        print response
         status, code, fileSize = response.split("\r\n", 2)
         fileSize = int(fileSize)
         self.assertEqual("STAT", status)
