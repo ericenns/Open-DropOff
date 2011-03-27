@@ -32,15 +32,21 @@ except ImportError:
 class TestProtocol(unittest.TestCase):
 
     def setUp(self):
-        self.key = "45f106ef4d5161e7aa38cf6c666607f25748b6ca"
+        self.key = "440f23c58848769685e481ff270b046659f40b7c"
         self.username = "user"
         self.password = "pass"
+        self.password_hash = sha_constructor(self.password).hexdigest()
         self.server = "localhost"
         self.port = 30000
         self.testFile = "test.txt"
         self.testFileSize = 84
+        self.version = 1
         self.sendSize = 100
         self.receiveSize = 100
+        self.sock = self.openConnection()
+        
+    def tearDown(self):
+        self.closeConnection(self.sock)
     
     def openConnection(self):
         sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
@@ -61,8 +67,15 @@ class TestProtocol(unittest.TestCase):
         
         return file_hash.hexdigest()
         
-    def test_login(self):
-        sock = self.openConnection()
+    def test_creationUserThenLogin(self):
+        #sock = self.openConnection()
+        sock = self.sock
+        
+        sock.send("NUSR\r\n%s\r\n%s" % (self.username, self.password_hash))
+        response = sock.recv(80)
+        status, code = response.split("\r\n", 1)
+        self.assertEqual("STAT", status)
+        self.assertEqual("100", code)
         
         sock.send("USER\r\n%s" % self.username)
         response = sock.recv(80)
@@ -70,17 +83,18 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual("STAT", status)
         self.assertEqual("100", code)
         
-        sock.send("PASS\r\n%s" % self.password)
+        sock.send("PASS\r\n%s" % self.password_hash)
         response = sock.recv(80)
         status, code, key = response.split("\r\n", 2)
         self.assertEqual("STAT", status)
         self.assertEqual("100", code)
         self.assertEqual(self.key, key)
         
-        self.closeConnection(sock)
+        #self.closeConnection(sock)
         
-    def test_push(self):
-        sock = self.openConnection()
+    def test_pushAndPull(self):
+        #sock = self.openConnection()
+        sock = self.sock
         
         sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (self.testFile, self.testFileSize, self.key))
         response = sock.recv(80)
@@ -101,12 +115,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual("STAT", status)
         self.assertEqual("100", code)
         
-        self.closeConnection(sock)
-        
-    def test_pull(self):
-        sock = self.openConnection()
-        
-        sock.send("PULL\r\n%s\r\n%s" % (self.testFile, self.key))
+        sock.send("PULL\r\n%s\r\n%s\r\n%s" % (self.testFile, self.key, self.version))
         response = sock.recv(80)
         status, code, fileSize = response.split("\r\n", 2)
         fileSize = int(fileSize)
@@ -133,7 +142,9 @@ class TestProtocol(unittest.TestCase):
         testFile.close()
         self.assertEqual(file_digest, testFile_digest)
         
-        self.closeConnection(sock)
+        #self.closeConnection(sock)
     
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestProtocol)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
