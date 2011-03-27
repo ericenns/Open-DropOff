@@ -50,7 +50,6 @@ class FileHandler(object):
     def verifyKey(self, key):
         #verify key
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
-            self.connHandler.send("STAT\r\n100")
             return True
         else:
             self.connHandler.send("STAT\r\n200")
@@ -116,6 +115,7 @@ class FileHandler(object):
         fileSize = int(fileSize)
         
         if self.verifyKey(key):
+            self.connHandler.send("STAT\r\n100")
             
             #TODO: Calculate the correct version of the file
             version = str(0)
