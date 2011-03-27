@@ -56,11 +56,16 @@ class FileHandler(object):
             self.connHandler.send("STAT\r\n200")
             return False
         
-    def createFullPath(self, filename, username, baseDir, fileDir, version):
+    def createFullPath(self, filename, username, baseDir, fileDir):
         filenameHash = sha_constructor(filename).hexdigest()
         userHash = sha_constructor(username).hexdigest()
-        fullPath = "%s%s/%s" % (baseDir, fileDir, userHash)
+        fullPath = "%s%s/%s/%s" % (baseDir, fileDir, userHash, filenameHash)
         print "Building fullPathFile: %s" % fullPath
+        
+        return fullPath
+        
+    def createFullPathFile(self, fullPath, filename, version):
+        filenameHash = sha_constructor(filename).hexdigest()
         if(version == "0"):
             # should get newest version currently gets just the first version
             fileVersion = "%s" % 1
@@ -127,9 +132,11 @@ class FileHandler(object):
             if(os.path.isfile(fullPath)):
                 print "File already exists"
                 
-            self.fdb.addFile("user", filename, fullPath, filesize, "user", datetime.datetime, version, checksum)
+            fullPathFile = self.createFullPathFile(fullPath, filename, version)
             
-            self.writeFileFromSocket(fullPath, fileSize)
+            self.fdb.addFile("user", filename, fullPathFile, filesize, "user", datetime.datetime, version, checksum)
+            
+            self.writeFileFromSocket(fullPathFile, fileSize)
             
             #send a response to the client
             self.connHandler.send("STAT\r\n100")
