@@ -59,7 +59,7 @@ class FileHandler(object):
     def createFullPath(self, filename, username, baseDir, fileDir, version):
         filenameHash = sha_constructor(filename).hexdigest()
         userHash = sha_constructor(username).hexdigest()
-        fullPath = "%s%s/%s/%s" % (baseDir, fileDir, userHash, filenameHash)  
+        fullPath = "%s%s/%s" % (baseDir, fileDir, userHash)  
         if(version == "0"):
             # should get newest version currently gets just the first version
             fileVersion = "%s" % 1

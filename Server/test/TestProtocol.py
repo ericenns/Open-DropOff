@@ -115,6 +115,7 @@ class TestProtocol(unittest.TestCase):
             line = file.read(self.sendSize)      
         file.close()
         response = sock.recv(80)
+        print response
         status, code = response.split("\r\n", 1)
         self.assertEqual("STAT", status)
         self.assertEqual("100", code)
