@@ -23,6 +23,7 @@
 ###############################################################################
 
 import os
+import datetime
 from databasestub import FilesDB
 
 try: 
@@ -44,10 +45,10 @@ class FileHandler(object):
         self.connHandler = conn
         self.BASEDIR = basedir
         self.FILEDIR = filedir
-        self.dbConnection = dbconn
+        self.fdb = FilesDB.FilesDB(dbconn)
         
     def receive(self, arguments):
-        filename, filesize, key = arguments.split("\r\n", 2)
+        filename, filesize, checksum, key = arguments.split("\r\n", 3)
         print "FILENAME: %s" % filename
         filesize = int(filesize)
         
@@ -66,7 +67,6 @@ class FileHandler(object):
         
         filename_hash = sha_constructor(filename).hexdigest()
         user_hash = sha_constructor("user").hexdigest()
-        #fullpath = serverPath (for database)
         fullpath = "%s%s/%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
         fileversion = "/"+filename_hash+version
         fullpathfile = fullpath + fileversion
@@ -76,6 +76,9 @@ class FileHandler(object):
         
         if(os.path.isfile(fullpath)):
             print "File already exists"
+            
+        self.fdb.addFile("user", filename, fullpath, filesize, "user", datetime.datetime, fileversion, checksum)
+        
         newfile = open(fullpathfile, "wb")
         #receives 100 bytes of the file at a time, loops until
         #the whole file is received
@@ -99,18 +102,22 @@ class FileHandler(object):
 
 
     def send(self, arguments):
-        filename, key, version = arguments.split("\r\n", 2)
+        filename, version, key = arguments.split("\r\n", 2)
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             filename_hash = sha_constructor(filename).hexdigest()
             user_hash = sha_constructor("user").hexdigest()
-            fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
+            fileInfo = self.fdb.getFile("user", filename)
+            
+            '''fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
             fileversion = "/%s" % filename_hash
             if(version == "0"):
                 # should get newest version currently gets just the first version
                 fileversion = "%s%s" % (fileversion, 1)
             else:
                 fileversion = "%s%s" % (fileversion, version)
-            fullpathfile = "%s%s" % (fullpath, fileversion)
+            fullpathfile = "%s%s" % (fullpath, fileversion)'''
+            fullpath = fileInfo['server_path']
+            fileversion = 
             
             filesize = os.path.getsize(fullpathfile)
         

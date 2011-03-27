@@ -35,6 +35,7 @@ except ImportError:
 
 RECEIVESIZE = 100
 SENDSIZE = 100
+CHECKREADSIZE = 100
 key = 0;
 
 class RequestController(object):
@@ -150,6 +151,16 @@ class RequestController(object):
         
         #return contentsList
         
+    def calcChecksum(self, filename):
+        checksum = sha_constructor()
+        
+        f = open(filename, "rb")
+        line = f.read(CHECKREADSIZE)
+        
+        while line:
+            checksum.append(line)
+            
+        return checksum.hexdigest()
         
     #send file to server
     #params:    sock    connection to have file sent through
@@ -158,8 +169,8 @@ class RequestController(object):
     def push(self, filename, filesize):
         #self.connect()
         
-        f = open(filename,"rb")
-        self.sock.send("PUSH\r\n%s\r\n%i\r\n%s" % (filename, filesize, self.key))
+        checksum = self.calcChecksum(filename)
+        self.sock.send("PUSH\r\n%s\r\n%i\r\n%s\r\n%s" % (filename, filesize, checksum, self.key))
         # wait for a response then start sending the file
         response = self.sock.recv(RECEIVESIZE)
         status, code = response.split("\r\n", 1)
@@ -168,6 +179,7 @@ class RequestController(object):
         else:
             return
         
+        f = open(filename,"rb")
         line = f.read(SENDSIZE)
         while line:
             sent = self.sock.send(line)
@@ -188,7 +200,7 @@ class RequestController(object):
     #Returns: File data
     def pull(self, filename, version=0):
         #self.connect()
-        self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, self.key, version))
+        self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, version, self.key))
         response = self.sock.recv(80)
         values = response.split("\r\n")
         #status, code, filesize = response.split("\r\n")
