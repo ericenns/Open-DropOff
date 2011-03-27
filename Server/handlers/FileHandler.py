@@ -59,7 +59,7 @@ class FileHandler(object):
             self.connHandler.send("STAT\r\n200")
             return
         
-        version = str(1)
+        version = str(0)
         
         #write the files to a test sub-directory prevents 
         #clogging up the server folder with random test files
@@ -77,7 +77,7 @@ class FileHandler(object):
         if(os.path.isfile(fullpath)):
             print "File already exists"
             
-        self.fdb.addFile("user", filename, fullpath, filesize, "user", datetime.datetime, fileversion, checksum)
+        self.fdb.addFile("user", filename, fullpath, filesize, "user", datetime.datetime, version, checksum)
         
         newfile = open(fullpathfile, "wb")
         #receives 100 bytes of the file at a time, loops until
@@ -105,10 +105,8 @@ class FileHandler(object):
         filename, version, key = arguments.split("\r\n", 2)
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
             filename_hash = sha_constructor(filename).hexdigest()
-            user_hash = sha_constructor("user").hexdigest()
-            fileInfo = self.fdb.getFile("user", filename)
-            
-            '''fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
+            '''user_hash = sha_constructor("user").hexdigest()
+            fullpath = "%s%s%s/%s" % (self.BASEDIR,self.FILEDIR,user_hash,filename_hash)
             fileversion = "/%s" % filename_hash
             if(version == "0"):
                 # should get newest version currently gets just the first version
@@ -116,8 +114,11 @@ class FileHandler(object):
             else:
                 fileversion = "%s%s" % (fileversion, version)
             fullpathfile = "%s%s" % (fullpath, fileversion)'''
+            
+            fileInfo = self.fdb.getFile("user", filename)
             fullpath = fileInfo['server_path']
-            fileversion = 
+            fileversion = "/"+filename_hash+version
+            fullpathfile = fullpath + fileversion
             
             if(os.path.exists(fullpathfile)):
                 filesize = os.path.getsize(fullpathfile)
