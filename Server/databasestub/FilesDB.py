@@ -63,7 +63,7 @@ class FilesDB:
                 for file in self._fileList:
                     if file['file_id'] == userFile['file_id'] and file['client_path'] == clientPath:
                         return file
-    
+                    
     def getAllFiles(self, username):
         data = []
         

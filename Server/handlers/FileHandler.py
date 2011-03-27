@@ -59,6 +59,7 @@ class FileHandler(object):
             self.connHandler.send("STAT\r\n200")
             return
         
+        #TODO: Calculate the correct version of the file
         version = str(0)
         
         #write the files to a test sub-directory prevents 
@@ -100,7 +101,12 @@ class FileHandler(object):
         self.connHandler.send("STAT\r\n100")
         print "PUSH Request finished"
 
-
+    #NOTE: Unable to implement version controlling properly at the moment.
+    #        Ideally when sending a file, if the version is 0, then return the most recent version.
+    #                                     else return the version specified
+    #        At the moment there's no way of accessing an older version of the file since there's no
+    #        update function in the database.
+    
     def send(self, arguments):
         filename, version, key = arguments.split("\r\n", 2)
         if(key == "440f23c58848769685e481ff270b046659f40b7c"):
