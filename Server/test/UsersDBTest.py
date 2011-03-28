@@ -26,11 +26,11 @@ import unittest
 
 from database.DatabaseConnection import DatabaseConnection
 from database import UsersDB
+from database import FilesDB
+import datetime
 
 
 class UsersDBTest(unittest.TestCase):
-
-
     def setUp(self):
         self._connection = DatabaseConnection()
         
@@ -50,35 +50,62 @@ class UsersDBTest(unittest.TestCase):
         self._connection._execute('TRUNCATE users_files')
         self._connection._execute('TRUNCATE files')
         self._connection._execute('TRUNCATE users')
+        self._connection._commit()
         self._connection.disconnect()
                 
-    def testAddUser(self):
-        self._userDB.addUser("TestUser1" , 123)
-        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser1'")
-        self.assertEqual({'username': 'TestUser1', 'salt': 'abcdefg', 'quota': 0, 'password_hash': '123'},self._userDB._conn._fetchOne())
-
-    def testGetUser(self):
-        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser2', '456')")
-        self.assertEqual({'username': 'TestUser2', 'salt': '', 'quota': None, 'password_hash': '456'},self._userDB.getUser('TestUser2'))
-
+    def testUser(self):
+        # note how getUser addUser and removeUser are all used to test each other
+        self._userDB.addUser("_TestUser2" , "456")
+        self.assertEqual({'username': '_TestUser2', 'salt': 'abcdefg', 'quota': 0L, 'password_hash': '456'}, self._userDB.getUser('_TestUser2'))
+        self._userDB.removeUser("_TestUser2")
+        self.assertEqual(None, self._userDB.getUser("_TestUser2"))
+    
+    def testAuthenticate(self):
+        self.assertEqual(True, self._userDB.authenticate("_TestUser", "123"))
+        self.assertEqual(False, self._userDB.authenticate("_TestUser", "wrongpass"))
+        self.assertEqual(False, self._userDB.authenticate("_wronguser", "wrongpass"))
+    
+    def testUserExists(self):    
+        self.assertEqual(True, self._userDB.userExists("_TestUser"))
+        self.assertEqual(False, self._userDB.userExists("_RandomUser"))
+    
     def testUpdateUsername(self):
-        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser3', '789')")
-        self._userDB.updateUsername('NewName','TestUser3', '789')
-        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'NewName'")
-        self.assertEqual({'username': 'NewName', 'salt': '', 'quota': None, 'password_hash': '789'},self._userDB._conn._fetchOne())        
+        self._userDB.updateUsername('NewName','_TestUser')
+        self.assertEqual({'username': 'NewName', 'salt': 'abcdefg', 'quota': 0L, 'password_hash': '123'},self._userDB.getUser("NewName"))        
 
     def testUpdatePassword(self):
-        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser4', 'pass1')")
-        self._userDB.updatePassword('new_pass', 'TestUser4', 'pass1')
-        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser4'")
-        self.assertEqual({'username': 'TestUser4', 'salt': '', 'quota': None, 'password_hash': 'new_pass'},self._userDB._conn._fetchOne())
+        self._userDB.updatePassword('new_pass', '_TestUser', '123')
+        self.assertEqual({'username': '_TestUser', 'salt': 'abcdefg', 'quota': 0L, 'password_hash': 'new_pass'},self._userDB.getUser("_TestUser"))
+        
+    def testUserQuota(self):
+        self._userDB.setUserQuota(100 * 1024 * 1024 * 1024, "_TestUser")
+        self.assertEqual(100 * 1024 * 1024 * 1024, self._userDB.getUserQuota("_TestUser"))
 
-    def testRemoveUser(self):
-        self._userDB._conn._execute("INSERT INTO users (username, password_hash) VALUES ('TestUser5', 'pass2')")
-        self._userDB.removeUser("TestUser5")
-        self._userDB._conn._execute("SELECT * FROM users WHERE username = 'TestUser5'")
-        self.assertEqual(None,self._userDB._conn._fetchOne())
-
+    def testGetSpaceRemaining(self):
+        quota = 100 * 1024 * 1024 * 1024
+        self._userDB.setUserQuota(quota, "_TestUser")
+        fileDB = FilesDB.FilesDB(self._connection)
+        fileDB.addFile("_TestUser", "/home/canada/32-c.bill", "/mnt/HD_a2/_TestUser/cRaZyHaShVaLuE/32-c.bill", 2048, "_TestUser", datetime.datetime(2011, 3, 26, 15, 6, 17), 1, "2b61cdf97336e06740df")
+        fileDB.addFile("_TestUser", "/home/canada/human-rights.bill", "/mnt/HD_a2/_TestUser/cRaZyHaShVaLuE/human-rights.bill", 2048, "_TestUser", datetime.datetime(2011, 3, 26, 15, 6, 17), 1, "2b61chq97336e06740df")
+        self.assertEqual(quota - (2 * 2048), self._userDB.getSpaceRemaining("_TestUser"))
+        
+    def testGetAllUser(self):
+        userDB = self._userDB
+        userTuples = (  {'username': "user1",'password_hash': '123', 'quota': 0, 'salt': "abcdefg"}
+                      , {'username': "user2",'password_hash': '223', 'quota': 0, 'salt': "abcdefg"}
+                      , {'username': "user3",'password_hash': '333', 'quota': 0, 'salt': "abcdefg"}
+                      , {'username': "user4",'password_hash': '443', 'quota': 0, 'salt': "abcdefg"})
+        self._addUsers(userDB, userTuples)
+        userTuplesFromDB = userDB.getAllUser()
+        self.assertTrue( userTuples == userTuplesFromDB)
+        
+    def _addUsers(self, userDB, userTuples):
+        index = 0
+        while (index < len( userTuples ) ):
+            user = userTuples[index]
+            userDB.addUser(user['username'] , user['password_hash'])
+            index += 1
+    
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

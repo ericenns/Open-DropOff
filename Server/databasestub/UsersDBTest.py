@@ -77,19 +77,19 @@ class UsersDBTest(unittest.TestCase):
                       , {'username': "user2",'password_hash': '223', 'quota': 0, 'salt': "abcdefg"}
                       , {'username': "user3",'password_hash': '333', 'quota': 0, 'salt': "abcdefg"}
                       , {'username': "user4",'password_hash': '443', 'quota': 0, 'salt': "abcdefg"})
-        self.addUsers(userDB, userTuples)
+        self._addUsers(userDB, userTuples)
         userTuplesFromDB = userDB.getAllUser()
         self.assertTrue( userTuples == userTuplesFromDB)
-        self.removeAllUsers(userDB, userTuples)
+        self._removeAllUsers(userDB, userTuples)
 
-    def addUsers(self, userDB, userTuples):
+    def _addUsers(self, userDB, userTuples):
         index = 0
         while (index < len( userTuples ) ):
             user = userTuples[index]
             userDB.addUser(user['username'] , user['password_hash'])
             index += 1
     
-    def removeAllUsers(self, userDB, userTuples):   
+    def _removeAllUsers(self, userDB, userTuples):   
         index = 0
         while (index < len( userTuples ) ):
             user = userTuples[index]

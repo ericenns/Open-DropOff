@@ -55,7 +55,9 @@ class FilesDB:
             sql = sql + " VALUES ( %s , %s, 0 ) "
             
             self._conn._execute(sql, username, fileID)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             fileID = -1
             print sys.exc_info()[1]
         
@@ -82,7 +84,9 @@ class FilesDB:
             sql = "DELETE FROM files WHERE file_id = %s"
             
             self._conn._execute(sql, fileId)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1]
     
     def updateFile(self, originalFileId, newFile):
@@ -167,7 +171,9 @@ class FilesDB:
         
         try:
             self._conn._execute(sql,newAuthor,path)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1]
         
     def getClientPath(self, file_id):
@@ -276,7 +282,9 @@ class FilesDB:
         
         try:
             self._conn._execute(sql, newPermission, username, fileId)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1]   
     
         

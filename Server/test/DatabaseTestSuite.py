@@ -1,5 +1,3 @@
-# TODO: move all test code to the test package as soon as we figure out how to make
-# packages work properly!
 ###############################################################################
 # Open DropOff                                                                #
 # Copyright (C) 2011                                                          #

@@ -53,6 +53,7 @@ class FilesDBTest(unittest.TestCase):
         self._connection._execute('TRUNCATE users_files')
         self._connection._execute('TRUNCATE files')
         self._connection._execute('TRUNCATE users')
+        self._connection._commit()
         self._connection.disconnect() 
 
     def testFile(self):
@@ -70,9 +71,9 @@ class FilesDBTest(unittest.TestCase):
                           'permission_level': 0,
                           'directory': 0, \
                           'checksum': "2b61cdf97336e06720df"}, \
-                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
+                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt", 1))
         self._fileDB.removeFile("_TestUser", "folder5/testFile1.txt")
-        self.assertEqual(None, self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
+        self.assertEqual(None, self._fileDB.getFile("_TestUser", "folder5/testFile1.txt", 1))
 
     def testGetFilesInDir(self):
         files = self._fileDB.getFilesInDir("folder2/", "_TestUser")
@@ -92,7 +93,7 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testGetClientPath(self):
-        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
+        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt", 1)
         self.assertEqual(file['client_path'], "folder2/testFile1.txt")
         
     def testGetChecksum(self):
@@ -102,7 +103,7 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testPermissions(self):
-        file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt")
+        file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt", 1)
         self._fileDB.setPermission("_TestUser", file['file_id'], 0)
         self.assertTrue(self._fileDB.getPermission("_TestUser", file['file_id']) == 0)
         randomFileID = 3145156

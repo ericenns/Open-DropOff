@@ -60,7 +60,6 @@ class DatabaseConnection(object):
         Executes provided sql code after binding parameters, if any.
         '''
         self._cursor.execute(sql, args)
-        self._conn.commit()
     
     def _getLastRowID(self):
         return self._cursor.lastrowid
@@ -82,3 +81,9 @@ class DatabaseConnection(object):
     def _getCount(self):
         data = self._cursor.rowcount
         return data
+    
+    def _commit(self):
+        self._conn.commit()
+    
+    def _rollback(self):
+        self._conn.rollback()

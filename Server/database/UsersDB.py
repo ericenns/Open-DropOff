@@ -36,8 +36,13 @@ class UsersDB:
     def userExists(self, username):
         sql = "SELECT * FROM users "
         sql = sql + "WHERE username = %s "
-        self._conn._execute(sql, username)
-        data = self._conn._getCount()
+        
+        try:
+            self._conn._execute(sql, username)
+            data = self._conn._getCount()
+        except:
+            data = None
+            print sys.exc_info()[1]
         
         if data == 1:
             return True
@@ -51,8 +56,13 @@ class UsersDB:
         '''
         sql = "SELECT password_hash FROM users "
         sql = sql + " WHERE username = %s "
-        self._conn._execute(sql, username)
-        data = self._conn._fetchOne()
+        
+        try:
+            self._conn._execute(sql, username)
+            data = self._conn._fetchOne()
+        except:
+            data = None
+            print sys.exc_info()[1]
         
         if data != None:  
             userPassword = data['password_hash']
@@ -69,24 +79,40 @@ class UsersDB:
         sql = sql + " ( username, password_hash, quota, salt) "
         sql = sql + " VALUES ( %s , %s, %s, %s ) "
         
-        self._conn._execute(sql, username, password, quota, salt)
+        try:
+            self._conn._execute(sql, username, password, quota, salt)
+            self._conn._commit()
+        except:
+            self._conn._rollback()
+            print sys.exc_info()[1]
         
     def getUser(self, username):
+        '''
+        Gets a user record using the given username. Returns None if user not found.
+        '''
         self._conn._execute('SELECT * FROM users WHERE username = %s', username)
-        data = self._conn._fetchOne()
+        
+        try:
+            data = self._conn._fetchOne()
+        except:
+            data = None
+            print sys.exc_info()[1]
+            
         return data
     
-    def updateUsername(self, newUsername, username, password):
+    def updateUsername(self, newUsername, username):
         '''
         Update an existing username
         '''
         sql = "UPDATE users "
         sql = sql + " SET username = %s"
-        sql = sql + " WHERE username = %s AND password_hash = %s"
+        sql = sql + " WHERE username = %s"
         
         try:
-            self._conn._execute(sql, newUsername, username, password)
+            self._conn._execute(sql, newUsername, username)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1] #Username, password not found
       
     def updatePassword(self, newPassword, username, password):
@@ -99,7 +125,9 @@ class UsersDB:
         
         try:
             self._conn._execute(sql, newPassword, username, password)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1]
         
     def removeUser(self, username):
@@ -111,15 +139,25 @@ class UsersDB:
 
         try:
             self._conn._execute(sql, username)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1]
             
     def getAllUser(self):
-        self._conn._execute('SELECT * FROM users')
-        data = self._conn._fetchAll()
+        '''
+        Gets all the registered users on the system, or None if there are none.
+        '''
+        try:
+            self._conn._execute('SELECT * FROM users')
+            data = self._conn._fetchAll()
+        except:
+            data = None
+            print sys.exc_info()[1]
+            
         return data
                 
-    def getUserQuota(self):
+    def getUserQuota(self, username):
         '''
         Return amount of space user has
         '''
@@ -127,12 +165,18 @@ class UsersDB:
         sql = "SELECT quota FROM users"
         sql = sql + " WHERE username = %s "
         
+        result = -1
+        
         try:
-            self._conn._execute(sql)
+            self._conn._execute(sql, username)
             data = self._conn._fetchOne()
-            return data
+            
+            if data != None:
+                result = data['quota']
         except:
             print sys.exc_info()[1]
+            
+        return result
             
        
     def setUserQuota(self, quota, username):
@@ -145,23 +189,32 @@ class UsersDB:
         sql = sql + " WHERE username = %s"
         
         try:
-            self._conn._execute(sql, username)
+            self._conn._execute(sql, quota, username)
+            self._conn._commit()
         except:
+            self._conn._rollback()
             print sys.exc_info()[1]
 
     def getSpaceRemaining(self, username):
         '''
-        Return amount of space left for user
+        Return amount of space left for user or -1 on error
         '''
     
-        sql = "SELECT sum(files.size) FROM users_files JOIN files "
+        sql = "SELECT sum(files.size) AS space_used FROM users_files JOIN files "
         sql = sql + " ON files.file_id = users_files.file_id WHERE username = %s"
+        result = -1
         
         try:
             self._conn._execute(sql, username)
             data = self._conn._fetchOne()
-            return self._getQuota(username) - data
+            spaceUsed = 0
+            
+            if(data != None):
+                spaceUsed = data['space_used']
+                
+            result = self.getUserQuota(username) - spaceUsed
        
         except:
             print sys.exc_info()[1]
             
+        return result
