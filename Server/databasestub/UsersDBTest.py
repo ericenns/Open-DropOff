@@ -9,14 +9,12 @@ from FilesDB import *
 
 class UsersDBTest(unittest.TestCase):
 
-
     def setUp(self):
         #self._fileDB = FilesDB("dummyConnection")
         self._userDB = UsersDB("dummyConnection")
 
     def tearDown(self):
         pass
-
 
     def test_Add_Get_Remove_User(self):
         self.addAndTestUser(self._userDB)
@@ -95,6 +93,8 @@ class UsersDBTest(unittest.TestCase):
             user = userTuples[index]
             userDB.removeUser(user['username'])
             index += 1        
+
+    def addSession(self, ):
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
