@@ -67,8 +67,7 @@ class FilesDBTest(unittest.TestCase):
                           'last_author': "_TestUser", \
                           'last_modified': datetime.datetime(2011, 3, 26, 15, 6, 17), \
                           'version': 1, \
-                          'deleted': 0, \
-                          'permission_level': 0,
+                          'permission_level': 0, \
                           'directory': 0, \
                           'checksum': "2b61cdf97336e06720df"}, \
                         self._fileDB.getFile("_TestUser", "folder5/testFile1.txt", 1))

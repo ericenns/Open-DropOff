@@ -97,7 +97,8 @@ class UsersDBTest(unittest.TestCase):
                       , {'username': "user4",'password_hash': '443', 'quota': 0, 'salt': "abcdefg"})
         self._addUsers(userDB, userTuples)
         userTuplesFromDB = userDB.getAllUser()
-        self.assertTrue( userTuples == userTuplesFromDB)
+        userTuples += ({'username': "_TestUser",'password_hash': '123', 'quota': 0, 'salt': "abcdefg"},)
+        self.assertEqual( userTuples, userTuplesFromDB)
         
     def _addUsers(self, userDB, userTuples):
         index = 0
