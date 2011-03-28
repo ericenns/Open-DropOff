@@ -110,6 +110,8 @@ class RequestController(object):
         #self.disconnect()
 
 
+    #Ideally you would pass in the username and password to this function
+    #    instead of having it entered in using raw_input()
     def login(self):
         #self.connect()
         
