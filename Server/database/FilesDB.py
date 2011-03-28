@@ -96,7 +96,7 @@ class FilesDB:
         '''
         # TODO: implement method
         
-    def getFile(self, username, clientPath, version):
+    def getFile(self, username, clientPath):
         '''
         Gets a file based on a the file path given. The system will also make sure 
         the user has permissions to access this file. An exception will be thrown if
