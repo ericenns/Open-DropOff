@@ -76,6 +76,11 @@ class FilesDB:
         fileId = data['file_id']
         
         try:
+            sql = "DELETE FROM files_history "
+            sql = sql + "WHERE file_id = %s "
+            
+            self._conn._execute(sql, fileId)
+            
             sql = "DELETE FROM users_files "
             sql = sql + " WHERE file_id = %s " 
     
@@ -89,14 +94,34 @@ class FilesDB:
             self._conn._rollback()
             print sys.exc_info()[1]
     
-    def updateFile(self, originalFileId, newFile):
+    def updateFile(self, username , clientPath , newFile):
         '''
         Update the file by creating a new version of the file.
         @param newFile Dict A dictionary containing the description of the new file
         '''
-        # TODO: implement method
+        oldFile = self.getFile(username, clientPath)
+        currentVersion = oldFile['version']
+        newVersion = currentVersion + 1
         
-    def getFile(self, username, clientPath, version):
+        sqlInsertFileHistory = " INSERT INTO files_history "
+        sqlInsertFileHistory = sqlInsertFileHistory + " ( file_id , client_path , server_path , version , last_modified , last_author , directory , size , checksum )"
+        sqlInsertFileHistory = sqlInsertFileHistory + "VALUES ( %s , %s , %s , %s , %s , %s , %s , %s , %s ) "
+        
+        sqlUpdateFiles = " UPDATE files SET "
+        sqlUpdateFiles = sqlUpdateFiles + " client_path = %s , server_path = %s , version = %s , last_modified = %s , last_author = %s , directory = %s , size = %s , checksum = %s "
+        sqlUpdateFiles = sqlUpdateFiles + " WHERE file_id = %s "
+        
+        try:
+            self._conn._execute(sqlInsertFileHistory, oldFile['file_id'] , oldFile['client_path'] , oldFile['server_path'] , oldFile['version'] , oldFile['last_modified'] , oldFile['last_author'] , oldFile['directory'] , oldFile['size'] , oldFile['checksum'] )
+            self._conn._execute(sqlUpdateFiles, newFile['client_path'] , newFile['server_path'] , newVersion , newFile['last_modified'] , newFile['last_author'] , newFile['directory'] , newFile['size'] , newFile['checksum'] , oldFile['file_id'] )
+            self._conn._commit()
+        except:
+            self._conn._rollback()
+            print sys.exc_type [1]
+             
+        
+        
+    def getFile(self, username, clientPath):
         '''
         Gets a file based on a the file path given. The system will also make sure 
         the user has permissions to access this file. An exception will be thrown if
@@ -154,11 +179,24 @@ class FilesDB:
             
         return data
     
-    def getFileHistory(self, file_id):
+    def getAllFileHistory(self, file_id):
         '''
         Gets a list of all the versions of the given file
         '''
         ''' TODO: implement method '''
+ 
+    def getFileHistory(self, file_id , version):
+        sql = "SELECT * FROM files_history "
+        sql = sql + " WHERE file_id = %s AND version = %s "
+        
+        try:
+            self._conn._execute(sql, file_id , version)
+            data = self._conn._fetchOne()
+        except:
+            data = None
+            print sys.exc_info()[1]
+            
+        return data  
     
     def updateLastAuthor(self, path, newAuthor):   
         '''

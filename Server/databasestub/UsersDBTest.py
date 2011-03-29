@@ -94,8 +94,6 @@ class UsersDBTest(unittest.TestCase):
             userDB.removeUser(user['username'])
             index += 1        
 
-    def addSession(self, ):
-
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
