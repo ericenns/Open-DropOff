@@ -24,6 +24,8 @@
 
 import sys
 import datetime
+import socket
+import struct
 from DatabaseConnection import *
 
 class SessionsDB:
@@ -40,7 +42,7 @@ class SessionsDB:
         '''
         sql = "INSERT INTO sessions "
         sql = sql + " ( session_id, username, ip_address, expiry) "
-        sql = sql + " VALUES ( %s , %s, %s, %s ) "
+        sql = sql + " VALUES ( %s , %s, INET_ATON(%s), %s ) "
         
         try:
             self._conn._execute(sql, session_id, username, ip_address, expiry)
@@ -53,7 +55,9 @@ class SessionsDB:
         '''
         Gets a session record using the given session_id. Returns None if user not found.
         '''
-        self._conn._execute('SELECT * FROM sessions WHERE session_id = %s', session_id)
+        sql = 'SELECT session_id, username, INET_NTOA(ip_address) AS ip_address, expiry FROM sessions WHERE session_id = %s'
+        
+        self._conn._execute(sql, session_id)
         
         try:
             data = self._conn._fetchOne()
@@ -71,11 +75,16 @@ class SessionsDB:
         
         try:
             data = self._conn._fetchOne()
+            
+            if data != None:
+                result = data['username']
+            else:
+                result = None
         except:
-            data = None
+            result = None
             print sys.exc_info()[1]
             
-        return data
+        return result
         
     def endSession(self, session_id):
         '''
@@ -93,7 +102,7 @@ class SessionsDB:
         currentDate = datetime.datetime.now()
         
         try:
-            self._conn._execute('DELETE FROM sessions WHERE expiryDate <= %s', currentDate)
+            self._conn._execute('DELETE FROM sessions WHERE expiry <= %s', currentDate)
             self._conn._commit()
         except:
             self._conn._rollback()

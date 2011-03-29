@@ -25,8 +25,11 @@
 import unittest
 from UsersDBTest import *
 from FilesDBTest import *
+from SessionsDBTest import *
 
 UsersDBTestCase = unittest.TestLoader().loadTestsFromTestCase(UsersDBTest)
 FilesDBTestCase = unittest.TestLoader().loadTestsFromTestCase(FilesDBTest)
+SessionsDBTestCase = unittest.TestLoader().loadTestsFromTestCase(SessionsDBTest)
 unittest.TextTestRunner(verbosity=2).run(UsersDBTestCase)
 unittest.TextTestRunner(verbosity=2).run(FilesDBTestCase)
+unittest.TextTestRunner(verbosity=2).run(SessionsDBTestCase)

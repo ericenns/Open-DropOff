@@ -46,8 +46,8 @@ class FilesDBTest(unittest.TestCase):
         
         self._fileDB = FilesDB(self._connection)
         self._userDB.addUser("_TestUser" , "123")
-        self._fileDB.addFile("_TestUser","folder2/testFile1.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 35, "_TestUser","NULL",1, "2b61cdf97336e06720df")
-        self._fileDB.addFile("_TestUser","folder2/testFile2.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile2.txt", 35, "_TestUser","NULL",1, "4bd950f32db28f05d972")
+        self._fileDB.addFile("_TestUser","folder2/testFile1.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile1.txt", 35, "_TestUser",datetime.datetime(2011, 3, 24, 15, 6, 16),1, "2b61cdf97336e06720df")
+        self._fileDB.addFile("_TestUser","folder2/testFile2.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile2.txt", 35, "_TestUser",datetime.datetime(2011, 3, 24, 15, 6, 16),1, "4bd950f32db28f05d972")
         
     def tearDown(self):
         self._connection._execute('TRUNCATE users_files')
@@ -70,9 +70,9 @@ class FilesDBTest(unittest.TestCase):
                           'permission_level': 0, \
                           'directory': 0, \
                           'checksum': "2b61cdf97336e06720df"}, \
-                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt", 1))
+                        self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
         self._fileDB.removeFile("_TestUser", "folder5/testFile1.txt")
-        self.assertEqual(None, self._fileDB.getFile("_TestUser", "folder5/testFile1.txt", 1))
+        self.assertEqual(None, self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
 
     def testGetFilesInDir(self):
         files = self._fileDB.getFilesInDir("folder2/", "_TestUser")
@@ -92,7 +92,7 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testGetClientPath(self):
-        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt", 1)
+        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
         self.assertEqual(file['client_path'], "folder2/testFile1.txt")
         
     def testGetChecksum(self):
@@ -102,7 +102,7 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(True)
         
     def testPermissions(self):
-        file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt", 1)
+        file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt")
         self._fileDB.setPermission("_TestUser", file['file_id'], 0)
         self.assertTrue(self._fileDB.getPermission("_TestUser", file['file_id']) == 0)
         randomFileID = 3145156
