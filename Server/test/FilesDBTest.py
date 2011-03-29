@@ -50,6 +50,7 @@ class FilesDBTest(unittest.TestCase):
         self._fileDB.addFile("_TestUser","folder2/testFile2.txt", "/mnt/HD_a2/_TestUser/f3bfa/testFile2.txt", 35, "_TestUser",datetime.datetime(2011, 3, 24, 15, 6, 16),1, "4bd950f32db28f05d972")
         
     def tearDown(self):
+        self._connection._execute('TRUNCATE files_history')
         self._connection._execute('TRUNCATE users_files')
         self._connection._execute('TRUNCATE files')
         self._connection._execute('TRUNCATE users')
@@ -74,6 +75,32 @@ class FilesDBTest(unittest.TestCase):
         self._fileDB.removeFile("_TestUser", "folder5/testFile1.txt")
         self.assertEqual(None, self._fileDB.getFile("_TestUser", "folder5/testFile1.txt"))
 
+    def testRemoveFile(self):
+        newFile = self._fileDB.getFile("_TestUser" , "folder2/testFile1.txt")
+        
+        oldAuthor = newFile['last_author']
+        newFile['last_author'] = "_TestUser123"
+        
+        print "version"
+        print newFile['version']
+        
+        self._fileDB.updateFile("_TestUser", "folder2/testFile1.txt", newFile) 
+        data = self._fileDB.getFileHistory(newFile['file_id'], newFile['version']) 
+
+
+        print "compare"
+        print data
+        print newFile
+        self.assertEqual( data['last_author'] , oldAuthor )
+        
+
+           
+        self._fileDB.removeFile("_TestUser" , "folder2/testFile1.txt" )
+        data = self._fileDB.getFile("_TestUser" , "folder2/testFile1.txt")
+        self.assertEqual( data , None )
+        data = self._fileDB.getFileHistory(newFile['file_id'], 1) 
+        self.assertEqual( data , None)  
+    
     def testGetFilesInDir(self):
         files = self._fileDB.getFilesInDir("folder2/", "_TestUser")
         self.assertEqual(files[0]['client_path'], "folder2/testFile1.txt")
@@ -84,6 +111,14 @@ class FilesDBTest(unittest.TestCase):
         self.assertEqual(files[0]['client_path'], "folder2/testFile1.txt")
         self.assertEqual(files[1]['client_path'], "folder2/testFile2.txt")
         
+    def testUpdateFiles(self):
+        newFile = self._fileDB.getFile("_TestUser" , "folder2/testFile1.txt")
+        newFile['last_author'] = "_TestUser123"
+        
+        self._fileDB.updateFile("_TestUser", "folder2/testFile1.txt", newFile)
+        data = self._fileDB.getFile("_TestUser" , "folder2/testFile1.txt")   
+        self.assertEqual( "_TestUser123" , data['last_author'] )     
+    
     def testUpdateLastAuthor(self):
         #self._fileDB.updateLastAuthor(path, newAuthor)
         return
