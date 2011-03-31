@@ -9,6 +9,25 @@
 
 from PySide import QtCore, QtGui
 
+class LoginDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        
+        #Initialize the HomeWindow object
+        QtGui.QDialog.__init__(self, parent)
+        
+        #Assign the homeWindow object
+        self.ui = Ui_LoginDialog()
+        
+        #Setup the window
+        self.ui.setupUi(self)
+        
+    #Handle events
+    def accept(self):
+        self.done(0)
+        
+    def reject(self):
+        self.done(1)
+
 class Ui_LoginDialog(object):
     def setupUi(self, LoginDialog):
         LoginDialog.setObjectName("LoginDialog")
