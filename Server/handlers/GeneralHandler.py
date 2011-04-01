@@ -53,8 +53,10 @@ class GeneralHandler(object):
     def pull(self, args):
         self.fileHandler.send(args)
     
-    def list(self):
-        self.fileHandler.listFiles("user")
+    def list(self, args):
+        key = args.split("\r\n", 1)
+        username = self.verifyKey(key)
+        self.fileHandler.listFiles(username)
         
     def createNewUser(self, args):
         self.accHandler.createNewUser(args)
