@@ -60,6 +60,7 @@ class FileHandler(object):
         
     def listFiles(self, username):
         files = self.fdb.getAllFiles(username)
+        print files
         
         self.connHandler.send("STAT\r\n100")
         for file in files:

@@ -75,7 +75,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                 elif(command == "USER"):
                     genHandler.login(arguments)
                 elif(command == "LIST"):
-                    genHandler.list()
+                    genHandler.list(arguments)
                 elif(command == "PUSH"):
                     genHandler.push(arguments)
                 elif(command == "PULL"):

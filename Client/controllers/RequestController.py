@@ -161,14 +161,16 @@ class RequestController(object):
         response = self.sock.recv(RECEIVESIZE)
         
         fileList = []
-        
+        print response
         if(self.responseOK(response)):
             response = self.sock.recv(RECEIVESIZE)
+            print response
             while(not self.responseOK(response)):
-                file['clientPath'], file['checksum'] = response.split("\r",2)
-                print file['clientPath']
-                print file['checksum']
-                fileList.append(file)
+                print response
+                #file['clientPath'], file['checksum'] = response.split("\r",2)
+                #print file['clientPath']
+                #print file['checksum']
+                #fileList.append(file)
                 response = self.sock.recv(RECEIVESIZE)
             
         return fileList

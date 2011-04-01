@@ -58,8 +58,9 @@ class GeneralHandler(object):
         self.fileHandler.send(args)
     
     def list(self, args):
-        key = args.split("\r\n", 1)
+        key = args
         username = self.verifyKey(key)
+        print username
         self.fileHandler.listFiles(username)
         
     def createNewUser(self, args):
