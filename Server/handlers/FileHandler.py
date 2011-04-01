@@ -146,23 +146,26 @@ class FileHandler(object):
         
         if username != None:
             self.connHandler.send("STAT\r\n100")
-            print "Sent stat message"
-            #write the files to a test sub-directory prevents 
-            #clogging up the server folder with random test files
-            #newfile = open("./testfiles/" + filename, "wb")
             
             fullPath = self.createFullPath(filename, username, self.BASEDIR, self.FILEDIR)
             fullFilePath = self.createFullFilePath(fullPath,filename)
             
-            if not os.path.exists(fullPath):
+            fileEntry = self.fdb.getFile(username , filename)
+            
+            if fileEntry == None:
                 os.makedirs(fullPath)
                 version = str(1)
                 
                 fullPathFile = self.createFullPathFile(fullFilePath, version)
                 self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime, version, checksum)
             else:
-                version = self.fdb.updateFile(username,filename,fullFilePath)
+                version = fileEntry['version'] + 1
                 fullPathFile = self.createFullPathFile(fullFilePath, version)
+                fileEntry['server_path'] = fullPathFile
+                newVersion = self.fdb.updateFile(username,filename,fileEntry)
+                if version != newVersion:
+                    print "Something went wrong"
+                
             
             print "Writing from Socket"
             self.writeFileFromSocket(fullPathFile, filesize)
