@@ -23,6 +23,7 @@
 ###############################################################################
 
 import time
+import datetime
 
 try: 
     from hashlib import sha1
@@ -39,13 +40,14 @@ class AccountHandler(object):
     classdocs
     '''
 
-    def __init__(self, conn, dbconn):
+    def __init__(self, conn, dbconn, sdb):
         '''
         Constructor
         '''
         self.connHandler = conn
         self.dbConnection = dbconn
         self.udb = UsersDB.UsersDB(dbconn)
+        self.sdb = sdb;
     
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
@@ -66,19 +68,13 @@ class AccountHandler(object):
             self.connHandler.send("STAT\r\n203")
             
 
-    def changePassword(self, arguments):
-        newpass, oldpass, key = arguments.split("\r\n", 3)
+    def changePassword(self, newpass, oldpass, user):
+        #newpass, oldpass, key = arguments.split("\r\n", 3)
         
-        #verify key
-        print key
-        #Should probably change the ordering of key protocol so that it would be:
-        #    COMMAND/r/nkey/r/nargs
-        #    That way we can parse the key and confirm it in the general handler
-        #        as opposed to handling it within each function
-        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
+        if(user != None):
             print oldpass
             print newpass
-            self.udb.updatePassword(newpass, "user", oldpass)
+            self.udb.updatePassword(newpass, user, oldpass)
             self.connHandler.send("STAT\r\n100")
         else:
             self.connHandler.send("STAT\r\n200")
@@ -90,11 +86,12 @@ class AccountHandler(object):
         else:
             return False
         
-    def generateKey(self, username):
+    def generateKey(self, username, ipAddr):
         #ipAddr = self.connHandler.clientAddr()
         #time = time.time()
-        ipAddr = "172.0.0.1"
-        time = "1234567"
+        #ipAddr = "172.0.0.1"
+        #time = "1234567"
+        time = datetime.datetime.now()
         key = sha_constructor("%s%s%s" 
                               % (username, ipAddr
                                  , time)).hexdigest()
@@ -119,7 +116,10 @@ class AccountHandler(object):
                 validPass = self.udb.authenticate(username, password)
                 if(validPass):
                 #if(password == "pass"):
-                    key = self.generateKey(username)
+                    ipAddr = self.connHandler.clientAddr
+                    expiry = datetime.datetime(2050,1,1)
+                    key = self.generateKey(username, ipAddr)
+                    self.sdb.createSession(key, username, ipAddr, expiry)
                     self.connHandler.send("STAT\r\n100\r\n%s" % key)
                 else:
                     self.connHandler.send("STAT\r\n202")

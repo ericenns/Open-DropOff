@@ -40,10 +40,12 @@ class GeneralHandler(object):
         '''
         self.dbConnection = DatabaseConnection.DatabaseConnection()
         self.dbConnection.connect(dbhost, dbuser, dbpass, db)
+        self.sdb = SessionsDB.SessionsDB(self.dbConnection)
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, clientAddr, 100, 100)
-        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection)
+        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection, self.sdb)
         self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
-        
+
+
     def push(self, args):
         self.fileHandler.receive(args)
     
@@ -51,13 +53,15 @@ class GeneralHandler(object):
         self.fileHandler.send(args)
     
     def list(self):
-        self.fileHandler.list()
+        self.fileHandler.listFiles("user")
         
     def createNewUser(self, args):
         self.accHandler.createNewUser(args)
         
     def changePassword(self, args):
-        self.accHandler.changePassword(args)
+        newpass, oldpass, key = args.split("\r\n", 3)
+        user = self.verifyKey(key)
+        self.accHandler.changePassword(newpass, oldpass, user)
     
     def login(self, args):
         self.accHandler.login(args)

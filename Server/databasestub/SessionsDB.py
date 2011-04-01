@@ -39,7 +39,7 @@ class SessionsDB:
         '''
         Adds a session to sessions Table
         '''
-        session = {'session_id': self._session_id , 'username': self._username , 'ip_address': self._ip_address , 'expiry': self._expiry}
+        session = {'session_id': session_id , 'username': username , 'ip_address': ip_address , 'expiry': expiry}
         self._sessionList.append(session)
     
     def getSession(self, session_id):

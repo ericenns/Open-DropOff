@@ -45,7 +45,10 @@ def main():
                                 "q to close\n: ")
 
         if ppSelection == "l":
-            rc.login()
+            #Simply data access for initial use
+            username = raw_input("Please enter your username: ")
+            password = raw_input("Please enter your password: ")
+            rc.login(username,password)
         elif ppSelection == "1":
             filename = raw_input("Please enter name of file to transfer: ")
             filesize = os.path.getsize(filename)
