@@ -41,7 +41,7 @@ class GeneralHandler(object):
         self.dbConnection.connect(dbhost, dbuser, dbpass, db)
         self.sdb = SessionsDB.SessionsDB(self.dbConnection)
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, clientAddr, 100, 100)
-        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection)
+        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection, self.sdb)
         self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
         
     def verifyKey(self, key):
