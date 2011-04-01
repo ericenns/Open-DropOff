@@ -153,27 +153,33 @@ class RequestController(object):
     #Returns: list of items returned by the server
     #def list(self, key):
     def listAll(self):
-        #self.connect()
-        print "IN LIST, RC"
         self.sock.send("LIST\r\n%s" % self.key)
-        #self.disconnect()
-        #should figure out what format contents list should have
+
         response = self.sock.recv(9)
         
-        fileList = []
-        print response
         if(self.responseOK(response)):
-            response = self.sock.recv(RECEIVESIZE)
-            print response
-            while(not self.responseOK(response)):
-                print response
-                #file['clientPath'], file['checksum'] = response.split("\t",2)
-                #print file['clientPath']
-                #print file['checksum']
-                #fileList.append(file)
+            checkEnd = ""
+            responseBuild = []
+            while(not checkEnd == "STAT\r\n100"):
                 response = self.sock.recv(RECEIVESIZE)
+                checkEnd = response[-9:]
+                if(checkEnd == "STAT\r\n100"):
+                    response = response[:-9]
+                responseBuild.append(response)
+                    
+        return self.ResponseMessageToList(''.join(responseBuild))
+    
+    def ResponseMessageToList(self, response):
+        files = response.split("\r\n")
+        dictList = []
+        
+        for file in files:
+            if not file == "":
+                clientPath, checksum = file.split("\t")
+                newFile = {'clientPath':clientPath, 'checksum':checksum}
+                dictList.append(newFile)
             
-        return fileList
+        return dictList
     
     def listVersions(self, clientPath):
         pass

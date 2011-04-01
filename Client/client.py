@@ -63,6 +63,7 @@ def main():
         elif ppSelection == "4":
             #print "Retreiving list of files for current user."
             fileList = rc.listAll()
+            print "List of files:"
             for file in fileList:
                 print file
         elif ppSelection == "5":

@@ -53,13 +53,24 @@ class FileHandler(object):
         
     def listFiles(self, username):
         files = self.fdb.getAllFiles(username)
+        print "Files from Database:"
         print files
         
+        print "Sending start of LIST response code..."
         self.connHandler.send("STAT\r\n100")
-        self.connHandler.send("README\t8934a7a9292d0a57c9f4a257eaa626cf117ce7e9")
-        #for file in files:
-            #self.writeFileInfoToSocket(file)
+        #self.connHandler.send("README\t8934a7a9292d0a57c9f4a257eaa626cf117ce7e9")
+        for file in files:
+            print "Sending files: %s" % file
+            self.writeFileInfoToSocket(file)
+        print "Sending end of LIST response code..."
         self.connHandler.send("STAT\r\n100")
+    
+    def writeFileInfoToSocket(self, fileInfo):
+        data = fileInfo['client_path'] + "\t" + fileInfo['checksum'] + "\r\n"
+        print "Writing out..."
+        print data
+        self.connHandler.send("%s" % data)
+    
         
     def listFileVersions(self, username, filename):
         pass #DB function not done yet for this
@@ -102,10 +113,6 @@ class FileHandler(object):
         
         print "Created fullFilePath: %s" % fullFilePath
         return fullFilePath
-    
-    def writeFileInfoToSocket(self, fileInfo):
-        data = fileInfo['client_path'] + "\r" + fileInfo['checksum'] + "\r\n"
-        self.connHandler.send("%s" % data)
     
     #Writes data found in the specified file to the socket
     def writeFileToSocket(self, fullPathFile):
@@ -157,11 +164,15 @@ class FileHandler(object):
                 version = str(1)
                 
                 fullPathFile = self.createFullPathFile(fullFilePath, version)
-                self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime, version, checksum)
+                self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime.now(), version, checksum)
+            elif fileEntry['checksum'] == checksum:
+                self.connHandler.send("STAT\r\n305")
             else:
                 version = fileEntry['version'] + 1
                 fullPathFile = self.createFullPathFile(fullFilePath, version)
                 fileEntry['server_path'] = fullPathFile
+                fileEntry['checksum'] = checksum
+                fileEntry['last_modified'] = datetime.datetime.now()
                 newVersion = self.fdb.updateFile(username,filename,fileEntry)
                 if version != newVersion:
                     print "Something went wrong"
