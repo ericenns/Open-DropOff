@@ -55,6 +55,13 @@ class FileHandler(object):
             self.connHandler.send("STAT\r\n200")
             return False
         
+    def createEntirePath(self, filename, username, baseDir, fileDir, version):
+        fullPath = self.createFullPath(filename, username, baseDir, fileDir)
+        fullFilePath = self.createFullFilePath(fullPath, filename)
+        fullPathFile = self.createFullPathFile(fullFilePath, version)
+        
+        return fullPathFile
+        
     def createFullPath(self, filename, username, baseDir, fileDir):
         filenameHash = sha_constructor(filename).hexdigest()
         userHash = sha_constructor(username).hexdigest()
@@ -63,18 +70,25 @@ class FileHandler(object):
         
         return fullPath
         
-    def createFullPathFile(self, fullPath, filename, version):
-        filenameHash = sha_constructor(filename).hexdigest()
+    def createFullPathFile(self, fullPath, version):
         if(version == "0"):
             # should get newest version currently gets just the first version
             fileVersion = "%s" % 1
         else:
             fileVersion = "%s" % version
-        fileVersion = "/" + filenameHash + fileVersion
         fullPathFile = fullPath + fileVersion
         
         print "Created fullPathFile: %s" % fullPathFile
         return fullPathFile
+    
+    def createFullFilePath(self, fullPath, filename):
+        filenameHash = sha_constructor(filename).hexdigest()
+        
+        fileName = "/" + filenameHash
+        
+        fullFilePath = fullPath + fileName
+        
+        print "Created fullFilePath: %s" % fullFilePath
     
     #Writes data found in the specified file to the socket
     def writeFileToSocket(self, fullPathFile):
@@ -110,6 +124,7 @@ class FileHandler(object):
         newfile.close() #close the file
         
     def receive(self, arguments):
+        username = "user"
         filename, fileSize, checksum, key = arguments.split("\r\n", 3)
         print "FILENAME: %s" % filename
         fileSize = int(fileSize)
@@ -117,24 +132,22 @@ class FileHandler(object):
         if self.verifyKey(key):
             self.connHandler.send("STAT\r\n100")
             
-            #TODO: Calculate the correct version of the file
-            version = str(0)
-            
             #write the files to a test sub-directory prevents 
             #clogging up the server folder with random test files
             #newfile = open("./testfiles/" + filename, "wb")
             
-            fullPath = self.createFullPath(filename, "user", self.BASEDIR, self.FILEDIR)
+            fullPath = self.createFullPath(filename, username, self.BASEDIR, self.FILEDIR)
+            fullFilePath = self.createFullFilePath(fullPath,filename)
             
             if not os.path.exists(fullPath):
                 os.makedirs(fullPath)
-            
-            if(os.path.isfile(fullPath)):
-                print "File already exists"
+                version = str(1)
                 
-            fullPathFile = self.createFullPathFile(fullPath, filename, version)
-            
-            self.fdb.addFile("user", filename, fullPathFile, fileSize, "user", datetime.datetime, version, checksum)
+                fullPathFile = self.createFullPathFile(fullFilePath, version)
+                self.fdb.addFile(username, filename, fullPathFile, fileSize, "user", datetime.datetime, version, checksum)
+            else:
+                version = self.fdb.updateFile(username,fullFilePath,filename)
+                fullPathFile = self.createFullPathFile(fullFilePath, version)
             
             self.writeFileFromSocket(fullPathFile, fileSize)
             
@@ -149,11 +162,13 @@ class FileHandler(object):
     #        update function in the database.
     
     def send(self, arguments):
+        username = "user"
         filename, version, key = arguments.split("\r\n", 2)
         
+        fullPath = self.createEntirePath(filename, username, self.BASEDIR, self.FILEDIR, version)
+        
         if self.verifyKey(key):
-            #Can't use version to grab a specific version yet, DB is working on it
-            fileInfo = self.fdb.getFile("user", filename)
+            fileInfo = self.fdb.getFile(username, fullPath)
             fullPath = fileInfo['server_path']
             
             if(os.path.exists(fullPath)):
