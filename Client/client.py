@@ -62,7 +62,9 @@ def main():
             rc.pull(filename, version)
         elif ppSelection == "4":
             #print "Retreiving list of files for current user."
-            rc.list()
+            fileList = rc.list()
+            for file in fileList:
+                print file
         elif ppSelection == "5":
             oldpass = raw_input("Please enter your old password: ")
             newpass = ""
