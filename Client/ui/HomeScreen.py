@@ -7,8 +7,34 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore, QtGui
+from NewPWScreen import NewPWDialog
+
+class HomeWindow(QtGui.QMainWindow):
+    def __init__(self, parent=None):
+        
+        #Initialize the HomeWindow object
+        QtGui.QMainWindow.__init__(self, parent)
+        
+        #Assign the homeWindow object
+        self.ui = Ui_homeWindow()
+        
+        #Setup the window
+        self.ui.setupUi(self)
+        
+        #Set up the New Password dialog and hide it
+        self.newPWDialog = NewPWDialog()
+        self.newPWDialog.hide()
+        
+        self.fileDialog = QtGui.QFileDialog()
+        self.fileDialog.hide()
+        
+    #Handle events
+    def changePw(self):
+        self.newPWDialog.show()
+        
+    def addFile(self):
+        self.fileDialog.show()
 
 class Ui_homeWindow(object):
     
@@ -100,6 +126,8 @@ class Ui_homeWindow(object):
         homeWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(homeWindow)
+        QtCore.QObject.connect(self.pwButton, QtCore.SIGNAL("clicked()"), homeWindow.changePw)
+        QtCore.QObject.connect(self.addButton, QtCore.SIGNAL("clicked()"), homeWindow.addFile)
         QtCore.QMetaObject.connectSlotsByName(homeWindow)
 
     def retranslateUi(self, homeWindow):

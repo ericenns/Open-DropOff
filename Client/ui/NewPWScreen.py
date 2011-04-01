@@ -9,6 +9,25 @@
 
 from PySide import QtCore, QtGui
 
+class NewPWDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        
+        #Initialize the HomeWindow object
+        QtGui.QDialog.__init__(self, parent)
+        
+        #Assign the homeWindow object
+        self.ui = Ui_NewPWDialog()
+        
+        #Setup the window
+        self.ui.setupUi(self)
+        
+    # Handle the buttons
+    def accept( self ):
+        self.hide()
+        
+    def reject( self ):
+        self.hide()
+
 class Ui_NewPWDialog(object):
     def setupUi(self, NewPWDialog):
         NewPWDialog.setObjectName("NewPWDialog")
