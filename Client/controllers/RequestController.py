@@ -82,9 +82,6 @@ class RequestController(object):
     
         #self.disconnect()
         
-        
-
-        
     #Creates a new user with the given information:
     #params:    username    name to be used for new user
     #            password    password for the new user
@@ -109,27 +106,30 @@ class RequestController(object):
         
         #self.disconnect()
 
+    def sendUser(self, username):
+        self.sock.send("USER\r\n%s" % username)
+        response = self.sock.recv(RECEIVESIZE)
+        
+        return response
+    
+    def sendPass(self, password):
+        password_hash = sha_constructor(password).hexdigest()
+        self.sock.send("PASS\r\n%s" % password_hash)
+        response = self.sock.recv(RECEIVESIZE)
+        
+        return response
 
     #Ideally you would pass in the username and password to this function
     #    instead of having it entered in using raw_input()
-    def login(self):
+    def login(self, username, password):
         #self.connect()
-        
-        #Simply data access for initial use
-        username = raw_input("Please enter your username: ")
-        print username
-        ##################Can be removed^^^
-        
-        self.sock.send("USER\r\n%s" % username)
-        response = self.sock.recv(RECEIVESIZE)
+        response = self.sendUser(username)
         status, code = response.split("\r\n", 1)
-        print "%s %s" % (status, code)
+        
         if(status == "STAT" and code == "100"):
-            password = raw_input("Please enter your password: ")
-            password_hash = sha_constructor(password).hexdigest()
-            self.sock.send("PASS\r\n%s" % password_hash)
-            response = self.sock.recv(RECEIVESIZE)
+            response = self.sendPass(password)
             status, code, key = response.split("\r\n",2)
+            
             if(status == "STAT" and code =="100"):
                 self.key = key
             else:
@@ -139,20 +139,41 @@ class RequestController(object):
         
         #self.disconnect()
         
+    def responseOK(self, response):
+        status, code = response.split("\r\n",1)
+        
+        if status == "STAT" and code == "100":
+            return True
+        else:
+            return False
         
     #Sends a listing of contents request to connection
     #params:    sock    connection to send list request to
     #Returns: list of items returned by the server
     #def list(self, key):
-    def list(self):
+    def listAll(self):
         #self.connect()
         print "IN LIST, RC"
         self.sock.send("LIST\r\n")
         #self.disconnect()
         #should figure out what format contents list should have
-        #contentsList = self.sock.recv(RECEIVESIZE)
+        response = self.sock.recv(RECEIVESIZE)
         
-        #return contentsList
+        fileList = []
+        
+        if(self.responseOK(response)):
+            response = self.sock.recv(RECEIVESIZE)
+            while(not self.responseOK(response)):
+                file['clientPath'], file['checksum'] = response.split("\r",2)
+                print file['clientPath']
+                print file['checksum']
+                fileList.append(file)
+                response = self.sock.recv(RECEIVESIZE)
+            
+        return fileList
+    
+    def listVersions(self, clientPath):
+        pass
         
     def computeChecksum(self, filename):
         file_hash = sha_constructor()

@@ -55,6 +55,17 @@ class FileHandler(object):
             self.connHandler.send("STAT\r\n200")
             return False
         
+    def listFiles(self, username):
+        files = self.fdb.getAllFiles(username)
+        
+        self.connHandler.send("STAT\r\n100")
+        for file in files:
+            self.writeFileInfoToSocket(file)
+        self.connHandler.send("STAT\r\n100")
+        
+    def listFileVersions(self, username, filename):
+        pass #DB function not done yet for this
+    
     def createFullPath(self, filename, username, baseDir, fileDir):
         filenameHash = sha_constructor(filename).hexdigest()
         userHash = sha_constructor(username).hexdigest()
@@ -75,6 +86,10 @@ class FileHandler(object):
         
         print "Created fullPathFile: %s" % fullPathFile
         return fullPathFile
+    
+    def writeFileInfoToSocket(self, fileInfo):
+        data = fileInfo['client_path'] + "\r" + fileInfo['checksum'] + "\r\n"
+        self.connHandler.send("%s" % data)
     
     #Writes data found in the specified file to the socket
     def writeFileToSocket(self, fullPathFile):

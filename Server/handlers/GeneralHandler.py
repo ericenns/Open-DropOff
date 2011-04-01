@@ -42,7 +42,7 @@ class GeneralHandler(object):
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, clientAddr, 100, 100)
         self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection)
         self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
-        
+
     def push(self, args):
         self.fileHandler.receive(args)
     
@@ -50,7 +50,7 @@ class GeneralHandler(object):
         self.fileHandler.send(args)
     
     def list(self):
-        self.fileHandler.list()
+        self.fileHandler.listFiles("user")
         
     def createNewUser(self, args):
         self.accHandler.createNewUser(args)
