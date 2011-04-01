@@ -118,6 +118,8 @@ class FilesDB:
         except:
             self._conn._rollback()
             print sys.exc_type [1]
+            
+        return newVersion
              
         
         
