@@ -260,5 +260,5 @@ class RequestController(object):
     def removeFile(self, filename):
         #self.connect()
         print "IN REMV, RC"
-        self.sock.send("REMV\r\n%s" % (filename))
+        self.sock.send("REMV\r\n%s\r\n%s" % (filename, self.key))
         #self.disconnect()
