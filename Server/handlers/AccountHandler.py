@@ -56,7 +56,6 @@ class AccountHandler(object):
         nameTaken = self.udb.userExists(newuser)
         if not nameTaken:
             meetsReq = True
-            #meetsReq = checkPassReq(newpass)
             if meetsReq:
                 self.udb.addUser(newuser, newpass, 1000)
                 self.connHandler.send("STAT\r\n100")
@@ -68,7 +67,6 @@ class AccountHandler(object):
             
 
     def changePassword(self, newpass, oldpass, user):
-        #newpass, oldpass, key = arguments.split("\r\n", 3)
         
         if(user != None):
             print oldpass
@@ -86,10 +84,6 @@ class AccountHandler(object):
             return False
         
     def generateKey(self, username, ipAddr):
-        #ipAddr = self.connHandler.clientAddr()
-        #time = time.time()
-        #ipAddr = "172.0.0.1"
-        #time = "1234567"
         time = datetime.datetime.now()
         key = sha_constructor("%s%s%s" 
                               % (username, ipAddr
@@ -104,7 +98,6 @@ class AccountHandler(object):
         validUser = self.udb.userExists(username)
         
         if(validUser):
-        #if(username == "user"):
             self.connHandler.send("STAT\r\n100")
             self.data = self.connHandler.recv()
             command, arguments = self.data.split("\r\n", 1)
@@ -114,7 +107,6 @@ class AccountHandler(object):
                 print password
                 validPass = self.udb.authenticate(username, password)
                 if(validPass):
-                #if(password == "pass"):
                     ipAddr = self.connHandler.clientAddr
                     expiry = datetime.datetime(2050,1,1)
                     key = self.generateKey(username, ipAddr)
