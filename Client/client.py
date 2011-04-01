@@ -62,7 +62,7 @@ def main():
             rc.pull(filename, version)
         elif ppSelection == "4":
             #print "Retreiving list of files for current user."
-            fileList = rc.list()
+            fileList = rc.listAll()
             for file in fileList:
                 print file
         elif ppSelection == "5":
