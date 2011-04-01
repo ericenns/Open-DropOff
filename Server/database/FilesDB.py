@@ -179,13 +179,30 @@ class FilesDB:
             
         return data
     
-    def getAllFileHistory(self, file_id):
+    def getFileHistory(self, fileId):
         '''
         Gets a list of all the versions of the given file
         '''
-        ''' TODO: implement method '''
+        sql = "SELECT * FROM files_history "
+        sql = sql + " WHERE file_id = %s "
+        
+        try: 
+            self._conn._execute(sql, fileId)
+            oldVersions = self._conn._fetchAll()
+            
+            self._conn._execute("SELECT * FROM files WHERE file_id = %s", fileId)
+            currentVersion = self._conn._fetchOne()
+            
+            result = (currentVersion,)
+            if oldVersions != None:
+                result += oldVersions
+        except:
+            result = None
+            print sys.exc_info()[1]
+            
+        return result 
  
-    def getFileHistory(self, file_id , version):
+    def getFileVersion(self, file_id , version):
         sql = "SELECT * FROM files_history "
         sql = sql + " WHERE file_id = %s AND version = %s "
         
