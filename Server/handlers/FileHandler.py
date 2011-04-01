@@ -63,8 +63,9 @@ class FileHandler(object):
         print files
         
         self.connHandler.send("STAT\r\n100")
-        for file in files:
-            self.writeFileInfoToSocket(file)
+        self.connHandler.send("README\t8934a7a9292d0a57c9f4a257eaa626cf117ce7e9")
+        #for file in files:
+            #self.writeFileInfoToSocket(file)
         self.connHandler.send("STAT\r\n100")
         
     def listFileVersions(self, username, filename):

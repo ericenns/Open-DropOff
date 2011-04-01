@@ -158,7 +158,7 @@ class RequestController(object):
         self.sock.send("LIST\r\n%s" % self.key)
         #self.disconnect()
         #should figure out what format contents list should have
-        response = self.sock.recv(RECEIVESIZE)
+        response = self.sock.recv(9)
         
         fileList = []
         print response
@@ -167,7 +167,7 @@ class RequestController(object):
             print response
             while(not self.responseOK(response)):
                 print response
-                #file['clientPath'], file['checksum'] = response.split("\r",2)
+                #file['clientPath'], file['checksum'] = response.split("\t",2)
                 #print file['clientPath']
                 #print file['checksum']
                 #fileList.append(file)
