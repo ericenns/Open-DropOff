@@ -65,19 +65,13 @@ class AccountHandler(object):
             self.connHandler.send("STAT\r\n203")
             
 
-    def changePassword(self, arguments):
-        newpass, oldpass, key = arguments.split("\r\n", 3)
+    def changePassword(self, newpass, oldpass, user):
+        #newpass, oldpass, key = arguments.split("\r\n", 3)
         
-        #verify key
-        print key
-        #Should probably change the ordering of key protocol so that it would be:
-        #    COMMAND/r/nkey/r/nargs
-        #    That way we can parse the key and confirm it in the general handler
-        #        as opposed to handling it within each function
-        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
+        if(user != None):
             print oldpass
             print newpass
-            self.udb.updatePassword(newpass, "user", oldpass)
+            self.udb.updatePassword(newpass, user, oldpass)
             self.connHandler.send("STAT\r\n100")
         else:
             self.connHandler.send("STAT\r\n200")
