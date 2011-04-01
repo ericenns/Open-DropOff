@@ -155,7 +155,7 @@ class RequestController(object):
     def listAll(self):
         #self.connect()
         print "IN LIST, RC"
-        self.sock.send("LIST\r\n")
+        self.sock.send("LIST\r\n%s" % self.key)
         #self.disconnect()
         #should figure out what format contents list should have
         response = self.sock.recv(RECEIVESIZE)
