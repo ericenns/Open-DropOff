@@ -80,25 +80,15 @@ class FilesDBTest(unittest.TestCase):
         
         oldAuthor = newFile['last_author']
         newFile['last_author'] = "_TestUser123"
-        
-        print "version"
-        print newFile['version']
-        
+                
         self._fileDB.updateFile("_TestUser", "folder2/testFile1.txt", newFile) 
-        data = self._fileDB.getFileHistory(newFile['file_id'], newFile['version']) 
-
-
-        print "compare"
-        print data
-        print newFile
+        data = self._fileDB.getFileVersion(newFile['file_id'], newFile['version']) 
         self.assertEqual( data['last_author'] , oldAuthor )
-        
-
-           
+         
         self._fileDB.removeFile("_TestUser" , "folder2/testFile1.txt" )
         data = self._fileDB.getFile("_TestUser" , "folder2/testFile1.txt")
         self.assertEqual( data , None )
-        data = self._fileDB.getFileHistory(newFile['file_id'], 1) 
+        data = self._fileDB.getFileVersion(newFile['file_id'], 1) 
         self.assertEqual( data , None)  
     
     def testGetFilesInDir(self):
@@ -118,23 +108,22 @@ class FilesDBTest(unittest.TestCase):
         self._fileDB.updateFile("_TestUser", "folder2/testFile1.txt", newFile)
         data = self._fileDB.getFile("_TestUser" , "folder2/testFile1.txt")   
         self.assertEqual( "_TestUser123" , data['last_author'] )     
-    
-    def testUpdateLastAuthor(self):
-        #self._fileDB.updateLastAuthor(path, newAuthor)
-        return
-        
+            
     def testGetServerPath(self):
-        self.assertTrue(True)
+        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
+        self.assertEqual(file['server_path'], self._fileDB.getServerPath(file['file_id']))
         
     def testGetClientPath(self):
         file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
-        self.assertEqual(file['client_path'], "folder2/testFile1.txt")
+        self.assertEqual(file['client_path'], self._fileDB.getClientPath(file['file_id']))
         
     def testGetChecksum(self):
-        self.assertTrue(True)
+        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
+        self.assertEqual(file['checksum'], self._fileDB.getChecksum(file['file_id']))
         
     def testGetLastModified(self):
-        self.assertTrue(True)
+        file = self._fileDB.getFile("_TestUser","folder2/testFile1.txt")
+        self.assertEqual(file['last_modified'], self._fileDB.getLastModified(file['file_id']))
         
     def testPermissions(self):
         file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt")
@@ -142,7 +131,22 @@ class FilesDBTest(unittest.TestCase):
         self.assertTrue(self._fileDB.getPermission("_TestUser", file['file_id']) == 0)
         randomFileID = 3145156
         self.assertTrue(self._fileDB.getPermission("_TestUser", randomFileID) == None)
+        
+    def testGetFileHistory(self):
+        file = self._fileDB.getFile("_TestUser", "folder2/testFile1.txt")
+        # test before we add anything
+        fileVersions = self._fileDB.getFileHistory(file['file_id'])
+        self.assertTrue(fileVersions[0]['version'] == 1 and fileVersions[0]['size'] == 35 and \
+                        len(fileVersions) == 1)
+        
+        # after update test to see new version listed
+        file['size'] = 45
+        file['checksum'] = '2b61cdf97336e06720dj'
+        self._fileDB.updateFile("_TestUser" , "folder2/testFile1.txt", file)
+        fileVersions = self._fileDB.getFileHistory(file['file_id'])
+        self.assertTrue(fileVersions[0]['version'] == 2 and fileVersions[0]['size'] == 45 and \
+                        fileVersions[1]['version'] == 1 and fileVersions[1]['size'] == 35 and \
+                        len(fileVersions) == 2)
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
