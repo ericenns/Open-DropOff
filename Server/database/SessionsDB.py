@@ -40,6 +40,10 @@ class SessionsDB:
         '''
         Adds a session to sessions Table
         '''
+        print session_id
+        print username
+        print ip_address
+        print expiry
         sql = "INSERT INTO sessions "
         sql = sql + " ( session_id, username, ip_address, expiry) "
         sql = sql + " VALUES ( %s , %s, INET_ATON(%s), %s ) "

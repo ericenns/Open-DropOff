@@ -26,7 +26,7 @@ import AccountHandler
 import FileHandler
 import ConnectionHandler
 
-from databasestub import *
+from database import *
 
 class GeneralHandler(object):
     '''
@@ -48,7 +48,9 @@ class GeneralHandler(object):
         return self.sdb.getUserFromSession(key)
         
     def push(self, args):
-        self.fileHandler.receive(args)
+        filename, filesize, checksum, key = args.split("\r\n", 3)
+        username = self.verifyKey(key)
+        self.fileHandler.receive(filename, filesize, checksum, username)
     
     def pull(self, args):
         self.fileHandler.send(args)
@@ -61,8 +63,8 @@ class GeneralHandler(object):
         
     def changePassword(self, args):
         newpass, oldpass, key = args.split("\r\n", 3)
-        user = self.verifyKey(key)
-        self.accHandler.changePassword(newpass, oldpass, user)
+        username = self.verifyKey(key)
+        self.accHandler.changePassword(newpass, oldpass, username)
     
     def login(self, args):
         self.accHandler.login(args)

@@ -157,7 +157,7 @@ class RequestController(object):
     def computeChecksum(self, filename):
         file_hash = sha_constructor()
         
-        file = open(self.testFile, "rb")
+        file = open(filename, "rb")
         line = file.read(128)
         while line:
             file_hash.update(line)

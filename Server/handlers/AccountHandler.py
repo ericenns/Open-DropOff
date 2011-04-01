@@ -32,7 +32,7 @@ except ImportError:
     import sha
     sha_constructor = sha.new
 
-from databasestub import *
+from database import *
 
 class AccountHandler(object):
     '''
@@ -107,8 +107,9 @@ class AccountHandler(object):
                 print password
                 validPass = self.udb.authenticate(username, password)
                 if(validPass):
-                    ipAddr = self.connHandler.clientAddr
-                    expiry = datetime.datetime(2050,1,1)
+                    ipAddr = self.connHandler.clientAddr[0]
+                    extension = datetime.timedelta(seconds=43200)
+                    expiry = datetime.datetime.now() + extension
                     key = self.generateKey(username, ipAddr)
                     self.sdb.createSession(key, username, ipAddr, expiry)
                     self.connHandler.send("STAT\r\n100\r\n%s" % key)

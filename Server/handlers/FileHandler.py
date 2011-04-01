@@ -24,7 +24,7 @@
 
 import os
 import datetime
-from databasestub import FilesDB
+from database import FilesDB
 
 try: 
     from hashlib import sha1
@@ -89,6 +89,7 @@ class FileHandler(object):
         fullFilePath = fullPath + fileName
         
         print "Created fullFilePath: %s" % fullFilePath
+        return fullFilePath
     
     #Writes data found in the specified file to the socket
     def writeFileToSocket(self, fullPathFile):
@@ -123,15 +124,13 @@ class FileHandler(object):
 
         newfile.close() #close the file
         
-    def receive(self, arguments):
-        username = "user"
-        filename, fileSize, checksum, key = arguments.split("\r\n", 3)
+    def receive(self, filename, filesize, checksum, username):
         print "FILENAME: %s" % filename
-        fileSize = int(fileSize)
+        filesize = int(filesize)
         
-        if self.verifyKey(key):
+        if username != None:
             self.connHandler.send("STAT\r\n100")
-            
+            print "Sent stat message"
             #write the files to a test sub-directory prevents 
             #clogging up the server folder with random test files
             #newfile = open("./testfiles/" + filename, "wb")
@@ -144,16 +143,19 @@ class FileHandler(object):
                 version = str(1)
                 
                 fullPathFile = self.createFullPathFile(fullFilePath, version)
-                self.fdb.addFile(username, filename, fullPathFile, fileSize, "user", datetime.datetime, version, checksum)
+                self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime, version, checksum)
             else:
-                version = self.fdb.updateFile(username,fullFilePath,filename)
+                version = self.fdb.updateFile(username,filename,fullFilePath)
                 fullPathFile = self.createFullPathFile(fullFilePath, version)
             
-            self.writeFileFromSocket(fullPathFile, fileSize)
+            print "Writing from Socket"
+            self.writeFileFromSocket(fullPathFile, filesize)
             
             #send a response to the client
             self.connHandler.send("STAT\r\n100")
             print "PUSH Request finished"
+        else:
+            self.connHandler.send("STAT\r\n200")
 
     #NOTE: Unable to implement version controlling properly at the moment.
     #        Ideally when sending a file, if the version is 0, then return the most recent version.
