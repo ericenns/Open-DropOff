@@ -46,6 +46,8 @@ class GeneralHandler(object):
         self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection, self.sdb)
         self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
 
+    def verifyKey(self, key):
+        return self.sdb.getUserFromSession(key)
 
     def push(self, args):
         filename, filesize, checksum, key = args.split("\r\n", 3)
