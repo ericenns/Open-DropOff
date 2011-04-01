@@ -26,7 +26,8 @@ import AccountHandler
 import FileHandler
 import ConnectionHandler
 
-from databasestub import *
+from database import *
+#from databasestub import *
 
 class GeneralHandler(object):
     '''
@@ -63,3 +64,6 @@ class GeneralHandler(object):
         
     def recvRequest(self, size=100):
         return self.connHandler.recv(size)
+    
+    def remvFile(self, args):
+        return self.fileHandler.remvFile(args)
