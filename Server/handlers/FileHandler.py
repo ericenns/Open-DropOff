@@ -181,8 +181,7 @@ class FileHandler(object):
 
     #NOTE: Unable to implement version controlling properly at the moment.
     #Accepts filename from the socket and removes the file
-    def remvFile(self, filename):
-        username = "user"
+    def remvFile(self, filename, username):
         print "In fileHandler! %s\n" % filename
         print "basedir: %s" % self.BASEDIR
         print "filedir: %s" % self.FILEDIR

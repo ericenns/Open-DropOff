@@ -78,4 +78,6 @@ class GeneralHandler(object):
         return self.connHandler.recv(size)
     
     def remvFile(self, args):
-        return self.fileHandler.remvFile(args)
+        filename, key = args.split("\r\n",2)
+        username = self.verifyKey(key)
+        self.fileHandler.remvFile(filename, username)
