@@ -41,22 +41,15 @@ class FileHandler(object):
     classdocs
     '''
 
-    def __init__(self, conn, basedir, filedir, dbconn):
+    def __init__(self, conn, basedir, filedir, separater, dbconn):
         '''
         Constructor
         '''
         self.connHandler = conn
         self.BASEDIR = basedir
         self.FILEDIR = filedir
+        self.SEPARATER = separater
         self.fdb = FilesDB.FilesDB(dbconn)
-        
-    def verifyKey(self, key):
-        #verify key
-        if(key == "440f23c58848769685e481ff270b046659f40b7c"):
-            return True
-        else:
-            self.connHandler.send("STAT\r\n200")
-            return False
         
     def listFiles(self, username):
         files = self.fdb.getAllFiles(username)
@@ -84,7 +77,7 @@ class FileHandler(object):
         userHash = sha_constructor(username).hexdigest()
         print "filename: %s" % filename
         print "filename hash: %s" % filenameHash
-        fullPath = "%s%s/%s/%s" % (baseDir, fileDir, userHash, filenameHash)
+        fullPath = "%s%s%s%s%s%s" % (baseDir, fileDir, self.SEPARATER, userHash, self.SEPARATER, filenameHash)
         print "Building fullPathFile: %s" % fullPath
         
         return fullPath
@@ -103,7 +96,7 @@ class FileHandler(object):
     def createFullFilePath(self, fullPath, filename):
         filenameHash = sha_constructor(filename).hexdigest()
         
-        fileName = "/" + filenameHash
+        fileName = "%s%s" % (self.SEPARATER, filenameHash)
         
         fullFilePath = fullPath + fileName
         

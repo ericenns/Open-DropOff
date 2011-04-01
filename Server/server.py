@@ -58,7 +58,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
         # get the protocol option
         genHandler = GeneralHandler.GeneralHandler(self.request
                                                    , self.client_address
-                                                   , BASEDIR, FILEDIR
+                                                   , BASEDIR, FILEDIR, SEPARATER
                                                    , DBHOST, DB
                                                    , DBUSER, DBPASS)
         
@@ -98,6 +98,7 @@ if __name__ == "__main__":
     PORT = config.getint("Network", "port")
     BASEDIR = config.get("Storage", "basedir")
     FILEDIR = config.get("Storage", "files")
+    SEPARATER = config.get("Storage", "separater")
     DBHOST = config.get("Database", "host")
     DB = config.get("Database", "database")
     DBUSER = config.get("Database", "user")

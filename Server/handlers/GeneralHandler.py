@@ -35,7 +35,7 @@ class GeneralHandler(object):
     classdocs
     '''
 
-    def __init__(self, tcpConn, clientAddr, basedir, filedir, dbhost, db, dbuser, dbpass):
+    def __init__(self, tcpConn, clientAddr, basedir, filedir, separater, dbhost, db, dbuser, dbpass):
         '''
         Constructor
         '''
@@ -44,7 +44,7 @@ class GeneralHandler(object):
         self.sdb = SessionsDB.SessionsDB(self.dbConnection)
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, clientAddr, 100, 100)
         self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection, self.sdb)
-        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, self.dbConnection)
+        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, separater, self.dbConnection)
 
     def verifyKey(self, key):
         return self.sdb.getUserFromSession(key)

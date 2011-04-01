@@ -6,6 +6,7 @@ port: 30000
 basedir: /home/dropoff
 files: /files
 logs: /log
+separater: /
 
 [Database]
 host: localhost
