@@ -24,7 +24,10 @@
 
 import os
 import datetime
+
+import shutil
 from database import FilesDB
+#from databasestub import FilesDB
 
 try: 
     from hashlib import sha1
@@ -77,6 +80,8 @@ class FileHandler(object):
     def createFullPath(self, filename, username, baseDir, fileDir):
         filenameHash = sha_constructor(filename).hexdigest()
         userHash = sha_constructor(username).hexdigest()
+        print "filename: %s" % filename
+        print "filename hash: %s" % filenameHash
         fullPath = "%s%s/%s/%s" % (baseDir, fileDir, userHash, filenameHash)
         print "Building fullPathFile: %s" % fullPath
         
@@ -172,6 +177,19 @@ class FileHandler(object):
             print "PUSH Request finished"
         else:
             self.connHandler.send("STAT\r\n200")
+
+    #NOTE: Unable to implement version controlling properly at the moment.
+    #Accepts filename from the socket and removes the file
+    def remvFile(self, filename):
+        username = "user"
+        print "In fileHandler! %s\n" % filename
+        print "basedir: %s" % self.BASEDIR
+        print "filedir: %s" % self.FILEDIR
+        fullPath = self.createFullPath(filename, username, self.BASEDIR, self.FILEDIR)
+        #os.remove(fullPath)
+        self.fdb.removeFile(username, filename)
+        shutil.rmtree(fullPath)
+
 
     #NOTE: Unable to implement version controlling properly at the moment.
     #        Ideally when sending a file, if the version is 0, then return the most recent version.

@@ -41,6 +41,7 @@ def main():
                                 "3 for pull specific version\n\t" +
                                 "4 for list\n\t" +
                                 "5 for change password\n\t" +
+                                "6 for remove file\n\t" +
                                 "q to close\n: ")
 
         if ppSelection == "l":
@@ -78,6 +79,10 @@ def main():
                         
             print "Changing password..."
             rc.changePassword(newpass, oldpass)
+        elif ppSelection == "6":
+            print "in remove file, client"
+            filename = raw_input("Please enter name of file to remove: ")
+            rc.removeFile(filename)
         elif ppSelection == "q":
             rc.close()
             print "Closing!"

@@ -82,6 +82,7 @@ class RequestController(object):
     
         #self.disconnect()
         
+        
     #Creates a new user with the given information:
     #params:    username    name to be used for new user
     #            password    password for the new user
@@ -251,3 +252,13 @@ class RequestController(object):
             #self.disconnect()
         else:
             print "FAILURE!"
+            
+    
+    #Removes file with matching filename
+    #params:    sock    connection to send list request to
+    #Returns: list of items returned by the server
+    def removeFile(self, filename):
+        #self.connect()
+        print "IN REMV, RC"
+        self.sock.send("REMV\r\n%s" % (filename))
+        #self.disconnect()

@@ -80,6 +80,8 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                     genHandler.push(arguments)
                 elif(command == "PULL"):
                     genHandler.pull(arguments)
+                elif(command == "REMV"):
+                    genHandler.remvFile(arguments)
                 elif(command == "CLOS"):
                     print "Connection with Client closed"
                     break

@@ -33,6 +33,8 @@ except ImportError:
     sha_constructor = sha.new
 
 from database import *
+#from databasestub import *
+
 
 class AccountHandler(object):
     '''
