@@ -52,18 +52,22 @@ class FileHandler(object):
         self.fdb = FilesDB.FilesDB(dbconn)
         
     def listFiles(self, username):
-        files = self.fdb.getAllFiles(username)
-        print "Files from Database:"
-        print files
         
-        print "Sending start of LIST response code..."
-        self.connHandler.send("STAT\r\n100")
-        #self.connHandler.send("README\t8934a7a9292d0a57c9f4a257eaa626cf117ce7e9")
-        for file in files:
-            print "Sending files: %s" % file
-            self.writeFileInfoToSocket(file)
-        print "Sending end of LIST response code..."
-        self.connHandler.send("STAT\r\n100")
+        if username != None:
+            files = self.fdb.getAllFiles(username)
+            print "Files from Database:"
+            print files
+            
+            print "Sending start of LIST response code..."
+            self.connHandler.send("STAT\r\n100")
+            #self.connHandler.send("README\t8934a7a9292d0a57c9f4a257eaa626cf117ce7e9")
+            for file in files:
+                print "Sending files: %s" % file
+                self.writeFileInfoToSocket(file)
+            print "Sending end of LIST response code..."
+            self.connHandler.send("STAT\r\n100")
+        else:
+            self.connHandler.send("STAT\r\n200")
     
     def writeFileInfoToSocket(self, fileInfo):
         data = fileInfo['client_path'] + "\t" + fileInfo['checksum'] + "\r\n"
