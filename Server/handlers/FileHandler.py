@@ -69,16 +69,43 @@ class FileHandler(object):
         else:
             self.connHandler.send("STAT\r\n200")
     
+
+    def listFileVersions(self, username, filename):
+        if username != None:
+            fileInfo = self.fdb.getFile(username, filename)
+            fileId = fileInfo['file_id']
+            versions = self.fdb.getFileHistory(fileId)
+            
+            print "Versions from Database:"
+            print versions
+            
+            print "Sending start of LIST response code..."
+            self.connHandler.send("STAT\r\n100")
+ 
+            for version in versions:
+                print "Sending versions: %s" % version
+                self.writeVersionInfoToSocket(version)
+            print "Sending end of LIST response code..."
+            self.connHandler.send("STAT\r\n100")
+            
+        else:
+            self.connHandler.send("STAT\r\n200")
+
+    
     def writeFileInfoToSocket(self, fileInfo):
         data = fileInfo['client_path'] + "\t" + fileInfo['checksum'] + "\r\n"
         print "Writing out..."
         print data
         self.connHandler.send("%s" % data)
+        
+        
+    def writeVersionInfoToSocket(self, fileInfo):
+        data = fileInfo['client_path'] + "\t" + str(fileInfo['version']) + "\r\n"
+        print "Writing out..."
+        print data
+        self.connHandler.send("%s" % data)
     
         
-    def listFileVersions(self, username, filename):
-        pass #DB function not done yet for this
-    
     def createEntirePath(self, filename, username, baseDir, fileDir, version):
         fullPath = self.createFullPath(filename, username, baseDir, fileDir)
         fullFilePath = self.createFullFilePath(fullPath, filename)

@@ -68,7 +68,7 @@ class GeneralHandler(object):
             self.fileHandler.listFiles(username)
         else:
             filename = arguments[1]
-            #self.fileHandler.listFileVersions(username, filename)
+            self.fileHandler.listFileVersions(username, filename)
         
     def createNewUser(self, args):
         self.accHandler.createNewUser(args)

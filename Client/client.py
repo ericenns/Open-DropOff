@@ -39,9 +39,10 @@ def main():
                                 "1 for push\n\t" +
                                 "2 for pull newest\n\t" +
                                 "3 for pull specific version\n\t" +
-                                "4 for list\n\t" +
-                                "5 for change password\n\t" +
-                                "6 for remove file\n\t" +
+                                "4 for list files\n\t" +
+                                "5 for list versions of filename\n\t" +
+                                "6 for change password\n\t" +
+                                "7 for remove file\n\t" +
                                 "q to close\n: ")
 
         if ppSelection == "l":
@@ -67,6 +68,14 @@ def main():
             for file in fileList:
                 print file
         elif ppSelection == "5":
+            print "Retreiving list of versions for current user."
+            filename = raw_input("Please enter name of file you wish to retrieve versions for: ")
+            versionList = rc.listVersions(filename)
+            #rc.listVersions(filename)
+            print "List of versions:"
+            for version in versionList:
+                print version
+        elif ppSelection == "6":
             oldpass = raw_input("Please enter your old password: ")
             newpass = ""
             while newpass == "":
@@ -80,7 +89,7 @@ def main():
                         
             print "Changing password..."
             rc.changePassword(newpass, oldpass)
-        elif ppSelection == "6":
+        elif ppSelection == "7":
             print "in remove file, client"
             filename = raw_input("Please enter name of file to remove: ")
             rc.removeFile(filename)

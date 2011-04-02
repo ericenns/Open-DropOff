@@ -151,7 +151,6 @@ class RequestController(object):
     #Sends a listing of contents request to connection
     #params:    sock    connection to send list request to
     #Returns: list of items returned by the server
-    #def list(self, key):
     def listAll(self):
         self.sock.send("LIST\r\n%s" % self.key)
 
@@ -167,9 +166,32 @@ class RequestController(object):
                     response = response[:-9]
                 responseBuild.append(response)
                     
-        return self.ResponseMessageToList(''.join(responseBuild))
+        return self.ResponseMessageToListFiles(''.join(responseBuild))
     
-    def ResponseMessageToList(self, response):
+
+    #Sends a listing of contents request to connection
+    #params:    sock    connection to send list request to
+    #           clientPath the file to return versions for
+    #Returns: list of versions returned by the server
+    def listVersions(self, clientPath):
+        self.sock.send("LIST\r\n%s\r\n%s" % (self.key, clientPath))
+        
+        response = self.sock.recv(9)
+        
+        if(self.responseOK(response)):
+            checkEnd = ""
+            responseBuild = []
+            while(not checkEnd == "STAT\r\n100"):
+                response = self.sock.recv(RECEIVESIZE)
+                checkEnd = response[-9:]
+                if(checkEnd == "STAT\r\n100"):
+                    response = response[:-9]
+                responseBuild.append(response)
+                    
+        return self.ResponseMessageToListVersions(''.join(responseBuild))
+    
+    
+    def ResponseMessageToListFiles(self, response):
         files = response.split("\r\n")
         dictList = []
         
@@ -181,8 +203,19 @@ class RequestController(object):
             
         return dictList
     
-    def listVersions(self, clientPath):
-        pass
+    
+    def ResponseMessageToListVersions(self, response):
+        versions= response.split("\r\n")
+        dictList = []
+        
+        for version in versions:
+            if not version == "":
+                clientPath, version = version.split("\t")
+                newVersion = {'clientPath':clientPath, 'version':version}
+                dictList.append(newVersion)
+            
+        return dictList
+    
         
     def computeChecksum(self, filename):
         file_hash = sha_constructor()
