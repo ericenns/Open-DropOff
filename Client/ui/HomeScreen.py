@@ -1,20 +1,46 @@
-# -*- coding: utf-8 -*-
+###############################################################################
+# Open DropOff                                                                #
+# Copyright (C) 2011                                                          #
+#                                                                             #
+# Authors:                                                                    #
+#    Cory Metcalfe                                                            #
+#    Dave Fardoe                                                              #
+#    Eric Osiowy                                                              #
+#    Karl Wiens                                                               #
+#                                                                             #
+# This program is free software: you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+###############################################################################
 
-# Form implementation generated from reading ui file 'HomeScreen_4.0.ui'
-#
-# Created: Sun Mar 27 01:07:26 2011
-#      by: pyside-uic 0.2.7 running on PySide 1.0.0
-#
-# WARNING! All changes made in this file will be lost!
-
+#Imports
+import sys
+import os
 from PySide import QtCore, QtGui
 from NewPWScreen import NewPWDialog
+from ConfirmationDialog import ConfirmationDialog
+from controllers import RequestController
+
+#Constants
+LOGOUT_MESSAGE = "Are you sure you would like to log out and close OpenDropOff?"
 
 class HomeWindow(QtGui.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, requestController, parent=None):
         
         #Initialize the HomeWindow object
         QtGui.QMainWindow.__init__(self, parent)
+        
+        #Setup the request controller
+        self.rc = requestController
         
         #Assign the homeWindow object
         self.ui = Ui_homeWindow()
@@ -29,12 +55,42 @@ class HomeWindow(QtGui.QMainWindow):
         self.fileDialog = QtGui.QFileDialog()
         self.fileDialog.hide()
         
+        # Get the users list of files and add them to the QTableWidget
+        self.refreshFileList()
+        
     #Handle events
     def changePw(self):
         self.newPWDialog.show()
         
     def addFile(self):
-        self.fileDialog.show()
+        #self.fileDialog.show()
+        
+        if self.fileDialog.exec_():
+            selectedfiles = self.fileDialog.selectedFiles()
+            
+            if( len(selectedfiles) > 0 ):
+                filename = selectedfiles.pop()["clientPath"]
+                filesize = os.path.getsize(filename)
+                self.rc.push(filename, filesize)
+    
+    def refreshFileList(self):
+        fileList = self.rc.listAll()
+        for file in fileList:
+            self.ui.fileTable.insertRow(0)
+            self.ui.fileTable. 
+        print fileList       
+        
+    def logout(self):
+        confirmCloseDialog = ConfirmationDialog(LOGOUT_MESSAGE)
+        result = confirmCloseDialog.exec_()
+        
+        if( result == 0):
+            self.close()
+            #sys.exit()
+            
+    def closeEvent(self, event):
+        self.rc.disconnect()
+        event.accept()
 
 class Ui_homeWindow(object):
     
@@ -128,6 +184,7 @@ class Ui_homeWindow(object):
         self.retranslateUi(homeWindow)
         QtCore.QObject.connect(self.pwButton, QtCore.SIGNAL("clicked()"), homeWindow.changePw)
         QtCore.QObject.connect(self.addButton, QtCore.SIGNAL("clicked()"), homeWindow.addFile)
+        QtCore.QObject.connect(self.logoutButton, QtCore.SIGNAL("clicked()"), homeWindow.logout)
         QtCore.QMetaObject.connectSlotsByName(homeWindow)
 
     def retranslateUi(self, homeWindow):
