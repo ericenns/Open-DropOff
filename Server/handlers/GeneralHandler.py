@@ -60,10 +60,15 @@ class GeneralHandler(object):
         self.fileHandler.send(filename, version, username)
     
     def list(self, args):
-        key = args
+        arguments = args.split("\r\n")
+        key = arguments[0]
         username = self.verifyKey(key)
         print username
-        self.fileHandler.listFiles(username)
+        if len(arguments) == 1:
+            self.fileHandler.listFiles(username)
+        else:
+            filename = arguments[1]
+            #self.fileHandler.listFileVersions(username, filename)
         
     def createNewUser(self, args):
         self.accHandler.createNewUser(args)
