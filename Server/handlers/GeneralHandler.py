@@ -55,7 +55,9 @@ class GeneralHandler(object):
         self.fileHandler.receive(filename, filesize, checksum, username)
     
     def pull(self, args):
-        self.fileHandler.send(args)
+        filename, version, key = args.split("\r\n", 2)
+        username = self.verifyKey(key)
+        self.fileHandler.send(filename, version, username)
     
     def list(self, args):
         key = args

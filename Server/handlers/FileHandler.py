@@ -204,17 +204,20 @@ class FileHandler(object):
     #                                     else return the version specified
     #        At the moment there's no way of accessing an older version of the file since there's no
     #        update function in the database.
-    
-    def send(self, arguments):
-        username = "user"
-        filename, version, key = arguments.split("\r\n", 2)
+    def send(self, filename, version, username):
+        #print "File Handler, Send\n"
+        #print "FILENAME: %s VERSION: %s USERNAME: %s" % (filename, version, username)
         
-        fullPath = self.createEntirePath(filename, username, self.BASEDIR, self.FILEDIR, version)
-        
-        if self.verifyKey(key):
-            fileInfo = self.fdb.getFile(username, fullPath)
-            fullPath = fileInfo['server_path']
-            
+        if username != None:
+            if version == "0":
+                fileInfo = self.fdb.getFile(username, filename)
+                fullPath = fileInfo['server_path']
+            else:
+                fileInfo = self.fdb.getFile(username, filename)
+                fileId = fileInfo['file_id']
+                fileInfo = self.fdb.getFileVersion(fileId, version)
+                fullPath = fileInfo['server_path']  
+
             if(os.path.exists(fullPath)):
                 fileSize = os.path.getsize(fullPath)
                 self.connHandler.send("STAT\r\n100\r\n%i" % fileSize)
@@ -230,5 +233,4 @@ class FileHandler(object):
             else:
                 print "Don't send."
             print "PULL Request finished"
-             
              

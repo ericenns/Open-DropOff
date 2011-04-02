@@ -235,6 +235,7 @@ class RequestController(object):
     def pull(self, filename, version=0):
         #self.connect()
         self.sock.send("PULL\r\n%s\r\n%s\r\n%s" % (filename, version, self.key))
+        
         response = self.sock.recv(80)
         values = response.split("\r\n")
         #status, code, filesize = response.split("\r\n")
