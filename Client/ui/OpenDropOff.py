@@ -30,8 +30,8 @@ from LoginForm import LoginDialog
 from controllers import RequestController
 
 #Gobal constants
-RECEIVESIZE = 100
-SENDSIZE = 100
+# RECEIVESIZE = 100
+# SENDSIZE = 100
 SERVER = "localhost"
 PORT = 30000
 

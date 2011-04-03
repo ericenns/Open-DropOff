@@ -77,17 +77,25 @@ class HomeWindow(QtGui.QMainWindow):
             selectedfiles = self.fileDialog.selectedFiles()
             
             if( len(selectedfiles) > 0 ):
-                filename = selectedfiles.pop()["clientPath"]
+                filename = selectedfiles.pop()
                 filesize = os.path.getsize(filename)
                 self.rc.push(filename, filesize)
+                self.refreshFileList()
                 
     def getFile(self):
         filename = self.ui.fileTable.item(self.ui.fileTable.currentRow(), 0).text()
         self.rc.pull( filename )
-            
+        
+    def deleteFile(self):
+        filename = self.ui.fileTable.item(self.ui.fileTable.currentRow(), 0).text()
+        self.rc.removeFile( filename )
+        self.ui.fileTable.removeRow(self.ui.fileTable.currentRow)
+        self.refreshFileList()
     
     def refreshFileList(self):
         self.ui.fileTable.clearContents()
+        while( self.ui.fileTable.rowCount() > 0 ):
+            self.ui.fileTable.removeRow(0)
         
         fileList = self.rc.listAll()
         for file in fileList:
@@ -204,6 +212,8 @@ class Ui_homeWindow(object):
         QtCore.QObject.connect(self.logoutButton, QtCore.SIGNAL("clicked()"), homeWindow.logout)
         QtCore.QObject.connect(self.fileTable, QtCore.SIGNAL("itemSelectionChanged()"), homeWindow.selectionChanged)
         QtCore.QObject.connect(self.downloadButton, QtCore.SIGNAL("clicked()"), homeWindow.getFile)
+        QtCore.QObject.connect(self.deleteButton, QtCore.SIGNAL("clicked()"), homeWindow.deleteFile)
+        QtCore.QObject.connect(self.refreshButton, QtCore.SIGNAL("clicked()"), homeWindow.refreshFileList)
         QtCore.QMetaObject.connectSlotsByName(homeWindow)
 
     def retranslateUi(self, homeWindow):
