@@ -77,7 +77,9 @@ class HomeWindow(QtGui.QMainWindow):
         fileList = self.rc.listAll()
         for file in fileList:
             self.ui.fileTable.insertRow(0)
-            self.ui.fileTable. 
+            newItem = QtGui.QTableWidgetItem()
+            newItem.setText( file["clientPath"] )
+            self.ui.fileTable.setItem(0, 0, newItem)
         print fileList       
         
     def logout(self):
