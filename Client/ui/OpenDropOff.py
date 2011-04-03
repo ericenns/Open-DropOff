@@ -49,13 +49,14 @@ if __name__ == '__main__':
     result = loginDialog.exec_()
     
     # Handle the results of the login attempt
-    if( result == 0 ):
-        mainWin = HomeWindow( rc )
-        mainWin.show()
-    elif( result == 1):
+    if( result == 1):
         rc.disconnect()
         app.quit()
     else:
-        loginDialog.show()
-    
-    sys.exit(app.exec_())
+        if( result == 0 ):
+            mainWin = HomeWindow( rc )
+            mainWin.show()
+        else:
+            loginDialog.show()
+        
+        sys.exit(app.exec_())

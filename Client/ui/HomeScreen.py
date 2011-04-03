@@ -62,6 +62,14 @@ class HomeWindow(QtGui.QMainWindow):
     def changePw(self):
         self.newPWDialog.show()
         
+    def selectionChanged(self):
+        if( self.ui.fileTable.currentRow < 0):
+            self.ui.downloadButton.setEnabled(False)
+            self.ui.deleteButton.setEnabled(False)
+        else:
+            self.ui.downloadButton.setEnabled(True)
+            self.ui.deleteButton.setEnabled(True)
+        
     def addFile(self):
         #self.fileDialog.show()
         
@@ -72,8 +80,15 @@ class HomeWindow(QtGui.QMainWindow):
                 filename = selectedfiles.pop()["clientPath"]
                 filesize = os.path.getsize(filename)
                 self.rc.push(filename, filesize)
+                
+    def getFile(self):
+        filename = self.ui.fileTable.item(self.ui.fileTable.currentRow(), 0).text()
+        self.rc.pull( filename )
+            
     
     def refreshFileList(self):
+        self.ui.fileTable.clearContents()
+        
         fileList = self.rc.listAll()
         for file in fileList:
             self.ui.fileTable.insertRow(0)
@@ -187,6 +202,8 @@ class Ui_homeWindow(object):
         QtCore.QObject.connect(self.pwButton, QtCore.SIGNAL("clicked()"), homeWindow.changePw)
         QtCore.QObject.connect(self.addButton, QtCore.SIGNAL("clicked()"), homeWindow.addFile)
         QtCore.QObject.connect(self.logoutButton, QtCore.SIGNAL("clicked()"), homeWindow.logout)
+        QtCore.QObject.connect(self.fileTable, QtCore.SIGNAL("itemSelectionChanged()"), homeWindow.selectionChanged)
+        QtCore.QObject.connect(self.downloadButton, QtCore.SIGNAL("clicked()"), homeWindow.getFile)
         QtCore.QMetaObject.connectSlotsByName(homeWindow)
 
     def retranslateUi(self, homeWindow):
