@@ -25,6 +25,7 @@
 #Imports
 from controllers import RequestController
 from ConfirmationDialog import ConfirmationDialog
+from CreateUser import CreateUserDialog
 from PySide import QtCore, QtGui
 
 #Constants
@@ -46,6 +47,10 @@ class LoginDialog(QtGui.QDialog):
         #Setup the RequestController
         self.rc = requestController
         
+         #Set up the New User dialog and hide it
+        self.createUserDialog = CreateUserDialog(requestController)
+        self.createUserDialog.hide()
+        
     #Handle events
     def accept(self):
         username = self.ui.UserNameTextBox.text()
@@ -62,6 +67,10 @@ class LoginDialog(QtGui.QDialog):
         
     def reject(self):
         self.done(1)
+        
+    def createUser(self):
+        self.createUserDialog.show()
+       
 
 class Ui_LoginDialog(object):
     def setupUi(self, LoginDialog):
@@ -86,6 +95,11 @@ class Ui_LoginDialog(object):
         self.label_2 = QtGui.QLabel(LoginDialog)
         self.label_2.setGeometry(QtCore.QRect(20, 70, 71, 16))
         self.label_2.setObjectName("label_2")
+        
+        self.createUserButton = QtGui.QPushButton(self.buttonBox)
+        self.createUserButton.setEnabled(True)
+        self.createUserButton.setObjectName("createUserButton")
+        QtCore.QObject.connect(self.createUserButton, QtCore.SIGNAL("clicked()"), LoginDialog.createUser)
 
         self.retranslateUi(LoginDialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), LoginDialog.accept)
@@ -96,4 +110,5 @@ class Ui_LoginDialog(object):
         LoginDialog.setWindowTitle(QtGui.QApplication.translate("LoginDialog", "Login Dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("LoginDialog", "User Name:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("LoginDialog", "Password:", None, QtGui.QApplication.UnicodeUTF8))
+        self.createUserButton.setText(QtGui.QApplication.translate("LoginDialog", "Create New User", None, QtGui.QApplication.UnicodeUTF8))
 

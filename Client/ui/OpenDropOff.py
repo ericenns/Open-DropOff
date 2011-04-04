@@ -24,10 +24,11 @@
 
 #imports
 import sys
+sys.path.append("../controllers") 
 from PySide import QtCore, QtGui
 from HomeScreen import HomeWindow
 from LoginForm import LoginDialog
-from controllers import RequestController
+import RequestController
 
 #Gobal constants
 # RECEIVESIZE = 100
@@ -49,14 +50,13 @@ if __name__ == '__main__':
     result = loginDialog.exec_()
     
     # Handle the results of the login attempt
-    if( result == 1):
+    if( result == 0 ):
+        mainWin = HomeWindow( rc )
+        mainWin.show()
+    elif( result == 1):
         rc.disconnect()
         app.quit()
     else:
-        if( result == 0 ):
-            mainWin = HomeWindow( rc )
-            mainWin.show()
-        else:
-            loginDialog.show()
-        
-        sys.exit(app.exec_())
+        loginDialog.show()
+    
+    sys.exit(app.exec_())
