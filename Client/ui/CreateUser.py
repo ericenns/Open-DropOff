@@ -1,13 +1,67 @@
-# -*- coding: utf-8 -*-
+###############################################################################
+# Open DropOff                                                                #
+# Copyright (C) 2011                                                          #
+#                                                                             #
+# Authors:                                                                    #
+#    Cory Metcalfe                                                            #
+#    Dave Fardoe                                                              #
+#    Eric Osiowy                                                              #
+#    Karl Wiens                                                               #
+#                                                                             #
+# This program is free software: you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+###############################################################################
 
-# Form implementation generated from reading ui file 'CreateUser.ui'
-#
-# Created: Sun Apr  3 18:41:16 2011
-#      by: PyQt4 UI code generator 4.7.4
-#
-# WARNING! All changes made in this file will be lost!
+#Imports
+from controllers import RequestController
+from PySide import QtCore, QtGui
 
-from PyQt4 import QtCore, QtGui
+#Constants
+USER_CREATE_FAILED_MESSAGE = "New user creation failed.  Please try again."
+DIFFERENT_PASSWORDS_MESSAGE = "Passwords do not match.  Please try again."
+USER_EXISTS_MESSAGE = "User Name already exists. Please try again."
+NEW_USER_CREATED_MESSAGE = "New user created."
+
+class CreateUserDialog(QtGui.QDialog):
+    def __init__(self, requestController, parent=None):
+        #Initialize the HomeWindow object
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = Ui_NewUserDialog()
+        self.ui.setupUi(self)
+        self.rc = requestController
+            
+    #Handle events
+    def accept(self):
+        username = self.ui.userText.text()
+        pw1 = self.ui.pwText1.text()
+        pw2 = self.ui.pwText2.text()
+        
+        if (pw1 != pw2):
+            messageBox = QtGui.QMessageBox()
+            messageBox.setText(DIFFERENT_PASSWORDS_MESSAGE)
+            messageBox.exec_()
+        elif (self.rc.newUser(username, pw1)):
+            messageBox = QtGui.QMessageBox()
+            messageBox.setText(NEW_USER_CREATED_MESSAGE)
+            messageBox.exec_()
+            self.done(1)
+        else:
+            messageBox = QtGui.QMessageBox()
+            messageBox.setText(USER_CREATE_FAILED_MESSAGE)
+            messageBox.exec_()
+ 
+    def reject(self):
+        self.done(1)
 
 class Ui_NewUserDialog(object):
     def setupUi(self, NewUserDialog):
