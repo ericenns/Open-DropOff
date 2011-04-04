@@ -8,22 +8,39 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide import QtCore, QtGui
+import RequestController
+
+#Constants
+NO_MATCH_MESSAGE = "New passwords don't match."
 
 class NewPWDialog(QtGui.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, requestController, parent=None):
         
         #Initialize the HomeWindow object
         QtGui.QDialog.__init__(self, parent)
+
+        #Setup the RequestController
+        self.rc = requestController
         
         #Assign the homeWindow object
         self.ui = Ui_NewPWDialog()
         
         #Setup the window
         self.ui.setupUi(self)
-        
+
+       
     # Handle the buttons
     def accept( self ):
-        self.hide()
+        oldpass = self.ui.currPWlineEdit.text()
+        pass1 = self.ui.newPWlineEdit1.text()
+        pass2 = self.ui.newPWlineEdit2.text()
+
+        if(pass1 != pass2):
+          reply = QtGui.QMessageBox.information(self, 'Warning',
+              NO_MATCH_MESSAGE, QtGui.QMessageBox.Ok)
+        else:
+          self.rc.changePassword(pass1, oldpass)  
+          self.hide()
         
     def reject( self ):
         self.hide()

@@ -28,7 +28,7 @@ import os
 from PySide import QtCore, QtGui
 from NewPWScreen import NewPWDialog
 from ConfirmationDialog import ConfirmationDialog
-from controllers import RequestController
+import RequestController
 
 #Constants
 LOGOUT_MESSAGE = "Are you sure you would like to log out and close OpenDropOff?"
@@ -49,7 +49,7 @@ class HomeWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         
         #Set up the New Password dialog and hide it
-        self.newPWDialog = NewPWDialog()
+        self.newPWDialog = NewPWDialog(requestController)
         self.newPWDialog.hide()
         
         self.fileDialog = QtGui.QFileDialog()

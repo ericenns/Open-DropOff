@@ -23,7 +23,7 @@
 ###############################################################################
 
 #Imports
-from controllers import RequestController
+import RequestController
 from ConfirmationDialog import ConfirmationDialog
 from PySide import QtCore, QtGui
 
