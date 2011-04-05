@@ -247,29 +247,31 @@ class FileHandler(object):
         if username != None:
 
             fileInfo = self.fdb.getFile(username, filename)
-            
-            if fileInfo['version'] == version or version == "0":
-                fullPath = fileInfo['server_path']
-            else:
-                fileId = fileInfo['file_id']
-                fileInfo = self.fdb.getFileVersion(fileId, version)
-                fullPath = fileInfo['server_path']  
-            
-            if(os.path.exists(fullPath)):
-                fileSize = os.path.getsize(fullPath)
-                self.connHandler.send("STAT\r\n100\r\n%i" % fileSize)
+            if fileInfo:
+                if fileInfo['version'] == version or version == "0":
+                    fullPath = fileInfo['server_path']
+                else:
+                    fileId = fileInfo['file_id']
+                    fileInfo = self.fdb.getFileVersion(fileId, version)
+                    fullPath = fileInfo['server_path']  
+                
+                if(os.path.exists(fullPath)):
+                    fileSize = os.path.getsize(fullPath)
+                    self.connHandler.send("STAT\r\n100\r\n%i" % fileSize)
+                else:
+                    self.connHandler.send("STAT\r\n302")
+                    return
+    
+                response = self.connHandler.recv()
+                
+                if response == "SEND":
+                    #start sending the file
+                    self.writeFileToSocket(fullPath)
+                else:
+                    print "Don't send."
+                print "PULL Request finished"
             else:
                 self.connHandler.send("STAT\r\n302")
-                return
-
-            response = self.connHandler.recv()
-            
-            if response == "SEND":
-                #start sending the file
-                self.writeFileToSocket(fullPath)
-            else:
-                print "Don't send."
-            print "PULL Request finished"
         else:
             self.connHandler.send("STAT\r\n200")
              
