@@ -23,8 +23,6 @@
 ###############################################################################
 
 #Imports
-from controllers import RequestController
-from ConfirmationDialog import ConfirmationDialog
 from CreateUser import CreateUserDialog
 from PySide import QtCore, QtGui
 
@@ -47,7 +45,7 @@ class LoginDialog(QtGui.QDialog):
         #Setup the RequestController
         self.rc = requestController
         
-         #Set up the New User dialog and hide it
+    #Set up the New User dialog and hide it
         self.createUserDialog = CreateUserDialog(requestController)
         self.createUserDialog.hide()
         

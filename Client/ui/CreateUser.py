@@ -23,7 +23,6 @@
 ###############################################################################
 
 #Imports
-from controllers import RequestController
 from PySide import QtCore, QtGui
 
 #Constants

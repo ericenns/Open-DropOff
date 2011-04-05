@@ -23,12 +23,10 @@
 ###############################################################################
 
 #Imports
-import sys
 import os
 from PySide import QtCore, QtGui
 from NewPWScreen import NewPWDialog
 from ConfirmationDialog import ConfirmationDialog
-from controllers import RequestController
 
 #Constants
 LOGOUT_MESSAGE = "Are you sure you would like to log out and close OpenDropOff?"

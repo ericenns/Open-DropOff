@@ -25,10 +25,10 @@
 #imports
 import sys
 sys.path.append("../controllers") 
-from PySide import QtCore, QtGui
+from PySide import QtGui
 from HomeScreen import HomeWindow
 from LoginForm import LoginDialog
-import RequestController
+from controllers import RequestController
 
 #Gobal constants
 # RECEIVESIZE = 100
