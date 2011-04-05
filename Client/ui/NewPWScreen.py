@@ -24,6 +24,7 @@
 
 #imports
 from PySide import QtCore, QtGui
+from controllers import RequestController
 
 #Constants
 NO_MATCH_MESSAGE = "New passwords don't match."

@@ -25,6 +25,8 @@
 #Imports
 from CreateUser import CreateUserDialog
 from PySide import QtCore, QtGui
+from controllers import RequestController
+from ConfirmationDialog import ConfirmationDialog
 
 #Constants
 LOGIN_FAILED_MESSAGE = "Login Failed.  Please try again."
