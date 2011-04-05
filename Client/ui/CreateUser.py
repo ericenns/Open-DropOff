@@ -24,6 +24,7 @@
 
 #Imports
 from PySide import QtCore, QtGui
+from controllers import RequestController
 
 #Constants
 USER_CREATE_FAILED_MESSAGE = "New user creation failed.  Please try again."
