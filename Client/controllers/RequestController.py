@@ -44,8 +44,7 @@ class RequestController(object):
     def __init__(self, server, port):
         self.server = server
         self.port = int(port)
-        #TODO: THIS IS VERY BAD. Only here for getting things running
-        self.key = "440f23c58848769685e481ff270b046659f40b7c"
+        self.key = "0"
 
 
     def connect(self):
@@ -113,6 +112,7 @@ class RequestController(object):
     
     def sendPass(self, password):
         password_hash = sha_constructor(password).hexdigest()
+        print password_hash
         self.sock.send("PASS\r\n%s" % password_hash)
         response = self.sock.recv(RECEIVESIZE)
         
@@ -127,12 +127,14 @@ class RequestController(object):
         
         if(status == "STAT" and code == "100"):
             response = self.sendPass(password)
-            status, code, key = response.split("\r\n",2)
+            status, code = response.split("\r\n",1)
             
-            if(status == "STAT" and code =="100"):
+            if(status == "STAT" and code[:3] =="100"):
+                code, key = code.split("\r\n",1)
                 self.key = key
+                return "Login successfull"
             else:
-                return "";
+                return "Password is invalid";
         else:
             return "";
         
@@ -163,8 +165,11 @@ class RequestController(object):
                 if(checkEnd == "STAT\r\n100"):
                     response = response[:-9]
                 responseBuild.append(response)
+            return self.ResponseMessageToListFiles(''.join(responseBuild))
+        else:
+            return ""
                     
-        return self.ResponseMessageToListFiles(''.join(responseBuild))
+        #return self.ResponseMessageToListFiles(''.join(responseBuild))
     
 
     #Sends a listing of contents request to connection
@@ -289,6 +294,7 @@ class RequestController(object):
                 newfile.write(content)
             
             newfile.close() #close the file
+            print "File Received"
             #self.disconnect()
         else:
             print "FAILURE!"
