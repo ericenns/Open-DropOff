@@ -134,7 +134,6 @@ class RequestController(object):
             if(status == "STAT" and code[:3] =="100"):
                 code, key = code.split("\r\n",1)
                 self.key = key
-                return "Login successfull"
             else:
                 return "Password is invalid";
         else:
@@ -202,8 +201,8 @@ class RequestController(object):
         
         for file in files:
             if not file == "":
-                clientPath, checksum = file.split("\t")
-                newFile = {'clientPath':clientPath, 'checksum':checksum}
+                clientPath, checksum, date, size = file.split("\t")
+                newFile = {'clientPath':clientPath, 'checksum':checksum, 'dateModified':date , 'size':size}
                 dictList.append(newFile)
             
         return dictList

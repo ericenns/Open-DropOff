@@ -93,7 +93,8 @@ class FileHandler(object):
 
     
     def writeFileInfoToSocket(self, fileInfo):
-        data = fileInfo['client_path'] + "\t" + fileInfo['checksum'] + "\r\n"
+        data = "%s\t%s\t%s\t%s\r\n" % (fileInfo['client_path'], fileInfo['checksum'], fileInfo['last_modified'], fileInfo['size'])
+        #data = fileInfo['client_path'] + "\t" + fileInfo['checksum'] +"\r\n"
         print "Writing out..."
         print data
         self.connHandler.send("%s" % data)

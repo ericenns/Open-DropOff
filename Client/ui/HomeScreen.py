@@ -99,9 +99,15 @@ class HomeWindow(QtGui.QMainWindow):
         fileList = self.rc.listAll()
         for file in fileList:
             self.ui.fileTable.insertRow(0)
-            newItem = QtGui.QTableWidgetItem()
-            newItem.setText( file["clientPath"] )
-            self.ui.fileTable.setItem(0, 0, newItem)
+            clientPath = QtGui.QTableWidgetItem()
+            clientPath.setText( file["clientPath"] )
+            size = QtGui.QTableWidgetItem()
+            size.setText( file["size"])
+            dateModified = QtGui.QTableWidgetItem()
+            dateModified.setText( file["dateModified"])
+            self.ui.fileTable.setItem(0, 0, clientPath)
+            self.ui.fileTable.setItem(0, 1, size)
+            self.ui.fileTable.setItem(0, 2, dateModified)
         self.ui.downloadButton.setEnabled(False)
         self.ui.deleteButton.setEnabled(False)  
         
