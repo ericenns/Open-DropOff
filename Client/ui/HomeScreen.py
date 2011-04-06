@@ -113,12 +113,13 @@ class HomeWindow(QtGui.QMainWindow):
         
         stats = self.rc.qoutaAndSpaceRemaining()
         if stats != None:
-            qouta = float(stats["qouta"])
-            spaceRemaining = float(stats["spaceRemaining"])
-            percentUsed = 100 - int((spaceRemaining / qouta) * 100)
+            qoutaMB = stats["qoutaMB"]
+            spaceUsedMB = stats["spaceUsedMB"]
+            percentUsed = stats["percentUsed"]
             print percentUsed
             self.ui.progressBar.setProperty("value", percentUsed)
-            self.ui.maxLabel.setText(QtGui.QApplication.translate("homeWindow", "%i MB" % (qouta / 1048576), None, QtGui.QApplication.UnicodeUTF8))
+            self.ui.maxLabel.setText(QtGui.QApplication.translate("homeWindow", "%i MB" % qoutaMB, None, QtGui.QApplication.UnicodeUTF8))
+            self.ui.usedLabel.setText(QtGui.QApplication.translate("homeWindow", "%i MB" % spaceUsedMB, None, QtGui.QApplication.UnicodeUTF8))
         
     def logout(self):
         confirmCloseDialog = ConfirmationDialog(LOGOUT_MESSAGE)

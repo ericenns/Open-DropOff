@@ -159,14 +159,19 @@ class RequestController(object):
         
         if(self.responseOK(response)):
             checkEnd = ""
-            responseBuild = []
+            responseString = ""
+            #responseBuild = []
             while(not checkEnd == "STAT\r\n100"):
                 response = self.sock.recv(RECEIVESIZE)
-                checkEnd = response[-9:]
+                responseString = responseString + response;
+                checkEnd = responseString[-9:]
+                #checkEnd = response[-9:]
                 if(checkEnd == "STAT\r\n100"):
-                    response = response[:-9]
-                responseBuild.append(response)
-            return self.ResponseMessageToListFiles(''.join(responseBuild))
+                    responseString = responseString[:-9]
+                    #response = response[:-9]
+                #responseBuild.append(response)
+            return self.ResponseMessageToListFiles(responseString)
+            #return self.ResponseMessageToListFiles(''.join(responseBuild))
         else:
             return ""
                     
@@ -181,18 +186,25 @@ class RequestController(object):
         self.sock.send("LIST\r\n%s\r\n%s" % (self.key, clientPath))
         
         response = self.sock.recv(9)
+        responseString = ""
         
         if(self.responseOK(response)):
             checkEnd = ""
-            responseBuild = []
+            #responseBuild = []
             while(not checkEnd == "STAT\r\n100"):
                 response = self.sock.recv(RECEIVESIZE)
-                checkEnd = response[-9:]
+                responseString = responseString + response;
+                print "responseString = %s" % responseString
+                checkEnd = responseString[-9:]
+                print checkEnd
+                #checkEnd = response[-9:]
                 if(checkEnd == "STAT\r\n100"):
-                    response = response[:-9]
-                responseBuild.append(response)
-                    
-        return self.ResponseMessageToListVersions(''.join(responseBuild))
+                    responseString = responseString[:-9]
+                    #response = response[:-9]
+                #responseBuild.append(response)
+         
+        return self.ResponseMessageToListVersions(responseString)           
+        #return self.ResponseMessageToListVersions(''.join(responseBuild))
     
     
     def ResponseMessageToListFiles(self, response):
@@ -214,8 +226,8 @@ class RequestController(object):
         
         for version in versions:
             if not version == "":
-                clientPath, version = version.split("\t")
-                newVersion = {'clientPath':clientPath, 'version':version}
+                clientPath, version, date, size = version.split("\t")
+                newVersion = {'clientPath':clientPath, 'version':version, 'date':date, 'size':size}
                 dictList.append(newVersion)
             
         return dictList
@@ -317,11 +329,14 @@ class RequestController(object):
         
         if values[0] == "STAT" and values[1] == "100":
             qouta = int(values[2])
+            qoutaMB = int(float(qouta) / 1048576)
             spaceRemaining = int(values[3])
+            spaceRemainingMB = int(float(spaceRemaining) / 1048576)
             print spaceRemaining
             spaceUsed = qouta - spaceRemaining
+            spaceUsedMB = int(float(spaceUsed) / 1048576)
             percentUsed = 0
             if spaceUsed != 0:
                 percentUsed = int((float(spaceUsed) / float(qouta)) * 100)
-            return {'qouta':qouta, 'spaceUsed':spaceUsed, 'percentUsed':percentUsed}
+            return {'qoutaMB':qoutaMB, 'spaceUsedMB':spaceUsedMB, 'percentUsed':percentUsed}
         

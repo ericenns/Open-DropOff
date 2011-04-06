@@ -75,21 +75,23 @@ class FileHandler(object):
     def listFileVersions(self, username, filename):
         if username != None:
             fileInfo = self.fdb.getFile(username, filename)
-            fileId = fileInfo['file_id']
-            versions = self.fdb.getFileHistory(fileId)
-            
-            print "Versions from Database:"
-            print versions
-            
-            print "Sending start of LIST response code..."
-            self.connHandler.send("STAT\r\n100")
- 
-            for version in versions:
-                print "Sending versions: %s" % version
-                self.writeVersionInfoToSocket(version)
-            print "Sending end of LIST response code..."
-            self.connHandler.send("STAT\r\n100")
-            
+            if fileInfo != None:
+                fileId = fileInfo['file_id']
+                versions = self.fdb.getFileHistory(fileId)
+                
+                print "Versions from Database:"
+                print versions
+                
+                print "Sending start of LIST response code..."
+                self.connHandler.send("STAT\r\n100")
+     
+                for version in versions:
+                    print "Sending versions: %s" % version
+                    self.writeVersionInfoToSocket(version)
+                print "Sending end of LIST response code..."
+                self.connHandler.send("STAT\r\n100")
+            else:
+                self.connHandler.send("STAT\r\n200")
         else:
             self.connHandler.send("STAT\r\n200")
 
@@ -103,7 +105,7 @@ class FileHandler(object):
         
         
     def writeVersionInfoToSocket(self, fileInfo):
-        data = fileInfo['client_path'] + "\t" + str(fileInfo['version']) + "\r\n"
+        data = "%s\t%s\t%s\t%s\r\n" % (fileInfo['client_path'], fileInfo['version'], fileInfo['last_modified'], fileInfo['size'])
         print "Writing out..."
         print data
         self.connHandler.send("%s" % data)
@@ -171,7 +173,7 @@ class FileHandler(object):
         
         print fileSize
         
-        while totalReceived <= fileSize:
+        while totalReceived < fileSize:
             if( totalReceived == -1 ):
                 totalReceived =  0
             print "looping"
@@ -207,7 +209,7 @@ class FileHandler(object):
                     fullPathFile = self.createFullPathFile(fullFilePath, version)
                     self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime.now(), version, checksum)
                     goodToWrite = True
-                elif fileEntry['checksum'] == checksum:
+                elif fileEntry['checksum'] == checksum and fileEntry['size'] == filesize:
                     self.connHandler.send("STAT\r\n305")
                     print "File sent was up-to-date."
                     goodToWrite = False
@@ -218,6 +220,7 @@ class FileHandler(object):
                     fileEntry['checksum'] = checksum
                     fileEntry['last_modified'] = datetime.datetime.now()
                     fileEntry['version'] = version
+                    fileEntry['size'] = filesize
                     newVersion = self.fdb.updateFile(username,filename,fileEntry)
                     if version != newVersion:
                         print "Something went wrong"
@@ -226,7 +229,7 @@ class FileHandler(object):
                 if(goodToWrite):
                     print "Writing from Socket"
                     self.writeFileFromSocket(fullPathFile, filesize)
-                
+                    print "Wrote file"
                     #send a response to the client
                     self.connHandler.send("STAT\r\n100")
                     print "PUSH Request finished"

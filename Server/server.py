@@ -89,7 +89,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                     break
             except ValueError:
                 print "Connection with Client lost"
-                #break
+                break
             
         self.request.close()
              
