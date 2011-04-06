@@ -42,9 +42,10 @@ class GeneralHandler(object):
         self.dbConnection = DatabaseConnection.DatabaseConnection()
         self.dbConnection.connect(dbhost, dbuser, dbpass, db)
         self.sdb = SessionsDB.SessionsDB(self.dbConnection)
+        self.udb = UsersDB.UsersDB(self.dbConnection)
         self.connHandler = ConnectionHandler.ConnectionHandler(tcpConn, clientAddr, 100, 100)
-        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.dbConnection, self.sdb)
-        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, separater, self.dbConnection)
+        self.accHandler = AccountHandler.AccountHandler(self.connHandler, self.udb, self.sdb)
+        self.fileHandler = FileHandler.FileHandler(self.connHandler, basedir, filedir, separater, self.dbConnection, self.udb)
 
     def verifyKey(self, key):
         return self.sdb.getUserFromSession(key)
@@ -60,6 +61,7 @@ class GeneralHandler(object):
         self.fileHandler.send(filename, version, username)
     
     def list(self, args):
+        print args
         arguments = args.split("\r\n")
         key = arguments[0]
         username = self.verifyKey(key)
@@ -88,3 +90,8 @@ class GeneralHandler(object):
         filename, key = args.split("\r\n",2)
         username = self.verifyKey(key)
         self.fileHandler.remvFile(filename, username)
+
+    def spaceRemaining(self, args):
+        key = args
+        username = self.verifyKey(key)
+        self.accHandler.spaceRemaining(username)

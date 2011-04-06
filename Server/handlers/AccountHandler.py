@@ -41,14 +41,13 @@ class AccountHandler(object):
     classdocs
     '''
 
-    def __init__(self, conn, dbconn, sdb):
+    def __init__(self, conn, udb, sdb):
         '''
         Constructor
         '''
         self.connHandler = conn
-        self.dbConnection = dbconn
-        self.udb = UsersDB.UsersDB(dbconn)
-        self.sdb = sdb;
+        self.udb = udb
+        self.sdb = sdb
     
     def createNewUser(self, arguments):
         newuser, newpass = arguments.split("\r\n")
@@ -59,7 +58,7 @@ class AccountHandler(object):
         if not nameTaken:
             meetsReq = True
             if meetsReq:
-                self.udb.addUser(newuser, newpass, 1000)
+                self.udb.addUser(newuser, newpass, 1048576000)
                 self.connHandler.send("STAT\r\n100")
             else:
                 self.connHandler.send("STAT\r\n204")
@@ -123,4 +122,12 @@ class AccountHandler(object):
         else:
             self.connHandler.send("STAT\r\n201")
             
+    def spaceRemaining(self, username):
+        validUser = self.udb.userExists(username)
+        if(validUser):
+            qouta = self.udb.getUserQuota(username)
+            remaining = self.udb.getSpaceRemaining(username)
+            self.connHandler.send("STAT\r\n100\r\n%s\r\n%s" % (qouta, remaining))
+        else:
+            self.connHandler.send("STAT\r\n201")
         

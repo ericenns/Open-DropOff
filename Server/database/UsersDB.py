@@ -208,11 +208,11 @@ class UsersDB:
             self._conn._execute(sql, username)
             data = self._conn._fetchOne()
             spaceUsed = 0
+            result = self.getUserQuota(username)
             
             if(data != None):
                 spaceUsed = data['space_used']
-                
-            result = self.getUserQuota(username) - spaceUsed
+                result = result - spaceUsed
        
         except:
             print sys.exc_info()[1]

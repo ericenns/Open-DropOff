@@ -109,7 +109,16 @@ class HomeWindow(QtGui.QMainWindow):
             self.ui.fileTable.setItem(0, 1, size)
             self.ui.fileTable.setItem(0, 2, dateModified)
         self.ui.downloadButton.setEnabled(False)
-        self.ui.deleteButton.setEnabled(False)  
+        self.ui.deleteButton.setEnabled(False)
+        
+        stats = self.rc.qoutaAndSpaceRemaining()
+        if stats != None:
+            qouta = float(stats["qouta"])
+            spaceRemaining = float(stats["spaceRemaining"])
+            percentUsed = 100 - int((spaceRemaining / qouta) * 100)
+            print percentUsed
+            self.ui.progressBar.setProperty("value", percentUsed)
+            self.ui.maxLabel.setText(QtGui.QApplication.translate("homeWindow", "%i MB" % (qouta / 1048576), None, QtGui.QApplication.UnicodeUTF8))
         
     def logout(self):
         confirmCloseDialog = ConfirmationDialog(LOGOUT_MESSAGE)

@@ -309,3 +309,19 @@ class RequestController(object):
         print "IN REMV, RC"
         self.sock.send("REMV\r\n%s\r\n%s" % (filename, self.key))
         #self.disconnect()
+
+    def qoutaAndSpaceRemaining(self):
+        self.sock.send("SPAC\r\n%s" % self.key)
+        response = self.sock.recv(80)
+        values = response.split("\r\n")
+        
+        if values[0] == "STAT" and values[1] == "100":
+            qouta = int(values[2])
+            spaceRemaining = int(values[3])
+            print spaceRemaining
+            spaceUsed = qouta - spaceRemaining
+            percentUsed = 0
+            if spaceUsed != 0:
+                percentUsed = int((float(spaceUsed) / float(qouta)) * 100)
+            return {'qouta':qouta, 'spaceUsed':spaceUsed, 'percentUsed':percentUsed}
+        

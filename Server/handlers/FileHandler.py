@@ -41,7 +41,7 @@ class FileHandler(object):
     classdocs
     '''
 
-    def __init__(self, conn, basedir, filedir, separater, dbconn):
+    def __init__(self, conn, basedir, filedir, separater, dbconn, udb):
         '''
         Constructor
         '''
@@ -50,6 +50,8 @@ class FileHandler(object):
         self.FILEDIR = filedir
         self.SEPARATER = separater
         self.fdb = FilesDB.FilesDB(dbconn)
+        self.udb = udb
+        
         
     def listFiles(self, username):
         
@@ -184,43 +186,50 @@ class FileHandler(object):
         filesize = int(filesize)
         
         if username != None:
-            self.connHandler.send("STAT\r\n100")
-            
-            fullPath = self.createFullPath(filename, username, self.BASEDIR, self.FILEDIR)
-            fullFilePath = self.createFullFilePath(fullPath,filename)
-            
-            fileEntry = self.fdb.getFile(username , filename)
-            
-            if fileEntry == None:
-                os.makedirs(fullPath)
-                version = str(1)
-                
-                fullPathFile = self.createFullPathFile(fullFilePath, version)
-                self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime.now(), version, checksum)
-                goodToWrite = True
-            elif fileEntry['checksum'] == checksum:
-                self.connHandler.send("STAT\r\n305")
-                print "File sent was up-to-date."
-                goodToWrite = False
+            spaceRemaining = self.udb.getSpaceRemaining(username)
+            spaceRemaining = int(spaceRemaining)
+            if filesize > spaceRemaining:
+                self.connHandler.send("STAT\r\n306")
+            elif spaceRemaining == 0:
+                self.connHandler.send("STAT\r\n301")
             else:
-                version = fileEntry['version'] + 1
-                fullPathFile = self.createFullPathFile(fullFilePath, version)
-                fileEntry['server_path'] = fullPathFile
-                fileEntry['checksum'] = checksum
-                fileEntry['last_modified'] = datetime.datetime.now()
-                fileEntry['version'] = version
-                newVersion = self.fdb.updateFile(username,filename,fileEntry)
-                if version != newVersion:
-                    print "Something went wrong"
-                goodToWrite = True
-                
-            if(goodToWrite):
-                print "Writing from Socket"
-                self.writeFileFromSocket(fullPathFile, filesize)
-            
-                #send a response to the client
                 self.connHandler.send("STAT\r\n100")
-                print "PUSH Request finished"
+                
+                fullPath = self.createFullPath(filename, username, self.BASEDIR, self.FILEDIR)
+                fullFilePath = self.createFullFilePath(fullPath,filename)
+                
+                fileEntry = self.fdb.getFile(username , filename)
+                
+                if fileEntry == None:
+                    os.makedirs(fullPath)
+                    version = str(1)
+                    
+                    fullPathFile = self.createFullPathFile(fullFilePath, version)
+                    self.fdb.addFile(username, filename, fullPathFile, filesize, "user", datetime.datetime.now(), version, checksum)
+                    goodToWrite = True
+                elif fileEntry['checksum'] == checksum:
+                    self.connHandler.send("STAT\r\n305")
+                    print "File sent was up-to-date."
+                    goodToWrite = False
+                else:
+                    version = fileEntry['version'] + 1
+                    fullPathFile = self.createFullPathFile(fullFilePath, version)
+                    fileEntry['server_path'] = fullPathFile
+                    fileEntry['checksum'] = checksum
+                    fileEntry['last_modified'] = datetime.datetime.now()
+                    fileEntry['version'] = version
+                    newVersion = self.fdb.updateFile(username,filename,fileEntry)
+                    if version != newVersion:
+                        print "Something went wrong"
+                    goodToWrite = True
+                    
+                if(goodToWrite):
+                    print "Writing from Socket"
+                    self.writeFileFromSocket(fullPathFile, filesize)
+                
+                    #send a response to the client
+                    self.connHandler.send("STAT\r\n100")
+                    print "PUSH Request finished"
         else:
             self.connHandler.send("STAT\r\n200")
 

@@ -43,6 +43,7 @@ def main():
                                 "5 for list versions of filename\n\t" +
                                 "6 for change password\n\t" +
                                 "7 for remove file\n\t" +
+                                "8 for qouta and space remaining\n\t" +
                                 "q to close\n: ")
 
         if ppSelection == "l":
@@ -94,6 +95,9 @@ def main():
             print "in remove file, client"
             filename = raw_input("Please enter name of file to remove: ")
             rc.removeFile(filename)
+        elif ppSelection == "8":
+            print "getting qouta and space remaining"
+            print rc.qoutaAndSpaceRemaining()
         elif ppSelection == "q":
             rc.close()
             print "Closing!"
