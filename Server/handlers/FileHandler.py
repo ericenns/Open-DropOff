@@ -180,9 +180,6 @@ class FileHandler(object):
             content = self.connHandler.recv()
             totalReceived += self.connHandler.recvSize
             newfile.write(content)
-            
-            if( fileSize == 0 ):
-                break
 
         newfile.close() #close the file
         
