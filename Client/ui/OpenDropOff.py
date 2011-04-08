@@ -24,7 +24,7 @@
 
 #imports
 import sys
-sys.path.append("../controllers") 
+sys.path.append("../") 
 from PySide import QtCore, QtGui
 from HomeScreen import HomeWindow
 from LoginForm import LoginDialog
