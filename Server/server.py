@@ -63,7 +63,7 @@ class ODOTCPHandler(SocketServer.BaseRequestHandler):
                                                    , DBUSER, DBPASS)
         
         while(1):
-            self.data = genHandler.recvRequest(130)
+            self.data = genHandler.recvRequest(300)
             print self.client_address
             try:
                 command, arguments = self.data.split("\r\n", 1)
