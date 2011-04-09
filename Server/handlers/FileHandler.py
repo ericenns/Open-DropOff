@@ -177,8 +177,10 @@ class FileHandler(object):
             if( totalReceived == -1 ):
                 totalReceived =  0
             print "looping"
-            content = self.connHandler.recv()
-            totalReceived += self.connHandler.recvSize
+            content = ""
+            if fileSize != 0:
+                content = self.connHandler.recv()
+                totalReceived += self.connHandler.recvSize
             newfile.write(content)
 
         newfile.close() #close the file
