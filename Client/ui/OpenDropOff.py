@@ -33,7 +33,7 @@ from controllers import RequestController
 #Gobal constants
 # RECEIVESIZE = 100
 # SENDSIZE = 100
-SERVER = raw_input("Please enter server name:")
+SERVER = raw_input("Please enter server name: ")
 PORT = 30000
 
 if __name__ == '__main__':
